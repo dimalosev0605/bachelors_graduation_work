@@ -22,6 +22,8 @@ add_executable(face_rec_diplom
   file_system/dir_paths.cpp
   file_system/default_dir_creator.h
   file_system/default_dir_creator.cpp
+  file_system/individual_file_manager.h
+  file_system/individual_file_manager.cpp
 
 )
 
