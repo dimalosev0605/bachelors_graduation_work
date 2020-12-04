@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    Default_dir_creator default_dir_creator;
-    default_dir_creator.create_default_dirs();
+    qmlRegisterType<Default_dir_creator>("Default_dir_creator_qml", 1, 0, "Default_dir_creator");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
