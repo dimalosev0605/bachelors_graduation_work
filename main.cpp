@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 
 #include "file_system/default_dir_creator.h"
+#include "file_system/individual_checker.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +10,11 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
+    app.setOrganizationName("lol");
+    app.setOrganizationDomain("kek");
+
     qmlRegisterType<Default_dir_creator>("Default_dir_creator_qml", 1, 0, "Default_dir_creator");
+    qmlRegisterType<Individual_checker>("Individual_checker_qml", 1, 0, "Individual_checker");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));

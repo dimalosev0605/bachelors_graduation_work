@@ -3,16 +3,19 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
 
 import Default_dir_creator_qml 1.0
+import "../qml/main_menu_pages/add_new"
 
 Page {
-
     property alias file_dialog: file_dialog
     property alias message_dialog: message_dialog
 
     Component.onCompleted: {
         default_dir_creator.create_default_dirs()
     }
-
+    Component {
+        id: nickname_input_comp
+        Nickname_input {}
+    }
     FileDialog {
         id: file_dialog
         title: "Please choose files"
@@ -42,6 +45,10 @@ Page {
         anchors.centerIn: parent
         width: parent.width * 0.6
         height: parent.height * 0.7
+        focus: true
+        Keys.onReturnPressed: {
+            menu_grid_view_model.get(currentIndex).action()
+        }
         ListModel {
             id: menu_grid_view_model
             ListElement {
@@ -52,9 +59,9 @@ Page {
             ListElement {
                 text: "Add new"
                 img_source: ""
-                color: "blue"
+                color: "#00ff00"
                 action: function() {
-                    stack_view.push("qrc:/qml/main_menu_pages/add_new/Nickname_input.qml", StackView.Immediate)
+                    stack_view.push(nickname_input_comp, StackView.Immediate)
                 }
             }
             ListElement {
@@ -107,6 +114,8 @@ Page {
             height: menu_grid_view.cellHeight - menu_grid_view.spacing
             radius: 5
             color: model.color
+            border.width: GridView.isCurrentItem ? 2 : 0
+            border.color: "#000000"
             Image {
                 id: img
                 source: model.img_source
