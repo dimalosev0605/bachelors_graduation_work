@@ -4,7 +4,7 @@ import QtQuick.Controls 2.12
 
 import Default_dir_creator_qml 1.0
 
-Item {
+Page {
 
     property alias file_dialog: file_dialog
     property alias message_dialog: message_dialog

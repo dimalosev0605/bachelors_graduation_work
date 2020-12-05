@@ -13,5 +13,8 @@ Window {
         id: stack_view
         anchors.fill: parent
         initialItem: Main_menu {}
+        onCurrentItemChanged: {
+            currentItem.forceActiveFocus()
+        }
     }
 }
