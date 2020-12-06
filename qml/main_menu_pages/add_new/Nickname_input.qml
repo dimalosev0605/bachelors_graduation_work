@@ -5,6 +5,10 @@ import "../../common"
 import Individual_checker_qml 1.0
 
 Page {
+    Component {
+        id: select_images_comp
+        Select_images {}
+    }
     Individual_checker {
         id: individual_checker
         onMessage: {
@@ -49,6 +53,7 @@ Page {
         text: "Next"
         enabled: false
         onClicked: {
+            stack_view.push(select_images_comp, StackView.Immediate)
         }
     }
     Back_btn {

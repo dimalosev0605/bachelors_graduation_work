@@ -26,6 +26,9 @@ add_executable(face_rec_diplom
   file_system/individual_file_manager.cpp
   file_system/individual_checker.h
   file_system/individual_checker.cpp
+
+  models/selected_imgs.h
+  models/selected_imgs.cpp
 )
 
 

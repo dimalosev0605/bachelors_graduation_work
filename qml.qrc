@@ -4,5 +4,10 @@
         <file>qml/main_menu_pages/add_new/Nickname_input.qml</file>
         <file>qml/Main_menu.qml</file>
         <file>qml/common/Back_btn.qml</file>
+        <file>qml/main_menu_pages/add_new/Select_images.qml</file>
+        <file>qml/delegates/Selected_img.qml</file>
+        <file>qml/icons/red_cross.png</file>
+        <file>qml/icons/black_cross.png</file>
+        <file>qml/common/Full_screen_img.qml</file>
     </qresource>
 </RCC>
