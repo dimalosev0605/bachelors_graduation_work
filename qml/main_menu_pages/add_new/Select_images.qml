@@ -26,6 +26,23 @@ Page {
             file_dialog.open()
         }
     }
+    Row {
+        id: mode_row
+        anchors {
+            top: select_imgs_btn.bottom
+            topMargin: 5
+            horizontalCenter: select_imgs_btn.horizontalCenter
+        }
+        width: select_imgs_btn * 2
+        height: 40
+        RadioButton {
+            text: "auto"
+        }
+        RadioButton {
+            text: "hand mode"
+            checked: true
+        }
+    }
     Connections {
         id: file_dialog_connections
         target: file_dialog
@@ -49,13 +66,28 @@ Page {
             stack_view.pop(StackView.Immediate)
         }
     }
+    Button {
+        id: next_btn
+        visible: selected_imgs_list_view.count !== 0
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 5
+            right: parent.right
+            rightMargin: 5
+        }
+        text: "Next"
+        width: 60
+        height: 30
+        onClicked: {
+        }
+    }
     ListView {
         id: selected_imgs_list_view
         width: 400
         anchors {
-            top: select_imgs_btn.bottom
-            horizontalCenter: parent.horizontalCenter
+            top: mode_row.bottom
             topMargin: 5
+            horizontalCenter: parent.horizontalCenter
             bottom: back_btn.top
         }
         clip: true
@@ -70,9 +102,9 @@ Page {
             delete_btn_m_area.onClicked: {
                 selected_imgs.delete_image(index)
             }
-            delegate_body_m_area.onClicked: {
-                selected_imgs_list_view.currentIndex = index
-            }
+//            delegate_body_m_area.onClicked: {
+//                selected_imgs_list_view.currentIndex = index
+//            }
         }
 //        ScrollBar.vertical:
     }

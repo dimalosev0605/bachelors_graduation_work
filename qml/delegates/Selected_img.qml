@@ -9,7 +9,7 @@ Rectangle {
     property alias img_file_name: img_preview_file_name.text
     property alias img_file_path: img_preview.source
 
-    property alias delegate_body_m_area: delegate_body_m_area
+//    property alias delegate_body_m_area: delegate_body_m_area
     property alias delete_btn_m_area: delete_btn_m_area
 
     property ListView view
@@ -45,6 +45,7 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
+                view.currentIndex = index
                 var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: true, view: view })
                 win.show()
             }
