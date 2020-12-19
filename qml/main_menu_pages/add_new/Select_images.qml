@@ -9,6 +9,10 @@ Page {
 
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
+    Component {
+        id: process_images_comp
+        Process_images {}
+    }
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
@@ -79,6 +83,7 @@ Page {
         width: 60
         height: 30
         onClicked: {
+            stack_view.push(process_images_comp, StackView.Immediate)
         }
     }
     ListView {
