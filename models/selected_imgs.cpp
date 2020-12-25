@@ -55,6 +55,7 @@ void Selected_imgs::delete_image(const int index)
     beginRemoveRows(QModelIndex(), index, index);
     model_data.removeAt(index);
     endRemoveRows();
+    set_curr_img_index(index + 1);
 }
 
 void Selected_imgs::clear()
@@ -69,4 +70,18 @@ void Selected_imgs::clear()
 QHash<int, QByteArray> Selected_imgs::roleNames() const
 {
     return roles;
+}
+
+int Selected_imgs::get_curr_img_index() const
+{
+    return curr_img_index;
+}
+
+void Selected_imgs::set_curr_img_index(const int some_index)
+{
+    if(some_index < 0 || some_index >= model_data.size()) return;
+    curr_img_index = some_index;
+    curr_img = model_data[curr_img_index];
+    emit curr_img_index_changed();
+    emit image_changed(curr_img.path());
 }
