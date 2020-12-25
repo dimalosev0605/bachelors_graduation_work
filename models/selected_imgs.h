@@ -13,7 +13,7 @@ class Selected_imgs: public QAbstractListModel
     Q_OBJECT
 
     Q_PROPERTY(int curr_img_index READ get_curr_img_index WRITE set_curr_img_index NOTIFY curr_img_index_changed)
-    int curr_img_index;
+    int curr_img_index = -1;
 
     QHash<int, QByteArray> roles;
     QVector<QUrl> model_data;

@@ -88,7 +88,7 @@ Page {
                 selected_imgs.set_curr_img_index(0)
             }
             else {
-                console.log("You don'y selecte any images!")
+                console.log("You don't select any images!")
             }
         }
     }
@@ -102,7 +102,7 @@ Page {
             bottom: back_btn.top
         }
         clip: true
-        currentIndex: -1
+        currentIndex: selected_imgs.curr_img_index
         model: Selected_imgs { id: selected_imgs }
         delegate: Selected_img {
             width: selected_imgs_list_view.width
@@ -113,6 +113,7 @@ Page {
             delete_btn_m_area.onClicked: {
                 selected_imgs.delete_image(index)
             }
+            selected_imgs_model: selected_imgs
 //            delegate_body_m_area.onClicked: {
 //                selected_imgs_list_view.currentIndex = index
 //            }

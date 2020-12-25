@@ -66,6 +66,7 @@ void Selected_imgs::delete_image(const int index)
     beginRemoveRows(QModelIndex(), index, index);
     model_data.removeAt(index);
     endRemoveRows();
+    set_curr_img_index(index + 1);
 }
 
 void Selected_imgs::clear()

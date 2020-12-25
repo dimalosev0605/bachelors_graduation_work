@@ -19,6 +19,13 @@ ApplicationWindow {
     height: 630
     minimumWidth: 600
     minimumHeight: 600
+    Connections {
+        target: selected_imgs
+        function onImage_changed(curr_img_path) {
+            image_handler.curr_image_changed(curr_img_path)
+        }
+    }
+
     Selected_imgs {
         id: selected_imgs
         onImage_changed: {
