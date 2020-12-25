@@ -83,7 +83,13 @@ Page {
         width: 60
         height: 30
         onClicked: {
-            stack_view.push(process_images_comp, StackView.Immediate)
+            if(selected_imgs_list_view.count > 0) {
+                stack_view.push(process_images_comp, StackView.Immediate)
+                selected_imgs.set_curr_img_index(0)
+            }
+            else {
+                console.log("You don'y selecte any images!")
+            }
         }
     }
     ListView {

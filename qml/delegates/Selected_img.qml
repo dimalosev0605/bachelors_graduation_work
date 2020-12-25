@@ -2,6 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
 
+import Selected_imgs_qml 1.0
+
 Rectangle {
     height: 50
     radius: 2
@@ -13,9 +15,10 @@ Rectangle {
     property alias delete_btn_m_area: delete_btn_m_area
 
     property ListView view
+    property Selected_imgs selected_imgs_model
     property var full_screen_img
 
-    color: (delegate_body_m_area.containsMouse || delete_btn_m_area.containsMouse)
+    color: view.currentIndex === index ? "#cfcfcf" : (delegate_body_m_area.containsMouse || delete_btn_m_area.containsMouse)
            ? delegate_body_m_area.pressed ? "#999999" : "#d4d4d4" : "#ffffff"
 
     Image {
@@ -45,8 +48,8 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                view.currentIndex = index
-                var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: true, view: view })
+                selected_imgs_model.set_curr_img_index(index)
+                var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: true, view: view, selected_imgs: selected_imgs_model})
                 win.show()
             }
         }

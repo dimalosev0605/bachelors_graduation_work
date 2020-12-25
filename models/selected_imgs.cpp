@@ -5,6 +5,17 @@ Selected_imgs::Selected_imgs(QObject* parent)
 {
     roles[static_cast<int>(RolesNames::img_file_path)] = "img_file_path";
     roles[static_cast<int>(RolesNames::img_file_name)] = "img_file_name";
+    QDir dir("/home/dima/pidori");
+    const auto list = dir.entryInfoList(QDir::Files);
+    for(const auto& i : list) {
+        model_data.push_back("file://" + i.filePath());
+    }
+    for(const auto& i : model_data) {
+//        qDebug() << i;
+    }
+    qDebug() << "model_data.size() = " << model_data.size();
+//    curr_img_index = 0;
+//    curr_img = model_data[curr_img_index];
 }
 
 int Selected_imgs::rowCount([[maybe_unused]]const QModelIndex& index) const
@@ -69,4 +80,18 @@ void Selected_imgs::clear()
 QHash<int, QByteArray> Selected_imgs::roleNames() const
 {
     return roles;
+}
+
+int Selected_imgs::get_curr_img_index() const
+{
+    return curr_img_index;
+}
+
+void Selected_imgs::set_curr_img_index(const int some_index)
+{
+    if(some_index < 0 || some_index >= model_data.size()) return;
+    curr_img_index = some_index;
+    curr_img = model_data[curr_img_index];
+    emit curr_img_index_changed();
+    emit image_changed(curr_img.path());
 }

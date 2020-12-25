@@ -1,13 +1,41 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Window 2.12
 
 import "../../common"
 import "../../delegates"
 
-Page {
-    Keys.onEscapePressed: {
-        stack_view.pop(StackView.Immediate)
+import Selected_imgs_qml 1.0
+import Image_handler_qml 1.0
+
+ApplicationWindow {
+//    Keys.onEscapePressed: {
+//        stack_view.pop(StackView.Immediate)
+//    }
+    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+
+    visible: true
+    width: 1350
+    height: 630
+    minimumWidth: 600
+    minimumHeight: 600
+    Selected_imgs {
+        id: selected_imgs
+        onImage_changed: {
+            image_handler.curr_image_changed(curr_img_path)
+        }
+        Component.onCompleted: {
+            selected_imgs.set_curr_img_index(0)
+        }
     }
+    Image_handler {
+        id: image_handler
+        onImage_data_ready: {
+            Image_provider.accept_image_data(some_img_data)
+            img.curr_image = Math.random().toString()
+        }
+    }
+
     Back_btn {
         id: back_btn
         anchors {
@@ -37,9 +65,10 @@ Page {
             id: img_info
             anchors {
                 top: parent.top
+                horizontalCenter: parent.horizontalCenter
             }
             height: 30
-            width: parent.width
+            width: parent.width - show_all_imgs.width * 2
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.Fit
@@ -48,6 +77,95 @@ Page {
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
             text: "img source and resolution"
+        }
+        Button {
+            id: show_all_imgs
+            anchors {
+                top: parent.top
+                right: parent.right
+            }
+            width: 30
+            height: img_info.height
+            onClicked: {
+                all_imgs_popup.open()
+            }
+            Popup {
+                id: all_imgs_popup
+                x: show_all_imgs.width
+                y: show_all_imgs.height
+                visible: false
+                background: Rectangle {
+                    id: background
+                    implicitWidth: 250
+                    implicitHeight: 400
+                    border.color: "#000000"
+                    border.width: 1
+                }
+                contentItem: ListView {
+                    id: all_imgs_list_view
+                    anchors.fill: parent
+                    anchors.margins: background.border.width
+                    model: selected_imgs
+                    clip: true
+                    currentIndex: selected_imgs.curr_img_index
+                    delegate: Selected_img {
+                        width: all_imgs_list_view.width
+                        img_file_name: model.img_file_name
+                        img_file_path: model.img_file_path
+                        view: all_imgs_list_view
+                        full_screen_img: full_screen_img_var
+                        selected_imgs_model: selected_imgs
+                    }
+                }
+            }
+        }
+        Image {
+            id: img
+            anchors {
+                top: img_info.bottom
+                topMargin: 5
+                bottom: parent.bottom
+                bottomMargin: anchors.topMargin
+                left: parent.left
+                leftMargin: 50
+                right: parent.right
+                rightMargin: anchors.leftMargin
+            }
+            property string curr_image
+            cache: false
+            fillMode: Image.PreserveAspectFit
+            source: "image://Image_provider/" + curr_image
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    var win = full_screen_img_var.createObject(null, { img_source: img.source, window_type: false, view: all_imgs_list_view })
+                    win.show()
+                }
+            }
+        }
+        Button {
+            id: prev_img_btn
+            anchors {
+                left: parent.left
+                top: img.top
+                bottom: img.bottom
+                right: img.left
+            }
+            onClicked: {
+                selected_imgs.set_curr_img_index(selected_imgs.curr_img_index - 1)
+            }
+        }
+        Button {
+            id: next_img_btn
+            anchors {
+                left: img.right
+                top: img.top
+                bottom: img.bottom
+                right: parent.right
+            }
+            onClicked: {
+                selected_imgs.set_curr_img_index(selected_imgs.curr_img_index + 1)
+            }
         }
     }
     Rectangle {

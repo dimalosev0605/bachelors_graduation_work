@@ -2,6 +2,8 @@ import QtQuick.Window 2.12
 import QtQuick 2.12
 import QtQuick.Controls 2.15
 
+import Selected_imgs_qml 1.0
+
 Window {
     id: full_screen_window
     visible: true
@@ -10,6 +12,7 @@ Window {
     property alias img_source: img.source
     property bool window_type // true - window for selected images, false - window for processed image.
     property ListView view // if window_type == true you must pass view.
+    property Selected_imgs selected_imgs
     property real darker_factor: 1.2
 
     flags: Qt.FramelessWindowHint
@@ -89,10 +92,7 @@ Window {
             }
             onClicked: {
                 if(!visible) return
-                if(view.currentIndex == -1) {
-                    view.incrementCurrentIndex()
-                }
-                view.incrementCurrentIndex()
+                selected_imgs.set_curr_img_index(view.currentIndex + 1)
                 img.source = view.currentItem.img_file_path
             }
         }
@@ -137,7 +137,7 @@ Window {
             }
             onClicked: {
                 if(!visible) return
-                view.decrementCurrentIndex()
+                selected_imgs.set_curr_img_index(view.currentIndex - 1)
                 img.source = view.currentItem.img_file_path
             }
         }
