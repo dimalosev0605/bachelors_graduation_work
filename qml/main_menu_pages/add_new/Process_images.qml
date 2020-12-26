@@ -61,7 +61,7 @@ Page {
                 horizontalCenter: parent.horizontalCenter
             }
             height: 30
-            width: parent.width - show_all_imgs.width * 2
+            width: parent.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.Fit
@@ -71,53 +71,12 @@ Page {
             wrapMode: Text.WordWrap
             text: "img source and resolution"
         }
-        Button {
-            id: show_all_imgs
-            anchors {
-                top: parent.top
-                right: parent.right
-            }
-            width: 30
-            height: img_info.height
-            onClicked: {
-                all_imgs_popup.open()
-            }
-            Popup {
-                id: all_imgs_popup
-                x: show_all_imgs.width
-                y: show_all_imgs.height
-                visible: false
-                background: Rectangle {
-                    id: background
-                    implicitWidth: 250
-                    implicitHeight: 400
-                    border.color: "#000000"
-                    border.width: 1
-                }
-                contentItem: ListView {
-                    id: all_imgs_list_view
-                    anchors.fill: parent
-                    anchors.margins: background.border.width
-                    model: selected_imgs
-                    clip: true
-                    currentIndex: selected_imgs.curr_img_index
-                    delegate: Selected_img {
-                        width: all_imgs_list_view.width
-                        img_file_name: model.img_file_name
-                        img_file_path: model.img_file_path
-                        view: all_imgs_list_view
-                        full_screen_img: full_screen_img_var
-                        selected_imgs_model: selected_imgs
-                    }
-                }
-            }
-        }
         Image {
             id: img
             anchors {
                 top: img_info.bottom
                 topMargin: 5
-                bottom: parent.bottom
+                bottom: all_imgs_frame.top
                 bottomMargin: anchors.topMargin
                 left: parent.left
                 leftMargin: 50
@@ -136,12 +95,40 @@ Page {
                 }
             }
         }
+        Rectangle {
+            id: all_imgs_frame
+            anchors {
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+            }
+            height: 60
+            color: "red"
+            ListView {
+                id: all_imgs_list_view
+                anchors.fill: parent
+                model: selected_imgs
+                orientation: ListView.Horizontal
+                clip: true
+                currentIndex: selected_imgs.curr_img_index
+                delegate: Selected_img_only_img {
+                    height: all_imgs_frame.height
+                    width: height
+                    img_file_path: model.img_file_path
+                    view: all_imgs_list_view
+                    full_screen_img: full_screen_img_var
+                    selected_imgs_model: selected_imgs
+                }
+            }
+        }
+
         Button {
             id: prev_img_btn
             anchors {
                 left: parent.left
                 top: img.top
-                bottom: img.bottom
+                bottom: all_imgs_frame.top
+                bottomMargin: img.anchors.bottomMargin
                 right: img.left
             }
             onClicked: {
@@ -153,7 +140,8 @@ Page {
             anchors {
                 left: img.right
                 top: img.top
-                bottom: img.bottom
+                bottom: all_imgs_frame.top
+                bottomMargin: img.anchors.bottomMargin
                 right: parent.right
             }
             onClicked: {

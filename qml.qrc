@@ -10,5 +10,6 @@
         <file>qml/icons/black_cross.png</file>
         <file>qml/common/Full_screen_img.qml</file>
         <file>qml/main_menu_pages/add_new/Process_images.qml</file>
+        <file>qml/delegates/Selected_img_only_img.qml</file>
     </qresource>
 </RCC>
