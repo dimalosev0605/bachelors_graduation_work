@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
 
 import Selected_imgs_qml 1.0
+import "../common"
 
 Rectangle {
     height: 50
@@ -49,7 +50,7 @@ Rectangle {
             hoverEnabled: true
             onClicked: {
                 selected_imgs_model.set_curr_img_index(index)
-                var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: true, view: view, selected_imgs: selected_imgs_model})
+                var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: Full_screen_img.Window_type.With_btns, view: view, selected_imgs: selected_imgs_model})
                 win.show()
             }
         }
