@@ -9,11 +9,18 @@ Window {
     visible: true
     height: Screen.desktopAvailableHeight
     width: Screen.desktopAvailableWidth
+
     property alias img_source: img.source
-    property bool window_type // true - window for selected images, false - window for processed image.
-    property ListView view // if window_type == true you must pass view.
-    property Selected_imgs selected_imgs
+
+    property ListView view // if window_type = Window_type.With_btns you must pass view.
+    property Selected_imgs selected_imgs // if window_type = Window_type.With_btns you must pass selected_imgs
+    property int window_type: Full_screen_img.Window_type.Without_btns
     property real darker_factor: 1.2
+
+    enum Window_type {
+        Without_btns,
+        With_btns
+    }
 
     flags: Qt.FramelessWindowHint
     color: "transparent"
@@ -82,7 +89,7 @@ Window {
         width: close_window_btn.width
         height: parent.height - close_window_btn.height * 2
         color: right_arrow_btn_m_area.containsMouse ? Qt.darker(font_rect.color, full_screen_window.darker_factor) : "transparent"
-        visible: full_screen_window.window_type ? view.currentIndex !== (view.count - 1) : false
+        visible: full_screen_window.window_type === Full_screen_img.Window_type.With_btns ? view.currentIndex !== (view.count - 1) : false
         MouseArea {
             id: right_arrow_btn_m_area
             anchors.fill: parent
@@ -127,7 +134,7 @@ Window {
         width: right_arrow_btn.width
         height: right_arrow_btn.height
         color: left_arrow_btn_m_area.containsMouse ? Qt.darker(font_rect.color, full_screen_window.darker_factor) : "transparent"
-        visible: full_screen_window.window_type ? (view.currentIndex !== 0 && view.currentIndex !== -1) : false
+        visible: full_screen_window.window_type === Full_screen_img.Window_type.With_btns ? (view.currentIndex !== 0 && view.currentIndex !== -1) : false
         MouseArea {
             id: left_arrow_btn_m_area
             anchors.fill: parent
@@ -308,14 +315,14 @@ Window {
     }
     Shortcut {
         sequence: "Left"
-        enabled: full_screen_window.window_type
+        enabled: full_screen_window.window_type === Full_screen_img.Window_type.With_btns
         onActivated: {
             left_arrow_btn_m_area.clicked(null)
         }
     }
     Shortcut {
         sequence: "Right"
-        enabled: full_screen_window.window_type
+        enabled: full_screen_window.window_type === Full_screen_img.Window_type.With_btns
         onActivated: {
             right_arrow_btn_m_area.clicked(null)
         }

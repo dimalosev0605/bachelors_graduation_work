@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<Image_handler>("Image_handler_qml", 1, 0, "Image_handler");
 
     qRegisterMetaType<Image_data>("Image_data");
+    qRegisterMetaType<dlib::shape_predictor>("dlib::shape_predictor");
+    qRegisterMetaType<hog_face_detector_type>("hog_face_detector_type");
 
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);

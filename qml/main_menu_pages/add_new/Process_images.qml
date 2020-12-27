@@ -90,7 +90,7 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    var win = full_screen_img_var.createObject(null, { img_source: img.source, window_type: false, view: all_imgs_list_view })
+                    var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
                     win.show()
                 }
             }
