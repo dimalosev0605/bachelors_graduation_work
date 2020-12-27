@@ -3,7 +3,7 @@
 Image_handler::Image_handler(QObject* parent)
     : QObject(parent)
 {
-    Image_handler_initializer* image_handler_initializer = new Image_handler_initializer(this);
+    Image_handler_initializer* image_handler_initializer = new Image_handler_initializer;
     connect(image_handler_initializer, &Image_handler_initializer::hog_face_detector_ready, this, &Image_handler::receive_hog_face_detector);
     connect(image_handler_initializer, &Image_handler_initializer::shape_predictor_ready, this, &Image_handler::receive_shape_predictor);
     connect(image_handler_initializer, &Image_handler_initializer::finished, image_handler_initializer, &Image_handler_initializer::deleteLater);
