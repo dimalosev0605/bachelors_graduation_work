@@ -132,6 +132,10 @@ ApplicationWindow {
                 orientation: ListView.Horizontal
                 clip: true
                 currentIndex: selected_imgs.curr_img_index
+                onCurrentIndexChanged: {
+                    image_handler.cancel()
+                }
+                enabled: !image_handler.is_busy_indicator_running
                 delegate: Selected_img_only_img {
                     height: all_imgs_frame.height
                     width: height
@@ -145,6 +149,7 @@ ApplicationWindow {
 
         Button {
             id: prev_img_btn
+            enabled: !image_handler.is_busy_indicator_running
             anchors {
                 left: parent.left
                 top: img.top
@@ -158,6 +163,7 @@ ApplicationWindow {
         }
         Button {
             id: next_img_btn
+            enabled: !image_handler.is_busy_indicator_running
             anchors {
                 left: img.right
                 top: img.top
@@ -227,6 +233,7 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.hog()
                     }
@@ -235,11 +242,13 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "CNN"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG + CNN"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
                 }
             }
             Row {
@@ -250,16 +259,19 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr up"
+                    enabled: !image_handler.is_busy_indicator_running
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr down"
+                    enabled: !image_handler.is_busy_indicator_running
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "resize"
+                    enabled: !image_handler.is_busy_indicator_running
                 }
             }
             Row {
@@ -270,6 +282,7 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "extract face"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_face_enable
                     onClicked: {
                         image_handler.extract_face()
                     }
@@ -278,6 +291,7 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "cancel"
+                    enabled: image_handler.is_cancel_enabled
                     onClicked: {
                         image_handler.cancel()
                     }

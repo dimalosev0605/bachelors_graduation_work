@@ -13,8 +13,21 @@
 class Image_handler : public QObject
 {
     Q_OBJECT
+
     Q_PROPERTY(bool is_busy_indicator_running READ get_is_busy_indicator_running WRITE set_is_busy_indicator_running NOTIFY is_busy_indicator_running_changed)
     bool is_busy_indicator_running = false;
+
+    Q_PROPERTY(bool is_hog_enable READ get_is_hog_enable WRITE set_is_hog_enable NOTIFY is_hog_enable_changed)
+    bool is_hog_enable = false;
+
+    Q_PROPERTY(bool is_cnn_enable READ get_is_cnn_enable WRITE set_is_cnn_enable NOTIFY is_cnn_enable_changed)
+    bool is_cnn_enable = true; // true because we don't load cnn model yet.
+
+    Q_PROPERTY(bool is_extract_face_enable READ get_is_extract_face_enable WRITE set_is_extract_face_enable NOTIFY is_extract_face_enable_changed)
+    bool is_extract_face_enable = false;
+
+    Q_PROPERTY(bool is_cancel_enabled READ get_is_cancel_enabled WRITE set_is_cancel_enabled NOTIFY is_cancel_enabled_changed)
+    bool is_cancel_enabled = false;
 
     dlib::matrix<dlib::rgb_pixel> img;
     dlib::matrix<dlib::rgb_pixel> original_img; // vector
@@ -32,11 +45,25 @@ private slots:
 private:
     void hog_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
     void send_image_data_ready_signal();
+    void try_change_is_cancel_enable();
 
 public:
     explicit Image_handler(QObject *parent = nullptr);
+
     bool get_is_busy_indicator_running() const;
     void set_is_busy_indicator_running(const bool some_value);
+
+    bool get_is_hog_enable() const;
+    void set_is_hog_enable(const bool some_value);
+
+    bool get_is_cnn_enable() const;
+    void set_is_cnn_enable(const bool some_value);
+
+    bool get_is_extract_face_enable() const;
+    void set_is_extract_face_enable(const bool some_value);
+
+    bool get_is_cancel_enabled() const;
+    void set_is_cancel_enabled(const bool some_value);
 
 public slots:
     void curr_image_changed(const QString& curr_img_path);
@@ -46,6 +73,10 @@ public slots:
 
 signals:
     void is_busy_indicator_running_changed();
+    void is_hog_enable_changed();
+    void is_cnn_enable_changed();
+    void is_extract_face_enable_changed();
+    void is_cancel_enabled_changed();
 
     void image_data_ready(const Image_data& some_img_data);
     void hog_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);

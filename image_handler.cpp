@@ -21,6 +21,57 @@ void Image_handler::set_is_busy_indicator_running(const bool some_value)
     emit is_busy_indicator_running_changed();
 }
 
+bool Image_handler::get_is_hog_enable() const
+{
+    return is_hog_enable;
+}
+
+void Image_handler::set_is_hog_enable(const bool some_value)
+{
+    is_hog_enable = some_value;
+    emit is_hog_enable_changed();
+}
+
+bool Image_handler::get_is_cnn_enable() const
+{
+    return is_cnn_enable;
+}
+
+void Image_handler::set_is_cnn_enable(const bool some_value)
+{
+    is_cnn_enable = some_value;
+    emit is_cnn_enable_changed();
+}
+
+bool Image_handler::get_is_extract_face_enable() const
+{
+    return is_extract_face_enable;
+}
+
+void Image_handler::set_is_extract_face_enable(const bool some_value)
+{
+    is_extract_face_enable = some_value;
+    emit is_extract_face_enable_changed();
+}
+
+bool Image_handler::get_is_cancel_enabled() const
+{
+    return is_cancel_enabled;
+}
+
+void Image_handler::set_is_cancel_enabled(const bool some_value)
+{
+    is_cancel_enabled = some_value;
+    emit is_cancel_enabled_changed();
+}
+
+void Image_handler::try_change_is_cancel_enable()
+{
+    if(is_hog_enable && is_extract_face_enable && is_cnn_enable) {
+        set_is_cancel_enabled(true);
+    }
+}
+
 void Image_handler::curr_image_changed(const QString& curr_img_path)
 {
     dlib::load_image(img, curr_img_path.toStdString());
@@ -31,11 +82,15 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
 void Image_handler::receive_hog_face_detector(const hog_face_detector_type& some_hog_face_detector)
 {
     hog_face_detector = some_hog_face_detector;
+    set_is_hog_enable(true);
+    try_change_is_cancel_enable();
 }
 
 void Image_handler::receive_shape_predictor(const dlib::shape_predictor& some_shape_predictor)
 {
     shape_predictor = some_shape_predictor;
+    set_is_extract_face_enable(true);
+    try_change_is_cancel_enable();
 }
 
 void Image_handler::hog()
@@ -93,6 +148,8 @@ void Image_handler::extract_face()
         dlib::assign_image(img, res_dlib_img);
 
         send_image_data_ready_signal();
+
+        set_is_extract_face_enable(false);
     }
 
     set_is_busy_indicator_running(false);
@@ -121,6 +178,9 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
         rects_around_faces = some_rects_around_faces;
         send_image_data_ready_signal();
         set_is_busy_indicator_running(false);
+
+        set_is_hog_enable(false);
+        set_is_cnn_enable(false);
     }
     else {
         qDebug() << "Ignore image.";
@@ -133,6 +193,10 @@ void Image_handler::cancel()
     img = original_img;
     send_image_data_ready_signal();
     set_is_busy_indicator_running(false);
+
+    set_is_hog_enable(true);
+    set_is_cnn_enable(true);
+    set_is_extract_face_enable(true);
 }
 
 void Image_handler::send_image_data_ready_signal()
