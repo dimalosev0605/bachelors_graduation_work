@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Image_data>("Image_data");
     qRegisterMetaType<dlib::shape_predictor>("dlib::shape_predictor");
     qRegisterMetaType<hog_face_detector_type>("hog_face_detector_type");
+    qRegisterMetaType<dlib::matrix<dlib::rgb_pixel>>("dlib::matrix<dlib::rgb_pixel>");
+    qRegisterMetaType<std::vector<dlib::rectangle>>("std::vector<dlib::rectangle>");
 
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);

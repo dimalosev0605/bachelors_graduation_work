@@ -108,6 +108,13 @@ ApplicationWindow {
                     win.show()
                 }
             }
+            BusyIndicator {
+                id: busy_indicator
+                anchors.centerIn: parent
+                width: parent.width / 2
+                height: parent.height / 2
+                visible: image_handler.is_busy_indicator_running
+            }
         }
         Rectangle {
             id: all_imgs_frame
@@ -220,6 +227,9 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG"
+                    onClicked: {
+                        image_handler.hog()
+                    }
                 }
                 Button {
                     height: parent.height
@@ -265,6 +275,9 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "cancel"
+                    onClicked: {
+                        image_handler.cancel()
+                    }
                 }
                 Button {
                     height: parent.height
