@@ -8,6 +8,7 @@
 #include "image_handler_initializer.h"
 
 #include <dlib/image_io.h>
+#include <opencv2/opencv.hpp>
 
 class Image_handler : public QObject
 {
@@ -30,6 +31,7 @@ private slots:
 
 private:
     void hog_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
+    void send_image_data_ready_signal();
 
 public:
     explicit Image_handler(QObject *parent = nullptr);
@@ -39,6 +41,7 @@ public:
 public slots:
     void curr_image_changed(const QString& curr_img_path);
     void hog();
+    void extract_face();
     void cancel();
 
 signals:

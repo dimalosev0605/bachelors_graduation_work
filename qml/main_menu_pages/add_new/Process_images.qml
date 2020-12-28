@@ -270,6 +270,9 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "extract face"
+                    onClicked: {
+                        image_handler.extract_face()
+                    }
                 }
                 Button {
                     height: parent.height
