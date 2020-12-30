@@ -29,8 +29,11 @@ class Image_handler : public QObject
     Q_PROPERTY(bool is_cancel_enabled READ get_is_cancel_enabled WRITE set_is_cancel_enabled NOTIFY is_cancel_enabled_changed)
     bool is_cancel_enabled = false;
 
-    dlib::matrix<dlib::rgb_pixel> img;
-    dlib::matrix<dlib::rgb_pixel> original_img; // vector
+//    dlib::matrix<dlib::rgb_pixel> img;
+//    dlib::matrix<dlib::rgb_pixel> original_img; // vector
+    std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
+    int hog_img_index = 0;
+    int extract_face_img_index = 0;
     int worker_thread_id = 0;
     std::vector<dlib::rectangle> rects_around_faces;
     hog_face_detector_type hog_face_detector;
@@ -69,7 +72,11 @@ public slots:
     void curr_image_changed(const QString& curr_img_path);
     void hog();
     void extract_face();
-    void cancel();
+//    void cancel();
+
+    void cancel_processing();
+    void cancel_all();
+    void cancel_last_action();
 
 signals:
     void is_busy_indicator_running_changed();

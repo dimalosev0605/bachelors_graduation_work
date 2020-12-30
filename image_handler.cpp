@@ -74,8 +74,16 @@ void Image_handler::try_change_is_cancel_enable()
 
 void Image_handler::curr_image_changed(const QString& curr_img_path)
 {
+    ++worker_thread_id;
+    set_is_busy_indicator_running(false);
+    set_is_hog_enable(true);
+    set_is_cnn_enable(true);
+    set_is_extract_face_enable(false);
+
+    dlib::matrix<dlib::rgb_pixel> img;
     dlib::load_image(img, curr_img_path.toStdString());
-    original_img = img;
+    imgs.clear();
+    imgs.push_back(std::move(img));
     send_image_data_ready_signal();
 }
 
@@ -98,7 +106,7 @@ void Image_handler::hog()
     set_is_busy_indicator_running(true);
     ++worker_thread_id;
 
-    auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, img, hog_face_detector));
+    auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, imgs[0], hog_face_detector));
     connect(this, &Image_handler::hog_ready, this, &Image_handler::hog_ready_slot, Qt::UniqueConnection);
     connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
 
@@ -115,7 +123,7 @@ void Image_handler::extract_face()
     face_shapes.reserve(rects_around_faces.size());
 
     for(const auto& rect : rects_around_faces) {
-        const auto face_shape = shape_predictor.operator()(img, rect);
+        const auto face_shape = shape_predictor.operator()(imgs.back(), rect);
         face_shapes.push_back(face_shape);
     }
 
@@ -124,7 +132,7 @@ void Image_handler::extract_face()
 
     for(const auto& face_shape : face_shapes) {
         dlib::matrix<dlib::rgb_pixel> processed_face;
-        dlib::extract_image_chip(original_img, dlib::get_face_chip_details(face_shape, 150, 0.25), processed_face);
+        dlib::extract_image_chip(imgs[0], dlib::get_face_chip_details(face_shape, 150, 0.25), processed_face);
         processed_faces.push_back(std::move(processed_face));
     }
 
@@ -145,7 +153,10 @@ void Image_handler::extract_face()
 
         cv::cvtColor(res_cv_img, res_cv_img, cv::COLOR_RGB2BGR);
         dlib::cv_image<dlib::rgb_pixel> res_dlib_img = res_cv_img;
+        dlib::matrix<dlib::rgb_pixel> img;
         dlib::assign_image(img, res_dlib_img);
+        imgs.push_back(std::move(img));
+        extract_face_img_index = imgs.size() - 1;
 
         send_image_data_ready_signal();
 
@@ -174,34 +185,75 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
 {
     if(worker_thread_id == some_worker_thread_id) {
         qDebug() << "Update image.";
-        img = some_img;
+//        img = some_img;
+        imgs.push_back(some_img);
+        hog_img_index = imgs.size() - 1;
         rects_around_faces = some_rects_around_faces;
         send_image_data_ready_signal();
         set_is_busy_indicator_running(false);
 
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
+        set_is_extract_face_enable(true);
     }
     else {
         qDebug() << "Ignore image.";
     }
 }
 
-void Image_handler::cancel()
+//void Image_handler::cancel()
+//{
+//    ++worker_thread_id;
+//    img = original_img;
+//    send_image_data_ready_signal();
+//    set_is_busy_indicator_running(false);
+
+//    set_is_hog_enable(true);
+//    set_is_cnn_enable(true);
+//    set_is_extract_face_enable(true);
+//}
+
+void Image_handler::send_image_data_ready_signal()
+{
+    const auto data = dlib::image_data(imgs.back());
+    Image_data image_data(data, imgs.back().nc(), imgs.back().nr());
+    emit image_data_ready(image_data);
+}
+
+void Image_handler::cancel_processing()
 {
     ++worker_thread_id;
-    img = original_img;
-    send_image_data_ready_signal();
     set_is_busy_indicator_running(false);
+}
 
+void Image_handler::cancel_all() // тело этой функции можно вставить в curr_image_changed().
+{
+    ++worker_thread_id;
+    set_is_busy_indicator_running(false);
     set_is_hog_enable(true);
     set_is_cnn_enable(true);
     set_is_extract_face_enable(true);
 }
 
-void Image_handler::send_image_data_ready_signal()
+void Image_handler::cancel_last_action()
 {
-    const auto data = dlib::image_data(img);
-    Image_data image_data(data, img.nc(), img.nr());
-    emit image_data_ready(image_data);
+    if(imgs.size() != 1) {
+
+        int curr_index = imgs.size() - 1;
+
+        if(curr_index == extract_face_img_index) {
+            extract_face_img_index = 0;
+            set_is_extract_face_enable(true);
+        }
+
+        if(curr_index == hog_img_index) {
+            hog_img_index = 0;
+            set_is_hog_enable(true);
+            set_is_cnn_enable(true);
+            set_is_extract_face_enable(false);
+        }
+
+        imgs.pop_back();
+        send_image_data_ready_signal();
+    }
 }

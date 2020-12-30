@@ -111,9 +111,23 @@ ApplicationWindow {
             BusyIndicator {
                 id: busy_indicator
                 anchors.centerIn: parent
-                width: parent.width / 2
-                height: parent.height / 2
+                width: parent.width * 0.4
+                height: parent.height * 0.4
                 visible: image_handler.is_busy_indicator_running
+            }
+            Button {
+                anchors {
+                    top: busy_indicator.bottom
+                    horizontalCenter: busy_indicator.horizontalCenter
+                    topMargin: 3
+                }
+                width: busy_indicator.width
+                height: 30
+                visible: busy_indicator.visible
+                text: "Cancel"
+                onClicked: {
+                    image_handler.cancel_processing()
+                }
             }
         }
         Rectangle {
@@ -133,7 +147,7 @@ ApplicationWindow {
                 clip: true
                 currentIndex: selected_imgs.curr_img_index
                 onCurrentIndexChanged: {
-                    image_handler.cancel()
+//                    image_handler.cancel()
                 }
                 enabled: !image_handler.is_busy_indicator_running
                 delegate: Selected_img_only_img {
@@ -259,19 +273,19 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr up"
-                    enabled: !image_handler.is_busy_indicator_running
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr down"
-                    enabled: !image_handler.is_busy_indicator_running
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "resize"
-                    enabled: !image_handler.is_busy_indicator_running
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                 }
             }
             Row {
@@ -293,7 +307,7 @@ ApplicationWindow {
                     text: "cancel"
                     enabled: image_handler.is_cancel_enabled
                     onClicked: {
-                        image_handler.cancel()
+                        image_handler.cancel_last_action()
                     }
                 }
                 Button {
