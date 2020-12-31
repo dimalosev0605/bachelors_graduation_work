@@ -21,7 +21,7 @@ class Image_handler : public QObject
     bool is_hog_enable = false;
 
     Q_PROPERTY(bool is_cnn_enable READ get_is_cnn_enable WRITE set_is_cnn_enable NOTIFY is_cnn_enable_changed)
-    bool is_cnn_enable = true; // true because we don't load cnn model yet.
+    bool is_cnn_enable = true;
 
     Q_PROPERTY(bool is_extract_face_enable READ get_is_extract_face_enable WRITE set_is_extract_face_enable NOTIFY is_extract_face_enable_changed)
     bool is_extract_face_enable = false;
@@ -29,11 +29,9 @@ class Image_handler : public QObject
     Q_PROPERTY(bool is_cancel_enabled READ get_is_cancel_enabled WRITE set_is_cancel_enabled NOTIFY is_cancel_enabled_changed)
     bool is_cancel_enabled = false;
 
-//    dlib::matrix<dlib::rgb_pixel> img;
-//    dlib::matrix<dlib::rgb_pixel> original_img; // vector
     std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
-    int hog_img_index = 0;
-    int extract_face_img_index = 0;
+    std::size_t hog_img_index = 0;
+    std::size_t extract_face_img_index = 0;
     int worker_thread_id = 0;
     std::vector<dlib::rectangle> rects_around_faces;
     hog_face_detector_type hog_face_detector;
@@ -48,7 +46,6 @@ private slots:
 private:
     void hog_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
     void send_image_data_ready_signal();
-    void try_change_is_cancel_enable();
 
 public:
     explicit Image_handler(QObject *parent = nullptr);
@@ -72,10 +69,8 @@ public slots:
     void curr_image_changed(const QString& curr_img_path);
     void hog();
     void extract_face();
-//    void cancel();
 
     void cancel_processing();
-    void cancel_all();
     void cancel_last_action();
 
 signals:

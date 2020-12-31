@@ -65,16 +65,10 @@ void Image_handler::set_is_cancel_enabled(const bool some_value)
     emit is_cancel_enabled_changed();
 }
 
-void Image_handler::try_change_is_cancel_enable()
-{
-    if(is_hog_enable && is_extract_face_enable && is_cnn_enable) {
-        set_is_cancel_enabled(true);
-    }
-}
-
 void Image_handler::curr_image_changed(const QString& curr_img_path)
 {
     ++worker_thread_id;
+
     set_is_busy_indicator_running(false);
     set_is_hog_enable(true);
     set_is_cnn_enable(true);
@@ -82,8 +76,10 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
 
     dlib::matrix<dlib::rgb_pixel> img;
     dlib::load_image(img, curr_img_path.toStdString());
+
     imgs.clear();
     imgs.push_back(std::move(img));
+
     send_image_data_ready_signal();
 }
 
@@ -91,14 +87,11 @@ void Image_handler::receive_hog_face_detector(const hog_face_detector_type& some
 {
     hog_face_detector = some_hog_face_detector;
     set_is_hog_enable(true);
-    try_change_is_cancel_enable();
 }
 
 void Image_handler::receive_shape_predictor(const dlib::shape_predictor& some_shape_predictor)
 {
     shape_predictor = some_shape_predictor;
-    set_is_extract_face_enable(true);
-    try_change_is_cancel_enable();
 }
 
 void Image_handler::hog()
@@ -106,7 +99,7 @@ void Image_handler::hog()
     set_is_busy_indicator_running(true);
     ++worker_thread_id;
 
-    auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, imgs[0], hog_face_detector));
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, imgs[0], hog_face_detector));
     connect(this, &Image_handler::hog_ready, this, &Image_handler::hog_ready_slot, Qt::UniqueConnection);
     connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
 
@@ -137,10 +130,10 @@ void Image_handler::extract_face()
     }
 
     if(!processed_faces.empty()) {
-        const auto processed_face_w = processed_faces[0].nc();
-        const auto processed_face_h = processed_faces[0].nr();
+        const auto processed_face_w = static_cast<int>(processed_faces[0].nc());
+        const auto processed_face_h = static_cast<int>(processed_faces[0].nr());
 
-        const auto res_cols = processed_face_w * processed_faces.size();
+        const auto res_cols = processed_face_w * static_cast<int>(processed_faces.size());
 
         cv::Mat res_cv_img(processed_face_h, res_cols, CV_8UC3);
         int curr_col = 0;
@@ -185,13 +178,11 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
 {
     if(worker_thread_id == some_worker_thread_id) {
         qDebug() << "Update image.";
-//        img = some_img;
         imgs.push_back(some_img);
         hog_img_index = imgs.size() - 1;
         rects_around_faces = some_rects_around_faces;
         send_image_data_ready_signal();
         set_is_busy_indicator_running(false);
-
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
         set_is_extract_face_enable(true);
@@ -201,22 +192,16 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
     }
 }
 
-//void Image_handler::cancel()
-//{
-//    ++worker_thread_id;
-//    img = original_img;
-//    send_image_data_ready_signal();
-//    set_is_busy_indicator_running(false);
-
-//    set_is_hog_enable(true);
-//    set_is_cnn_enable(true);
-//    set_is_extract_face_enable(true);
-//}
-
 void Image_handler::send_image_data_ready_signal()
 {
     const auto data = dlib::image_data(imgs.back());
     Image_data image_data(data, imgs.back().nc(), imgs.back().nr());
+    if(imgs.size() == 1) {
+        set_is_cancel_enabled(false);
+    }
+    else {
+        set_is_cancel_enabled(true);
+    }
     emit image_data_ready(image_data);
 }
 
@@ -226,20 +211,10 @@ void Image_handler::cancel_processing()
     set_is_busy_indicator_running(false);
 }
 
-void Image_handler::cancel_all() // тело этой функции можно вставить в curr_image_changed().
-{
-    ++worker_thread_id;
-    set_is_busy_indicator_running(false);
-    set_is_hog_enable(true);
-    set_is_cnn_enable(true);
-    set_is_extract_face_enable(true);
-}
-
 void Image_handler::cancel_last_action()
 {
     if(imgs.size() != 1) {
-
-        int curr_index = imgs.size() - 1;
+        const auto curr_index = imgs.size() - 1;
 
         if(curr_index == extract_face_img_index) {
             extract_face_img_index = 0;
