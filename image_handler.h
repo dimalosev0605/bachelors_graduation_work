@@ -21,7 +21,7 @@ class Image_handler : public QObject
     bool is_hog_enable = false;
 
     Q_PROPERTY(bool is_cnn_enable READ get_is_cnn_enable WRITE set_is_cnn_enable NOTIFY is_cnn_enable_changed)
-    bool is_cnn_enable = true;
+    bool is_cnn_enable = false;
 
     Q_PROPERTY(bool is_extract_face_enable READ get_is_extract_face_enable WRITE set_is_extract_face_enable NOTIFY is_extract_face_enable_changed)
     bool is_extract_face_enable = false;

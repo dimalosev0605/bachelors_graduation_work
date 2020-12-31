@@ -69,10 +69,12 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
 {
     ++worker_thread_id;
 
-    set_is_busy_indicator_running(false);
-    set_is_hog_enable(true);
-    set_is_cnn_enable(true);
-    set_is_extract_face_enable(false);
+    if(!imgs.empty()) {
+        set_is_busy_indicator_running(false);
+        set_is_hog_enable(true);
+        set_is_cnn_enable(true);
+        set_is_extract_face_enable(false);
+    }
 
     dlib::matrix<dlib::rgb_pixel> img;
     dlib::load_image(img, curr_img_path.toStdString());
