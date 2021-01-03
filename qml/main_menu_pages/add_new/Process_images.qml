@@ -83,7 +83,8 @@ ApplicationWindow {
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "img source and resolution"
+            text: "Original: " + img.sourceSize.width + " X " + img.sourceSize.height + " --- " +
+                  "Painted: " + img.paintedWidth + " X " + img.paintedHeight
         }
         Image {
             id: img
@@ -102,10 +103,43 @@ ApplicationWindow {
             fillMode: Image.PreserveAspectFit
             source: "image://Image_provider/" + curr_image
             MouseArea {
-                anchors.fill: parent
+                anchors.centerIn: parent
+                width: img.paintedWidth
+                height: img.paintedHeight
                 onClicked: {
-                    var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
-                    win.show()
+                    if(image_handler.is_choose_face_enable) {
+                        var p_to_s_width_k = img.paintedWidth / img.sourceSize.width
+                        var p_to_s_height_k = img.paintedHeight / img.sourceSize.height
+
+                        var s_to_p_width_k = img.sourceSize.width / img.paintedWidth
+                        var s_to_p_height_k = img.sourceSize.height / img.paintedHeight
+
+                        var p_m_x = mouseX
+                        var p_m_y = mouseY
+
+                        var s_m_x = 0
+                        var s_m_y = 0
+
+                        if(p_to_s_width_k > 1) {
+                            s_m_x = p_m_x / p_to_s_width_k
+                        }
+                        else {
+                            s_m_x = p_m_x * s_to_p_width_k
+                        }
+
+                        if(p_to_s_height_k > 1) {
+                            s_m_y = p_m_y / p_to_s_height_k
+                        }
+                        else {
+                            s_m_y = p_m_y * s_to_p_height_k
+                        }
+
+                        image_handler.choose_face(s_m_x, s_m_y)
+                    }
+                    else {
+                        var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
+                        win.show()
+                    }
                 }
             }
             BusyIndicator {
@@ -248,6 +282,7 @@ ApplicationWindow {
                     width: btns_col.btn_width
                     text: "HOG"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+
                     onClicked: {
                         image_handler.hog()
                     }

@@ -26,12 +26,16 @@ class Image_handler : public QObject
     Q_PROPERTY(bool is_extract_face_enable READ get_is_extract_face_enable WRITE set_is_extract_face_enable NOTIFY is_extract_face_enable_changed)
     bool is_extract_face_enable = false;
 
+    Q_PROPERTY(bool is_choose_face_enable READ get_is_choose_face_enable WRITE set_is_choose_face_enable NOTIFY is_choose_face_enable_changed)
+    bool is_choose_face_enable = false;
+
     Q_PROPERTY(bool is_cancel_enabled READ get_is_cancel_enabled WRITE set_is_cancel_enabled NOTIFY is_cancel_enabled_changed)
     bool is_cancel_enabled = false;
 
     std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
     std::size_t hog_img_index = 0;
     std::size_t extract_face_img_index = 0;
+    std::size_t choose_face_img_index = 0;
     int worker_thread_id = 0;
     std::vector<dlib::rectangle> rects_around_faces;
     hog_face_detector_type hog_face_detector;
@@ -62,6 +66,9 @@ public:
     bool get_is_extract_face_enable() const;
     void set_is_extract_face_enable(const bool some_value);
 
+    bool get_is_choose_face_enable() const;
+    void set_is_choose_face_enable(const bool some_value);
+
     bool get_is_cancel_enabled() const;
     void set_is_cancel_enabled(const bool some_value);
 
@@ -69,6 +76,7 @@ public slots:
     void curr_image_changed(const QString& curr_img_path);
     void hog();
     void extract_face();
+    void choose_face(const double x, const double y);
 
     void cancel_processing();
     void cancel_last_action();
@@ -78,6 +86,7 @@ signals:
     void is_hog_enable_changed();
     void is_cnn_enable_changed();
     void is_extract_face_enable_changed();
+    void is_choose_face_enable_changed();
     void is_cancel_enabled_changed();
 
     void image_data_ready(const Image_data& some_img_data);

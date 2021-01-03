@@ -54,6 +54,17 @@ void Image_handler::set_is_extract_face_enable(const bool some_value)
     emit is_extract_face_enable_changed();
 }
 
+bool Image_handler::get_is_choose_face_enable() const
+{
+    return is_choose_face_enable;
+}
+
+void Image_handler::set_is_choose_face_enable(const bool some_value)
+{
+    is_choose_face_enable = some_value;
+    emit is_choose_face_enable_changed();
+}
+
 bool Image_handler::get_is_cancel_enabled() const
 {
     return is_cancel_enabled;
@@ -72,8 +83,9 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
     if(!imgs.empty()) {
         set_is_busy_indicator_running(false);
         set_is_hog_enable(true);
-        set_is_cnn_enable(true);
+//        set_is_cnn_enable(true);
         set_is_extract_face_enable(false);
+        set_is_choose_face_enable(false);
     }
 
     dlib::matrix<dlib::rgb_pixel> img;
@@ -114,6 +126,10 @@ void Image_handler::extract_face()
 
     set_is_busy_indicator_running(true);
 
+    if(rects_around_faces.size() > 1) {
+        set_is_choose_face_enable(true);
+    }
+
     std::vector<dlib::full_object_detection> face_shapes;
     face_shapes.reserve(rects_around_faces.size());
 
@@ -141,7 +157,7 @@ void Image_handler::extract_face()
         int curr_col = 0;
         for(std::size_t i = 0; i < processed_faces.size(); ++i) {
             const auto cv_img = dlib::toMat(processed_faces[i]);
-            cv::cvtColor(cv_img, cv_img, cv::COLOR_BGRA2RGB);
+            cv::cvtColor(cv_img, cv_img, cv::COLOR_BGR2RGB);
             cv_img.copyTo(res_cv_img(cv::Rect(curr_col, 0, cv_img.cols, cv_img.rows)));
             curr_col += processed_face_w;
         }
@@ -157,6 +173,30 @@ void Image_handler::extract_face()
 
         set_is_extract_face_enable(false);
     }
+
+    set_is_busy_indicator_running(false);
+}
+
+void Image_handler::choose_face(const double x, const double y)
+{
+    set_is_busy_indicator_running(true);
+
+    const int face_size = 150;
+    int face_number = x / face_size;
+
+    const auto cv_img = dlib::toMat(imgs.back());
+
+    cv::Mat selected_face_cv_img = cv_img(cv::Rect(face_number * face_size, 0, face_size, face_size));
+
+    dlib::cv_image<dlib::rgb_pixel> selected_face_dlib_cv_img = selected_face_cv_img;
+    dlib::matrix<dlib::rgb_pixel> img;
+    dlib::assign_image(img, selected_face_dlib_cv_img);
+    imgs.push_back(std::move(img));
+    choose_face_img_index = imgs.size() - 1;
+
+    set_is_choose_face_enable(false);
+
+    send_image_data_ready_signal();
 
     set_is_busy_indicator_running(false);
 }
@@ -179,15 +219,20 @@ void Image_handler::hog_thread_function(const int some_worker_thread_id, dlib::m
 void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
 {
     if(worker_thread_id == some_worker_thread_id) {
+        if(some_rects_around_faces.empty()) {
+            qDebug() << "We did not find any faces.";
+            set_is_busy_indicator_running(false);
+            return;
+        }
         qDebug() << "Update image.";
         imgs.push_back(some_img);
         hog_img_index = imgs.size() - 1;
         rects_around_faces = some_rects_around_faces;
         send_image_data_ready_signal();
-        set_is_busy_indicator_running(false);
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
         set_is_extract_face_enable(true);
+        set_is_busy_indicator_running(false);
     }
     else {
         qDebug() << "Ignore image.";
@@ -218,6 +263,11 @@ void Image_handler::cancel_last_action()
     if(imgs.size() != 1) {
         const auto curr_index = imgs.size() - 1;
 
+        if(curr_index == choose_face_img_index) {
+            choose_face_img_index = 0;
+            set_is_choose_face_enable(true);
+        }
+
         if(curr_index == extract_face_img_index) {
             extract_face_img_index = 0;
             set_is_extract_face_enable(true);
@@ -226,7 +276,7 @@ void Image_handler::cancel_last_action()
         if(curr_index == hog_img_index) {
             hog_img_index = 0;
             set_is_hog_enable(true);
-            set_is_cnn_enable(true);
+//            set_is_cnn_enable(true);
             set_is_extract_face_enable(false);
         }
 
