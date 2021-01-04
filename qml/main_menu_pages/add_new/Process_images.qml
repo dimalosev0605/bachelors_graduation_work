@@ -410,6 +410,9 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "add"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
+                    onClicked: {
+                    }
                 }
             }
         }

@@ -65,6 +65,17 @@ void Image_handler::set_is_choose_face_enable(const bool some_value)
     emit is_choose_face_enable_changed();
 }
 
+bool Image_handler::get_is_add_face_enable() const
+{
+    return is_add_face_enable;
+}
+
+void Image_handler::set_is_add_face_enable(const bool some_value)
+{
+    is_add_face_enable = some_value;
+    emit is_add_face_enable_changed();
+}
+
 bool Image_handler::get_is_cancel_enabled() const
 {
     return is_cancel_enabled;
@@ -86,6 +97,7 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
 //        set_is_cnn_enable(true);
         set_is_extract_face_enable(false);
         set_is_choose_face_enable(false);
+        set_is_add_face_enable(false);
     }
 
     dlib::matrix<dlib::rgb_pixel> img;
@@ -206,6 +218,9 @@ void Image_handler::extract_face()
         send_image_data_ready_signal();
 
         set_is_extract_face_enable(false);
+        if(rects_around_faces.size() == 1) {
+            set_is_add_face_enable(true);
+        }
     }
 
     set_is_busy_indicator_running(false);
@@ -229,6 +244,7 @@ void Image_handler::choose_face(const double x, [[maybe_unused]]const double y)
     choose_face_img_index = imgs.size() - 1;
 
     set_is_choose_face_enable(false);
+    set_is_add_face_enable(true);
 
     send_image_data_ready_signal();
 
@@ -346,12 +362,14 @@ void Image_handler::cancel_last_action()
         if(curr_index == choose_face_img_index) {
             choose_face_img_index = 0;
             set_is_choose_face_enable(true);
+            set_is_add_face_enable(false);
         }
 
         if(curr_index == extract_face_img_index) {
             extract_face_img_index = 0;
             set_is_extract_face_enable(true);
             set_is_choose_face_enable(false);
+            set_is_add_face_enable(false);
         }
 
         if(curr_index == hog_img_index) {
