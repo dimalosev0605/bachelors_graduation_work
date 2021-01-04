@@ -79,7 +79,7 @@ void Image_handler::set_is_cancel_enabled(const bool some_value)
 void Image_handler::curr_image_changed(const QString& curr_img_path)
 {
     ++worker_thread_id;
-
+    modified_img_index = 0;
     if(!imgs.empty()) {
         set_is_busy_indicator_running(false);
         set_is_hog_enable(true);
@@ -113,8 +113,44 @@ void Image_handler::hog()
     set_is_busy_indicator_running(true);
     ++worker_thread_id;
 
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, imgs[0], hog_face_detector));
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, imgs.back(), hog_face_detector));
     connect(this, &Image_handler::hog_ready, this, &Image_handler::hog_ready_slot, Qt::UniqueConnection);
+    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
+
+    worker_thread->start();
+}
+
+void Image_handler::pyr_up()
+{
+    set_is_busy_indicator_running(true);
+    ++worker_thread_id;
+
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::pyr_up_thread_function, this, worker_thread_id, imgs.back()));
+    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot, Qt::UniqueConnection);
+    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
+
+    worker_thread->start();
+}
+
+void Image_handler::pyr_down()
+{
+    set_is_busy_indicator_running(true);
+    ++worker_thread_id;
+
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::pyr_down_thread_function, this, worker_thread_id, imgs.back()));
+    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot, Qt::UniqueConnection);
+    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
+
+    worker_thread->start();
+}
+
+void Image_handler::resize(const int some_width, const int some_height)
+{
+    set_is_busy_indicator_running(true);
+    ++worker_thread_id;
+
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::resize_thread_function, this, worker_thread_id, imgs.back(), some_width, some_height));
+    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot, Qt::UniqueConnection);
     connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
 
     worker_thread->start();
@@ -143,7 +179,7 @@ void Image_handler::extract_face()
 
     for(const auto& face_shape : face_shapes) {
         dlib::matrix<dlib::rgb_pixel> processed_face;
-        dlib::extract_image_chip(imgs[0], dlib::get_face_chip_details(face_shape, 150, 0.25), processed_face);
+        dlib::extract_image_chip(imgs[imgs.size() - 2], dlib::get_face_chip_details(face_shape, face_chip_size, face_chip_padding), processed_face);
         processed_faces.push_back(std::move(processed_face));
     }
 
@@ -157,12 +193,10 @@ void Image_handler::extract_face()
         int curr_col = 0;
         for(std::size_t i = 0; i < processed_faces.size(); ++i) {
             const auto cv_img = dlib::toMat(processed_faces[i]);
-            cv::cvtColor(cv_img, cv_img, cv::COLOR_BGR2RGB);
             cv_img.copyTo(res_cv_img(cv::Rect(curr_col, 0, cv_img.cols, cv_img.rows)));
             curr_col += processed_face_w;
         }
 
-        cv::cvtColor(res_cv_img, res_cv_img, cv::COLOR_RGB2BGR);
         dlib::cv_image<dlib::rgb_pixel> res_dlib_img = res_cv_img;
         dlib::matrix<dlib::rgb_pixel> img;
         dlib::assign_image(img, res_dlib_img);
@@ -177,12 +211,12 @@ void Image_handler::extract_face()
     set_is_busy_indicator_running(false);
 }
 
-void Image_handler::choose_face(const double x, const double y)
+void Image_handler::choose_face(const double x, [[maybe_unused]]const double y)
 {
     set_is_busy_indicator_running(true);
 
-    const int face_size = 150;
-    int face_number = x / face_size;
+    const int face_size = static_cast<int>(face_chip_size);
+    const int face_number = static_cast<int>(x) / face_size;
 
     const auto cv_img = dlib::toMat(imgs.back());
 
@@ -216,6 +250,34 @@ void Image_handler::hog_thread_function(const int some_worker_thread_id, dlib::m
     QThread::currentThread()->exit(0);
 }
 
+void Image_handler::pyr_up_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img)
+{
+    auto local_img = std::move(some_img);
+    dlib::pyramid_up(local_img);
+    emit img_ready(some_worker_thread_id, local_img);
+    QThread::currentThread()->exit(0);
+}
+
+void Image_handler::pyr_down_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img)
+{
+    auto local_img = std::move(some_img);
+    dlib::pyramid_down<2> pyr;
+    pyr(local_img);
+    emit img_ready(some_worker_thread_id, local_img);
+    QThread::currentThread()->exit(0);
+}
+
+void Image_handler::resize_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int some_width, const int some_height)
+{
+    auto local_img = std::move(some_img);
+
+    dlib::matrix<dlib::rgb_pixel> resized_img(some_height, some_width);
+    dlib::resize_image(local_img, resized_img);
+
+    emit img_ready(some_worker_thread_id, resized_img);
+    QThread::currentThread()->exit(0);
+}
+
 void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
 {
     if(worker_thread_id == some_worker_thread_id) {
@@ -232,6 +294,24 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
         set_is_extract_face_enable(true);
+        set_is_busy_indicator_running(false);
+    }
+    else {
+        qDebug() << "Ignore image.";
+    }
+}
+
+void Image_handler::img_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img)
+{
+    if(worker_thread_id == some_worker_thread_id) {
+        qDebug() << "Update image.";
+        imgs.push_back(some_img);
+
+        if(0 == modified_img_index) {
+            modified_img_index = imgs.size() - 1;
+        }
+
+        send_image_data_ready_signal();
         set_is_busy_indicator_running(false);
     }
     else {
@@ -271,13 +351,19 @@ void Image_handler::cancel_last_action()
         if(curr_index == extract_face_img_index) {
             extract_face_img_index = 0;
             set_is_extract_face_enable(true);
+            set_is_choose_face_enable(false);
         }
 
         if(curr_index == hog_img_index) {
             hog_img_index = 0;
+//            rects_around_faces.clear();
             set_is_hog_enable(true);
 //            set_is_cnn_enable(true);
             set_is_extract_face_enable(false);
+        }
+
+        if(curr_index == modified_img_index) {
+            modified_img_index = 0;
         }
 
         imgs.pop_back();

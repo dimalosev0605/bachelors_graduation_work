@@ -19,12 +19,12 @@ ApplicationWindow {
     height: 630
     minimumWidth: 600
     minimumHeight: 600
-    Connections {
-        target: selected_imgs
-        function onImage_changed(curr_img_path) {
-            image_handler.curr_image_changed(curr_img_path)
-        }
-    }
+//    Connections {
+//        target: selected_imgs
+//        function onImage_changed(curr_img_path) {
+//            image_handler.curr_image_changed(curr_img_path)
+//        }
+//    }
 
     Selected_imgs {
         id: selected_imgs
@@ -309,18 +309,79 @@ ApplicationWindow {
                     width: btns_col.btn_width
                     text: "pyr up"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        image_handler.pyr_up()
+                    }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr down"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        image_handler.pyr_down()
+                    }
                 }
                 Button {
+                    id: resize_btn
                     height: parent.height
                     width: btns_col.btn_width
                     text: "resize"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        new_size_popup.open()
+                    }
+                    Popup {
+                        id: new_size_popup
+                        visible: false
+                        property int item_h: 35
+                        property int space: 2
+                        width: resize_btn.width
+                        height: item_h * 3 + 2 * space + col.anchors.margins * 2
+                        background: Rectangle {
+                            id: background
+                            anchors.fill: parent
+                            border.color: "#000000"
+                            color: "blue"
+                            border.width: 1
+                        }
+                        contentItem: Column {
+                            id: col
+                            anchors.fill: parent
+                            anchors.margins: new_size_popup.space
+                            spacing: new_size_popup.space
+                            TextField {
+                                id: width_input
+                                height: new_size_popup.item_h
+                                width: parent.width
+                                property int max_width: 3840
+                                placeholderText: "max " + max_width
+                                text: img.sourceSize.width
+                                validator: IntValidator{bottom: 1; top: width_input.max_width;}
+                            }
+                            TextField {
+                                id: height_input
+                                height: new_size_popup.item_h
+                                width: parent.width
+                                property int max_height: 2160
+                                placeholderText: "max " + max_height
+                                text: img.sourceSize.height
+                                wrapMode: TextInput.WrapAnywhere
+                                validator: IntValidator{bottom: 1; top: height_input.max_height;}
+                            }
+                            Button {
+                                height: new_size_popup.item_h
+                                width: parent.width
+                                text: "Ok"
+                                onClicked: {
+                                    if(width_input.acceptableInput && height_input.acceptableInput) {
+                                        image_handler.resize(width_input.text, height_input.text)
+                                        new_size_popup.close()
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Row {
@@ -340,7 +401,7 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "cancel"
-                    enabled: image_handler.is_cancel_enabled
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cancel_enabled
                     onClicked: {
                         image_handler.cancel_last_action()
                     }

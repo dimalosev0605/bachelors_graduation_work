@@ -36,19 +36,27 @@ class Image_handler : public QObject
     std::size_t hog_img_index = 0;
     std::size_t extract_face_img_index = 0;
     std::size_t choose_face_img_index = 0;
+    std::size_t modified_img_index = 0;
     int worker_thread_id = 0;
     std::vector<dlib::rectangle> rects_around_faces;
     hog_face_detector_type hog_face_detector;
     dlib::shape_predictor shape_predictor;
+
+    const unsigned long face_chip_size = 150;
+    const double face_chip_padding = 0.25;
 
 private slots:
     void receive_hog_face_detector(const hog_face_detector_type& some_hog_face_detector);
     void receive_shape_predictor(const dlib::shape_predictor& some_shape_predictor);
 
     void hog_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
+    void img_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
 
 private:
     void hog_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
+    void pyr_up_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
+    void pyr_down_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
+    void resize_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int some_width, const int some_height);
     void send_image_data_ready_signal();
 
 public:
@@ -75,6 +83,9 @@ public:
 public slots:
     void curr_image_changed(const QString& curr_img_path);
     void hog();
+    void pyr_up();
+    void pyr_down();
+    void resize(const int some_width, const int some_height);
     void extract_face();
     void choose_face(const double x, const double y);
 
@@ -91,6 +102,7 @@ signals:
 
     void image_data_ready(const Image_data& some_img_data);
     void hog_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
+    void img_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
 };
 
 #endif // IMAGE_HANDLER_H
