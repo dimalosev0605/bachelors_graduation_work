@@ -151,6 +151,18 @@ void Image_handler::cnn()
     worker_thread->start();
 }
 
+void Image_handler::hog_and_cnn()
+{
+    set_is_busy_indicator_running(true);
+    ++worker_thread_id;
+
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_and_cnn_thread_function, this, worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector));
+    connect(this, &Image_handler::hog_and_cnn_ready, this, &Image_handler::hog_and_cnn_ready_slot, Qt::UniqueConnection);
+    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
+
+    worker_thread->start();
+}
+
 void Image_handler::pyr_up()
 {
     set_is_busy_indicator_running(true);
@@ -307,6 +319,59 @@ void Image_handler::cnn_thread_function(const int some_worker_thread_id, dlib::m
     QThread::currentThread()->exit(0);
 }
 
+void Image_handler::hog_and_cnn_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector)
+{
+    auto local_img = std::move(some_img);
+    auto local_hog_face_detector = std::move(some_hog_face_detector);
+    auto local_cnn_face_detector = std::move(some_cnn_face_detector);
+
+    auto hog_rects_around_faces = local_hog_face_detector(local_img);
+
+    auto cnn_mmod_rects_around_faces = local_cnn_face_detector(local_img);
+    std::vector<dlib::rectangle> cnn_rects_around_faces;
+    cnn_rects_around_faces.reserve(cnn_mmod_rects_around_faces.size());
+    for(const auto& mmod_rect : cnn_mmod_rects_around_faces) {
+        cnn_rects_around_faces.push_back(mmod_rect.rect);
+    }
+
+    std::vector<dlib::point> hog_points;
+    hog_points.reserve(hog_rects_around_faces.size());
+    for(std::size_t i = 0; i < hog_rects_around_faces.size(); ++i) {
+        hog_points.push_back(dlib::center(hog_rects_around_faces[i]));
+    }
+
+    std::vector<dlib::rectangle> result_rects_around_faces;
+    for(std::size_t i = 0; i < hog_rects_around_faces.size(); ++i) {
+        for(std::size_t j = 0; j < cnn_rects_around_faces.size(); ++j) {
+            if(cnn_rects_around_faces[j].contains(hog_points[i])) {
+                result_rects_around_faces.push_back(hog_rects_around_faces[i]);
+                hog_rects_around_faces[i] = dlib::rectangle{};
+                cnn_rects_around_faces[j] = dlib::rectangle{};
+                break;
+            }
+        }
+    }
+
+    for(std::size_t i = 0; i < hog_rects_around_faces.size(); ++i) {
+        if(!hog_rects_around_faces[i].is_empty()) {
+            result_rects_around_faces.push_back(hog_rects_around_faces[i]);
+        }
+    }
+
+    for(std::size_t i = 0; i < cnn_rects_around_faces.size(); ++i) {
+        if(!cnn_rects_around_faces[i].is_empty()) {
+            result_rects_around_faces.push_back(cnn_rects_around_faces[i]);
+        }
+    }
+
+    for(const auto& rect : result_rects_around_faces) {
+        dlib::draw_rectangle(local_img, rect, dlib::rgb_pixel{255, 0, 0}, 2);
+    }
+
+    emit hog_and_cnn_ready(some_worker_thread_id, local_img, result_rects_around_faces);
+    QThread::currentThread()->exit(0);
+}
+
 void Image_handler::pyr_up_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img)
 {
     auto local_img = std::move(some_img);
@@ -359,6 +424,29 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
 }
 
 void Image_handler::cnn_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
+{
+    if(worker_thread_id == some_worker_thread_id) {
+        if(some_rects_around_faces.empty()) {
+            qDebug() << "We did not find any faces.";
+            set_is_busy_indicator_running(false);
+            return;
+        }
+        qDebug() << "Update image.";
+        imgs.push_back(some_img);
+        hog_img_index = imgs.size() - 1;
+        rects_around_faces = some_rects_around_faces;
+        send_image_data_ready_signal();
+        set_is_hog_enable(false);
+        set_is_cnn_enable(false);
+        set_is_extract_face_enable(true);
+        set_is_busy_indicator_running(false);
+    }
+    else {
+        qDebug() << "Ignore image.";
+    }
+}
+
+void Image_handler::hog_and_cnn_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
 {
     if(worker_thread_id == some_worker_thread_id) {
         if(some_rects_around_faces.empty()) {

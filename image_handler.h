@@ -56,11 +56,13 @@ private slots:
 
     void hog_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
     void cnn_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
+    void hog_and_cnn_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
     void img_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
 
 private:
     void hog_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
     void cnn_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector);
+    void hog_and_cnn_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector);
     void pyr_up_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
     void pyr_down_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
     void resize_thread_function(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int some_width, const int some_height);
@@ -94,7 +96,7 @@ public slots:
     void curr_image_changed(const QString& curr_img_path);
     void hog();
     void cnn();
-//    void hog_and_cnn();
+    void hog_and_cnn();
     void pyr_up();
     void pyr_down();
     void resize(const int some_width, const int some_height);
@@ -116,6 +118,7 @@ signals:
     void image_data_ready(const Image_data& some_img_data);
     void hog_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
     void cnn_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
+    void hog_and_cnn_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
     void img_ready(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
 };
 

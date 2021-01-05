@@ -300,6 +300,9 @@ ApplicationWindow {
                     width: btns_col.btn_width
                     text: "HOG + CNN"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
+                    onClicked: {
+                        image_handler.hog_and_cnn()
+                    }
                 }
             }
             Row {
