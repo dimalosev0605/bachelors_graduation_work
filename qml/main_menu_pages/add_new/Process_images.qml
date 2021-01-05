@@ -397,7 +397,7 @@ ApplicationWindow {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "extract face"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_face_enable
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_faces_enable
                     onClicked: {
                         image_handler.extract_face()
                     }

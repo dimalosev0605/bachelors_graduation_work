@@ -9,6 +9,9 @@ Image_handler::Image_handler(QObject* parent)
     connect(image_handler_initializer, &Image_handler_initializer::shape_predictor_ready, this, &Image_handler::receive_shape_predictor);
     connect(image_handler_initializer, &Image_handler_initializer::finished, image_handler_initializer, &Image_handler_initializer::deleteLater);
     image_handler_initializer->start();
+
+    connect(this, &Image_handler::faces_ready, this, &Image_handler::faces_ready_slot);
+    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot);
 }
 
 bool Image_handler::get_is_busy_indicator_running() const
@@ -44,15 +47,15 @@ void Image_handler::set_is_cnn_enable(const bool some_value)
     emit is_cnn_enable_changed();
 }
 
-bool Image_handler::get_is_extract_face_enable() const
+bool Image_handler::get_is_extract_faces_enable() const
 {
-    return is_extract_face_enable;
+    return is_extract_faces_enable;
 }
 
-void Image_handler::set_is_extract_face_enable(const bool some_value)
+void Image_handler::set_is_extract_faces_enable(const bool some_value)
 {
-    is_extract_face_enable = some_value;
-    emit is_extract_face_enable_changed();
+    is_extract_faces_enable = some_value;
+    emit is_extract_faces_enable_changed();
 }
 
 bool Image_handler::get_is_choose_face_enable() const
@@ -96,7 +99,7 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
         set_is_busy_indicator_running(false);
         set_is_hog_enable(true);
         set_is_cnn_enable(true);
-        set_is_extract_face_enable(false);
+        set_is_extract_faces_enable(false);
         set_is_choose_face_enable(false);
         set_is_add_face_enable(false);
     }
@@ -127,76 +130,47 @@ void Image_handler::receive_shape_predictor(const dlib::shape_predictor& some_sh
     shape_predictor = some_shape_predictor;
 }
 
-void Image_handler::hog()
+void Image_handler::start_thread(QThread* some_thread)
 {
     set_is_busy_indicator_running(true);
-    ++worker_thread_id;
+    connect(some_thread, &QThread::finished, some_thread, &QObject::deleteLater);
+    some_thread->start();
+}
 
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, worker_thread_id, imgs.back(), hog_face_detector));
-    connect(this, &Image_handler::hog_ready, this, &Image_handler::hog_ready_slot, Qt::UniqueConnection);
-    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
-
-    worker_thread->start();
+void Image_handler::hog()
+{
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_thread_function, this, ++worker_thread_id, imgs.back(), hog_face_detector));
+    start_thread(worker_thread);
 }
 
 void Image_handler::cnn()
 {
-    set_is_busy_indicator_running(true);
-    ++worker_thread_id;
-
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::cnn_thread_function, this, worker_thread_id, imgs.back(), cnn_face_detector));
-    connect(this, &Image_handler::cnn_ready, this, &Image_handler::cnn_ready_slot, Qt::UniqueConnection);
-    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
-
-    worker_thread->start();
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::cnn_thread_function, this, ++worker_thread_id, imgs.back(), cnn_face_detector));
+    start_thread(worker_thread);
 }
 
 void Image_handler::hog_and_cnn()
 {
-    set_is_busy_indicator_running(true);
-    ++worker_thread_id;
-
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_and_cnn_thread_function, this, worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector));
-    connect(this, &Image_handler::hog_and_cnn_ready, this, &Image_handler::hog_and_cnn_ready_slot, Qt::UniqueConnection);
-    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
-
-    worker_thread->start();
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::hog_and_cnn_thread_function, this, ++worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector));
+    start_thread(worker_thread);
 }
 
 void Image_handler::pyr_up()
 {
-    set_is_busy_indicator_running(true);
-    ++worker_thread_id;
-
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::pyr_up_thread_function, this, worker_thread_id, imgs.back()));
-    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot, Qt::UniqueConnection);
-    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
-
-    worker_thread->start();
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::pyr_up_thread_function, this, ++worker_thread_id, imgs.back()));
+    start_thread(worker_thread);
 }
 
 void Image_handler::pyr_down()
 {
-    set_is_busy_indicator_running(true);
-    ++worker_thread_id;
-
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::pyr_down_thread_function, this, worker_thread_id, imgs.back()));
-    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot, Qt::UniqueConnection);
-    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
-
-    worker_thread->start();
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::pyr_down_thread_function, this, ++worker_thread_id, imgs.back()));
+    start_thread(worker_thread);
 }
 
 void Image_handler::resize(const int some_width, const int some_height)
 {
-    set_is_busy_indicator_running(true);
-    ++worker_thread_id;
-
-    const auto worker_thread = QThread::create(std::bind(&Image_handler::resize_thread_function, this, worker_thread_id, imgs.back(), some_width, some_height));
-    connect(this, &Image_handler::img_ready, this, &Image_handler::img_ready_slot, Qt::UniqueConnection);
-    connect(worker_thread, &QThread::finished, worker_thread, &QObject::deleteLater);
-
-    worker_thread->start();
+    const auto worker_thread = QThread::create(std::bind(&Image_handler::resize_thread_function, this, ++worker_thread_id, imgs.back(), some_width, some_height));
+    start_thread(worker_thread);
 }
 
 void Image_handler::extract_face()
@@ -248,7 +222,7 @@ void Image_handler::extract_face()
 
         send_image_data_ready_signal();
 
-        set_is_extract_face_enable(false);
+        set_is_extract_faces_enable(false);
         if(rects_around_faces.size() == 1) {
             set_is_add_face_enable(true);
         }
@@ -293,7 +267,7 @@ void Image_handler::hog_thread_function(const int some_worker_thread_id, dlib::m
         dlib::draw_rectangle(local_img, rect, dlib::rgb_pixel{255, 0, 0}, 2);
     }
 
-    emit hog_ready(some_worker_thread_id, local_img, local_rects_around_faces);
+    emit faces_ready(some_worker_thread_id, local_img, local_rects_around_faces);
     QThread::currentThread()->exit(0);
 }
 
@@ -315,7 +289,7 @@ void Image_handler::cnn_thread_function(const int some_worker_thread_id, dlib::m
         dlib::draw_rectangle(local_img, rect, dlib::rgb_pixel{255, 0, 0}, 2);
     }
 
-    emit cnn_ready(some_worker_thread_id, local_img, local_rects_around_faces);
+    emit faces_ready(some_worker_thread_id, local_img, local_rects_around_faces);
     QThread::currentThread()->exit(0);
 }
 
@@ -368,7 +342,7 @@ void Image_handler::hog_and_cnn_thread_function(const int some_worker_thread_id,
         dlib::draw_rectangle(local_img, rect, dlib::rgb_pixel{255, 0, 0}, 2);
     }
 
-    emit hog_and_cnn_ready(some_worker_thread_id, local_img, result_rects_around_faces);
+    emit faces_ready(some_worker_thread_id, local_img, result_rects_around_faces);
     QThread::currentThread()->exit(0);
 }
 
@@ -400,7 +374,7 @@ void Image_handler::resize_thread_function(const int some_worker_thread_id, dlib
     QThread::currentThread()->exit(0);
 }
 
-void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
+void Image_handler::faces_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
 {
     if(worker_thread_id == some_worker_thread_id) {
         if(some_rects_around_faces.empty()) {
@@ -410,58 +384,12 @@ void Image_handler::hog_ready_slot(const int some_worker_thread_id, const dlib::
         }
         qDebug() << "Update image.";
         imgs.push_back(some_img);
-        hog_img_index = imgs.size() - 1;
+        find_faces_img_index = imgs.size() - 1;
         rects_around_faces = some_rects_around_faces;
         send_image_data_ready_signal();
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
-        set_is_extract_face_enable(true);
-        set_is_busy_indicator_running(false);
-    }
-    else {
-        qDebug() << "Ignore image.";
-    }
-}
-
-void Image_handler::cnn_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
-{
-    if(worker_thread_id == some_worker_thread_id) {
-        if(some_rects_around_faces.empty()) {
-            qDebug() << "We did not find any faces.";
-            set_is_busy_indicator_running(false);
-            return;
-        }
-        qDebug() << "Update image.";
-        imgs.push_back(some_img);
-        hog_img_index = imgs.size() - 1;
-        rects_around_faces = some_rects_around_faces;
-        send_image_data_ready_signal();
-        set_is_hog_enable(false);
-        set_is_cnn_enable(false);
-        set_is_extract_face_enable(true);
-        set_is_busy_indicator_running(false);
-    }
-    else {
-        qDebug() << "Ignore image.";
-    }
-}
-
-void Image_handler::hog_and_cnn_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces)
-{
-    if(worker_thread_id == some_worker_thread_id) {
-        if(some_rects_around_faces.empty()) {
-            qDebug() << "We did not find any faces.";
-            set_is_busy_indicator_running(false);
-            return;
-        }
-        qDebug() << "Update image.";
-        imgs.push_back(some_img);
-        hog_img_index = imgs.size() - 1;
-        rects_around_faces = some_rects_around_faces;
-        send_image_data_ready_signal();
-        set_is_hog_enable(false);
-        set_is_cnn_enable(false);
-        set_is_extract_face_enable(true);
+        set_is_extract_faces_enable(true);
         set_is_busy_indicator_running(false);
     }
     else {
@@ -519,16 +447,16 @@ void Image_handler::cancel_last_action()
 
         if(curr_index == extract_face_img_index) {
             extract_face_img_index = 0;
-            set_is_extract_face_enable(true);
+            set_is_extract_faces_enable(true);
             set_is_choose_face_enable(false);
             set_is_add_face_enable(false);
         }
 
-        if(curr_index == hog_img_index) {
-            hog_img_index = 0;
+        if(curr_index == find_faces_img_index) {
+            find_faces_img_index = 0;
             set_is_hog_enable(true);
             set_is_cnn_enable(true);
-            set_is_extract_face_enable(false);
+            set_is_extract_faces_enable(false);
         }
 
         if(curr_index == modified_img_index) {
