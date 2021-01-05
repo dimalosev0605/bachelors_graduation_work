@@ -282,7 +282,6 @@ ApplicationWindow {
                     width: btns_col.btn_width
                     text: "HOG"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
-
                     onClicked: {
                         image_handler.hog()
                     }
@@ -292,6 +291,9 @@ ApplicationWindow {
                     width: btns_col.btn_width
                     text: "CNN"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
+                    onClicked: {
+                        image_handler.cnn()
+                    }
                 }
                 Button {
                     height: parent.height
