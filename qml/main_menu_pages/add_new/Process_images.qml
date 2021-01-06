@@ -69,7 +69,8 @@ Page {
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "img source and resolution"
+            text: "Original: " + img.sourceSize.width + " X " + img.sourceSize.height + " --- " +
+                  "Painted: " + img.paintedWidth + " X " + img.paintedHeight
         }
         Image {
             id: img
@@ -88,10 +89,64 @@ Page {
             fillMode: Image.PreserveAspectFit
             source: "image://Image_provider/" + curr_image
             MouseArea {
-                anchors.fill: parent
+                anchors.centerIn: parent
+                width: img.paintedWidth
+                height: img.paintedHeight
                 onClicked: {
-                    var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
-                    win.show()
+                    if(image_handler.is_choose_face_enable) {
+                        var p_to_s_width_k = img.paintedWidth / img.sourceSize.width
+                        var p_to_s_height_k = img.paintedHeight / img.sourceSize.height
+
+                        var s_to_p_width_k = img.sourceSize.width / img.paintedWidth
+                        var s_to_p_height_k = img.sourceSize.height / img.paintedHeight
+
+                        var p_m_x = mouseX
+                        var p_m_y = mouseY
+
+                        var s_m_x = 0
+                        var s_m_y = 0
+
+                        if(p_to_s_width_k > 1) {
+                            s_m_x = p_m_x / p_to_s_width_k
+                        }
+                        else {
+                            s_m_x = p_m_x * s_to_p_width_k
+                        }
+
+                        if(p_to_s_height_k > 1) {
+                            s_m_y = p_m_y / p_to_s_height_k
+                        }
+                        else {
+                            s_m_y = p_m_y * s_to_p_height_k
+                        }
+
+                        image_handler.choose_face(s_m_x, s_m_y)
+                    }
+                    else {
+                        var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
+                        win.show()
+                    }
+                }
+            }
+            BusyIndicator {
+                id: busy_indicator
+                anchors.centerIn: parent
+                width: parent.width * 0.4
+                height: parent.height * 0.4
+                visible: image_handler.is_busy_indicator_running
+            }
+            Button {
+                anchors {
+                    top: busy_indicator.bottom
+                    horizontalCenter: busy_indicator.horizontalCenter
+                    topMargin: 3
+                }
+                width: busy_indicator.width
+                height: 30
+                visible: busy_indicator.visible
+                text: "Cancel"
+                onClicked: {
+                    image_handler.cancel_processing()
                 }
             }
         }
@@ -111,6 +166,7 @@ Page {
                 orientation: ListView.Horizontal
                 clip: true
                 currentIndex: selected_imgs.curr_img_index
+                enabled: !image_handler.is_busy_indicator_running
                 delegate: Selected_img_only_img {
                     height: all_imgs_frame.height
                     width: height
@@ -124,6 +180,7 @@ Page {
 
         Button {
             id: prev_img_btn
+            enabled: !image_handler.is_busy_indicator_running
             anchors {
                 left: parent.left
                 top: img.top
@@ -137,6 +194,7 @@ Page {
         }
         Button {
             id: next_img_btn
+            enabled: !image_handler.is_busy_indicator_running
             anchors {
                 left: img.right
                 top: img.top
@@ -206,16 +264,28 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        image_handler.hog()
+                    }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "CNN"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
+                    onClicked: {
+                        image_handler.cnn()
+                    }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG + CNN"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
+                    onClicked: {
+                        image_handler.hog_and_cnn()
+                    }
                 }
             }
             Row {
@@ -226,16 +296,80 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr up"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        image_handler.pyr_up()
+                    }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr down"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        image_handler.pyr_down()
+                    }
                 }
                 Button {
+                    id: resize_btn
                     height: parent.height
                     width: btns_col.btn_width
                     text: "resize"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        new_size_popup.open()
+                    }
+                    Popup {
+                        id: new_size_popup
+                        visible: false
+                        property int item_h: 35
+                        property int space: 2
+                        width: resize_btn.width
+                        height: item_h * 3 + 2 * space + col.anchors.margins * 2
+                        background: Rectangle {
+                            id: background
+                            anchors.fill: parent
+                            border.color: "#000000"
+                            color: "blue"
+                            border.width: 1
+                        }
+                        contentItem: Column {
+                            id: col
+                            anchors.fill: parent
+                            anchors.margins: new_size_popup.space
+                            spacing: new_size_popup.space
+                            TextField {
+                                id: width_input
+                                height: new_size_popup.item_h
+                                width: parent.width
+                                property int max_width: 3840
+                                placeholderText: "max " + max_width
+                                text: img.sourceSize.width
+                                validator: IntValidator{bottom: 1; top: width_input.max_width;}
+                            }
+                            TextField {
+                                id: height_input
+                                height: new_size_popup.item_h
+                                width: parent.width
+                                property int max_height: 2160
+                                placeholderText: "max " + max_height
+                                text: img.sourceSize.height
+                                wrapMode: TextInput.WrapAnywhere
+                                validator: IntValidator{bottom: 1; top: height_input.max_height;}
+                            }
+                            Button {
+                                height: new_size_popup.item_h
+                                width: parent.width
+                                text: "Ok"
+                                onClicked: {
+                                    if(width_input.acceptableInput && height_input.acceptableInput) {
+                                        image_handler.resize(width_input.text, height_input.text)
+                                        new_size_popup.close()
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Row {
@@ -246,16 +380,27 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "extract face"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_faces_enable
+                    onClicked: {
+                        image_handler.extract_face()
+                    }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "cancel"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cancel_enabled
+                    onClicked: {
+                        image_handler.cancel_last_action()
+                    }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "add"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
+                    onClicked: {
+                    }
                 }
             }
         }
