@@ -45,6 +45,9 @@ add_executable(face_rec_diplom
 
   image_handler_initializer.h
   image_handler_initializer.cpp
+
+  image_handler_worker.h
+  image_handler_worker.cpp
 )
 
 
