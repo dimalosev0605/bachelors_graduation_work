@@ -1,22 +1,25 @@
 #include "image_handler_worker.h"
 
-Image_handler_worker::Image_handler_worker(QObject *parent)
-    : QObject(parent)
+Image_handler_worker::Image_handler_worker(QObject* parent)
+    : QObject(parent),
+      thread(new QThread)
 {
-    qDebug() << this << " Created in thread: " << QThread::currentThreadId();
+    this->moveToThread(thread);
+    connect(thread, &QThread::finished, this, &QObject::deleteLater);
+    thread->start();
 }
 
 Image_handler_worker::~Image_handler_worker()
 {
-    qDebug() << this << " Destroyed in thread: " << QThread::currentThreadId();
+    thread->deleteLater();
 }
 
-void Image_handler_worker::hog(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const hog_face_detector_type& some_hog_face_detector)
+void Image_handler_worker::hog(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector)
 {
     auto local_img = std::move(some_img);
     auto local_hog_face_detector = std::move(some_hog_face_detector);
 
-    const auto local_rects_around_faces = local_hog_face_detector.operator()(local_img);
+    auto local_rects_around_faces = local_hog_face_detector.operator()(local_img);
 
     for(const auto& rect : local_rects_around_faces) {
         dlib::draw_rectangle(local_img, rect, dlib::rgb_pixel{255, 0, 0}, 2);
@@ -26,10 +29,10 @@ void Image_handler_worker::hog(const int some_worker_thread_id, const dlib::matr
     QThread::currentThread()->exit(0);
 }
 
-void Image_handler_worker::cnn(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const cnn_face_detector_type& some_cnn_face_detector)
+void Image_handler_worker::cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector)
 {
     auto local_img = std::move(some_img);
-    auto local_cnn_face_detector = some_cnn_face_detector;
+    auto local_cnn_face_detector = std::move(some_cnn_face_detector);
 
     const auto local_mmod_rects_around_faces = local_cnn_face_detector(local_img);
 
@@ -48,11 +51,11 @@ void Image_handler_worker::cnn(const int some_worker_thread_id, const dlib::matr
     QThread::currentThread()->exit(0);
 }
 
-void Image_handler_worker::hog_and_cnn(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const hog_face_detector_type& some_hog_face_detector, const cnn_face_detector_type& some_cnn_face_detector)
+void Image_handler_worker::hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector)
 {
     auto local_img = std::move(some_img);
     auto local_hog_face_detector = std::move(some_hog_face_detector);
-    auto local_cnn_face_detector = some_cnn_face_detector;
+    auto local_cnn_face_detector = std::move(some_cnn_face_detector);
 
     auto hog_rects_around_faces = local_hog_face_detector(local_img);
 

@@ -54,12 +54,12 @@ class Image_handler : public QObject
     dlib::shape_predictor shape_predictor;
 
 private slots:
-    void receive_hog_face_detector(const hog_face_detector_type& some_hog_face_detector);
-    void receive_cnn_face_detector(const cnn_face_detector_type& some_cnn_face_detector);
-    void receive_shape_predictor(const dlib::shape_predictor& some_shape_predictor);
+    void receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector);
+    void receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector);
+    void receive_shape_predictor(dlib::shape_predictor& some_shape_predictor);
 
-    void faces_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const std::vector<dlib::rectangle>& some_rects_around_faces);
-    void img_ready_slot(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
+    void faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::rectangle>& some_rects_around_faces);
+    void img_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
 
 private:
     void send_image_data_ready_signal();
@@ -114,9 +114,9 @@ signals:
     void is_add_face_enable_changed();
     void is_cancel_enabled_changed();
 
-    void start_hog(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const hog_face_detector_type& some_hog_face_detector);
-    void start_cnn(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const cnn_face_detector_type& some_cnn_face_detector);
-    void start_hog_and_cnn(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const hog_face_detector_type& some_hog_face_detector, const cnn_face_detector_type& some_cnn_face_detector);
+    void start_hog(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
+    void start_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector);
+    void start_hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector);
 
     void start_pyr_up(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
     void start_pyr_down(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);

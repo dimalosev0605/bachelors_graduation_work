@@ -39,9 +39,9 @@ public:
     ~Image_handler_initializer();
 
 signals:
-    void hog_face_detector_ready(const hog_face_detector_type& some_hog_face_detector);
-    void cnn_face_detector_ready(const cnn_face_detector_type& some_cnn_face_detector);
-    void shape_predictor_ready(const dlib::shape_predictor& some_shape_predictor);
+    void hog_face_detector_ready(hog_face_detector_type& some_hog_face_detector);
+    void cnn_face_detector_ready(cnn_face_detector_type& some_cnn_face_detector);
+    void shape_predictor_ready(dlib::shape_predictor& some_shape_predictor);
 };
 
 #endif // IMAGE_HANDLER_INITIALIZER_H
