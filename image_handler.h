@@ -105,6 +105,9 @@ public slots:
     void cancel_processing();
     void cancel_last_action();
 
+    Image_data get_curr_img() const;
+    Image_data get_src_img() const;
+
 signals:
     void is_busy_indicator_running_changed();
     void is_hog_enable_changed();

@@ -369,3 +369,14 @@ void Image_handler::cancel_last_action()
         send_image_data_ready_signal();
     }
 }
+
+Image_data Image_handler::get_curr_img() const
+{
+    return Image_data(dlib::image_data(imgs.back()), imgs.back().nc(), imgs.back().nr());
+}
+
+Image_data Image_handler::get_src_img() const
+{
+    return Image_data(dlib::image_data(imgs.front()), imgs.front().nc(), imgs.front().nr());
+}
+

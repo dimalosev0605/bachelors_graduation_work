@@ -6,6 +6,7 @@ import "../../delegates"
 
 import Selected_imgs_qml 1.0
 import Image_handler_qml 1.0
+import Individual_file_manager_qml 1.0
 
 Page {
     Keys.onEscapePressed: {
@@ -26,6 +27,13 @@ Page {
         onImage_data_ready: {
             Image_provider.accept_image_data(some_img_data)
             img.curr_image = Math.random().toString()
+        }
+    }
+
+    Individual_file_manager {
+        id: individual_file_manager
+        Component.onCompleted: {
+            individual_file_manager.set_individual_name(individual_checker.get_individual_name())
         }
     }
 
@@ -235,6 +243,25 @@ Page {
             wrapMode: Text.WordWrap
             text: "Extracted faces for: blabla"
         }
+        ListView {
+            id: extracted_faces_list_view
+            anchors {
+                top: table_title.bottom
+                topMargin: 5
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            model: individual_file_manager
+            clip: true
+            currentIndex: -1
+            delegate: Source_and_extr_imgs {
+                height: 60
+                width: extracted_faces_list_view.width
+                src_img_path: model.src_img_path
+                extr_face_img_path: model.extr_face_img_path
+            }
+        }
     }
 
     Rectangle {
@@ -400,6 +427,9 @@ Page {
                     text: "add"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
+                        if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_curr_img())) {
+                            selected_imgs.set_curr_img_index(0)
+                        }
                     }
                 }
             }

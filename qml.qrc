@@ -11,5 +11,6 @@
         <file>qml/common/Full_screen_img.qml</file>
         <file>qml/main_menu_pages/add_new/Process_images.qml</file>
         <file>qml/delegates/Selected_img_only_img.qml</file>
+        <file>qml/delegates/Source_and_extr_imgs.qml</file>
     </qresource>
 </RCC>

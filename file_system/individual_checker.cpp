@@ -57,3 +57,8 @@ bool Individual_checker::delete_individual_dirs() const
     QDir dir(dir_path);
     return dir.removeRecursively();
 }
+
+QString Individual_checker::get_individual_name() const
+{
+    return name;
+}

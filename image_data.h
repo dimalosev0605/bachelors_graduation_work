@@ -7,7 +7,7 @@ class Image_data
     const void* data;
     long int nc;
     long int nr;
-    const int bytes_per_pixel = 3;
+    static const int bytes_per_pixel = 3;
 
 public:
     Image_data() = default;

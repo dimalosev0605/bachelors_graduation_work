@@ -27,6 +27,7 @@ public slots:
     void set_individual_name(const QString& some_name);
     bool create_individual_dirs() const;
     bool delete_individual_dirs() const;
+    QString get_individual_name() const;
 
 signals:
     void message(const QString& message_str) const;

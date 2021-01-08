@@ -1,16 +1,45 @@
 #include "individual_file_manager.h"
 
-
-Individual_file_manager::Individual_file_manager(const QString& some_name)
-    : name(some_name)
+Individual_file_manager::Individual_file_manager(QObject* parent)
+    : QAbstractListModel(parent)
 {
-    set_individual_dirs_paths();
+    roles[static_cast<int>(RolesNames::src_img_path)] = "src_img_path";
+    roles[static_cast<int>(RolesNames::extr_face_img_path)] = "extr_face_img_path";
+}
+
+int Individual_file_manager::rowCount([[maybe_unused]]const QModelIndex& index) const
+{
+    return model_data.size();
+}
+
+QVariant Individual_file_manager::data(const QModelIndex& index, int role) const
+{
+    const int row = index.row();
+    if(row < 0 || row >= model_data.size()) return QVariant{};
+
+    switch (role) {
+    case static_cast<int>(RolesNames::src_img_path): {
+        return std::get<0>(model_data[row]);
+    }
+
+    case static_cast<int>(RolesNames::extr_face_img_path): {
+        return std::get<1>(model_data[row]);
+    }
+
+    }
+
+    return QVariant{};
 }
 
 void Individual_file_manager::set_individual_name(const QString& some_name)
 {
     name = some_name;
     set_individual_dirs_paths();
+}
+
+QHash<int, QByteArray> Individual_file_manager::roleNames() const
+{
+    return roles;
 }
 
 void Individual_file_manager::set_individual_dirs_paths()
@@ -20,47 +49,42 @@ void Individual_file_manager::set_individual_dirs_paths()
     extracted_faces_path = dir_path + '/' + Dir_names::Individual::extracted_faces;
 }
 
-QString Individual_file_manager::get_individual_name() const
+bool Individual_file_manager::add_face(const Image_data& some_src_img_data, const Image_data& some_extr_face_img_data)
 {
-    return name;
-}
+    const QImage src_img(static_cast<const uchar*>(some_src_img_data.get_data()),
+                          static_cast<int>(some_src_img_data.get_nc()),
+                          static_cast<int>(some_src_img_data.get_nr()),
+                          some_src_img_data.get_bytes_per_pixel() * static_cast<int>(some_src_img_data.get_nc()),
+                          QImage::Format_RGB888);
 
-bool Individual_file_manager::check_individual_existence() const
-{
-    if(name.isEmpty()) return false;
-    QDir dir(dir_paths.people());
-    return dir.exists(name);
-}
+    const QImage extr_face_img(static_cast<const uchar*>(some_extr_face_img_data.get_data()),
+                               static_cast<int>(some_extr_face_img_data.get_nc()),
+                               static_cast<int>(some_extr_face_img_data.get_nr()),
+                               some_extr_face_img_data.get_bytes_per_pixel() * static_cast<int>(some_extr_face_img_data.get_nc()),
+                               QImage::Format_RGB888);
+    QDir src_dir(sources_path);
+    QString src_file_name = sources_path + '/' + Dir_names::Individual::Img_file_names::source + '_' + QString::number(src_dir.count()) + ".jpg";
 
-bool Individual_file_manager::check_individual_existence(const QString& some_name) const
-{
-    QDir dir(dir_paths.people());
-    return dir.exists(some_name);
-}
+    QString extr_face_file_name = extracted_faces_path + '/' + Dir_names::Individual::Img_file_names::extracted_face + '_' + QString::number(src_dir.count()) + ".jpg";
 
-bool Individual_file_manager::create_individual_dirs() const
-{
-    if(name.isEmpty()) return false;
-    QDir dir(dir_paths.people());
-    if(dir.mkdir(name)) {
-        if(dir.mkdir(sources_path) && dir.mkdir(extracted_faces_path)) {
-            return true;
-        }
-        else {
-            dir.setPath(dir_path);
-            dir.removeRecursively();
-            return false;
-        }
+    qDebug() << src_img.size();
+    qDebug() << extr_face_img.size();
+    qDebug() << "try save to: " << src_file_name << ". and to: " << extr_face_file_name;
+    if(src_img.save(src_file_name) && extr_face_img.save(extr_face_file_name)) {
+        qDebug() << "Saved !";
+        beginInsertRows(QModelIndex(), model_data.size(), model_data.size());
+        model_data.push_back(std::tuple<QString, QString>("file://" + src_file_name, "file://" + extr_face_file_name));
+        endInsertRows();
+        return true;
     }
     else {
+        qDebug() << "Save error.";
+        QFile file;
+        file.remove(src_file_name);
+        file.remove(extr_face_file_name);
         return false;
     }
 }
 
-bool Individual_file_manager::delete_individual_dirs() const
-{
-    if(name.isEmpty()) return false;
-    QDir dir(dir_path);
-    return dir.removeRecursively();
-}
+
 
