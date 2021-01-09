@@ -62,18 +62,14 @@ bool Individual_file_manager::add_face(const Image_data& some_src_img_data, cons
                                static_cast<int>(some_extr_face_img_data.get_nr()),
                                some_extr_face_img_data.get_bytes_per_pixel() * static_cast<int>(some_extr_face_img_data.get_nc()),
                                QImage::Format_RGB888);
+
     QDir src_dir(sources_path);
-    QString src_file_name = sources_path + '/' + Dir_names::Individual::Img_file_names::source + '_' + QString::number(src_dir.count()) + ".jpg";
+    QString src_file_name = sources_path + '/' + Dir_names::Individual::Img_file_names::source + '_' + QString::number(src_dir.count()) + Dir_names::Individual::Img_file_names::img_extension;
+    QString extr_face_file_name = extracted_faces_path + '/' + Dir_names::Individual::Img_file_names::extracted_face + '_' + QString::number(src_dir.count()) + Dir_names::Individual::Img_file_names::img_extension;
 
-    QString extr_face_file_name = extracted_faces_path + '/' + Dir_names::Individual::Img_file_names::extracted_face + '_' + QString::number(src_dir.count()) + ".jpg";
-
-    qDebug() << src_img.size();
-    qDebug() << extr_face_img.size();
-    qDebug() << "try save to: " << src_file_name << ". and to: " << extr_face_file_name;
     if(src_img.save(src_file_name) && extr_face_img.save(extr_face_file_name)) {
-        qDebug() << "Saved !";
         beginInsertRows(QModelIndex(), model_data.size(), model_data.size());
-        model_data.push_back(std::tuple<QString, QString>("file://" + src_file_name, "file://" + extr_face_file_name));
+        model_data.push_back(std::tuple<QString, QString>(src_file_name, extr_face_file_name));
         endInsertRows();
         return true;
     }
@@ -86,5 +82,20 @@ bool Individual_file_manager::add_face(const Image_data& some_src_img_data, cons
     }
 }
 
+void Individual_file_manager::delete_face(const int index)
+{
+    if(index < 0 || index > model_data.size()) return;
 
+    QFile src_img_file;
+    QFile extr_face_img_file;
+
+    if(src_img_file.remove(std::get<0>(model_data[index])) && extr_face_img_file.remove(std::get<1>(model_data[index]))) {
+        beginRemoveRows(QModelIndex(), index, index);
+        model_data.removeAt(index);
+        endRemoveRows();
+    }
+    else {
+        qDebug() << "Deletion error.";
+    }
+}
 

@@ -370,7 +370,7 @@ void Image_handler::cancel_last_action()
     }
 }
 
-Image_data Image_handler::get_curr_img() const
+Image_data Image_handler::get_extr_face_img() const
 {
     return Image_data(dlib::image_data(imgs.back()), imgs.back().nc(), imgs.back().nr());
 }

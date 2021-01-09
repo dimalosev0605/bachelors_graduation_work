@@ -241,7 +241,7 @@ Page {
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "Extracted faces for: blabla"
+            text: "Extracted faces for: " + individual_checker.get_individual_name()
         }
         ListView {
             id: extracted_faces_list_view
@@ -256,10 +256,70 @@ Page {
             clip: true
             currentIndex: -1
             delegate: Source_and_extr_imgs {
-                height: 60
+                height: 40
                 width: extracted_faces_list_view.width
-                src_img_path: model.src_img_path
-                extr_face_img_path: model.extr_face_img_path
+
+                img_number.width: extracted_faces_list_view.headerItem.number_w
+                src_img_wrapper.width: extracted_faces_list_view.headerItem.img_w
+                extr_face_img_wrapper.width: extracted_faces_list_view.headerItem.img_w
+                delete_btn_wrapper.width: extracted_faces_list_view.headerItem.delete_btn_w
+
+                src_img.source: "file://" + model.src_img_path
+                extr_face_img.source: "file://" + model.extr_face_img_path
+
+                delete_btn_m_area.onClicked: {
+                    individual_file_manager.delete_face(index)
+                }
+            }
+            header: Rectangle {
+                id: extracted_faces_table_header
+                height: 40
+                width: extracted_faces_list_view.width
+                color: "transparent"
+                border.width: 1
+                border.color: "#000000"
+                property int number_w: 30
+                property int delete_btn_w: 50
+                property real img_w: (extracted_faces_table_header.width - extracted_faces_table_header.number_w - extracted_faces_table_header.delete_btn_w) / 2
+                Row {
+                    anchors.fill: parent
+                    Rectangle {
+                        id: image_number
+                        height: parent.height
+                        width: extracted_faces_table_header.number_w
+                        color: "transparent"
+                    }
+                    Text {
+                        width: extracted_faces_table_header.img_w
+                        height: parent.height
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.Fit
+                        minimumPointSize: 1
+                        font.pointSize: 10
+                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        text: "Source image"
+                    }
+                    Text {
+                        width: extracted_faces_table_header.img_w
+                        height: parent.height
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.Fit
+                        minimumPointSize: 1
+                        font.pointSize: 10
+                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        text: "Extracted face"
+                    }
+                    Rectangle {
+                        id: delete_btn
+                        height: parent.height
+                        width: extracted_faces_table_header.delete_btn_w
+                        color: "transparent"
+                    }
+                }
             }
         }
     }
@@ -283,38 +343,6 @@ Page {
             property real row_height: (height - spacing * (count_of_rows - 1)) / count_of_rows
             property real btn_width: (width - space_between_btns_in_row * (count_of_btns_in_row - 1)) / count_of_btns_in_row
             property real space_between_btns_in_row: 3
-            Row {
-                width: parent.width
-                height: parent.row_height
-                spacing: parent.space_between_btns_in_row
-                Button {
-                    height: parent.height
-                    width: btns_col.btn_width
-                    text: "HOG"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
-                    onClicked: {
-                        image_handler.hog()
-                    }
-                }
-                Button {
-                    height: parent.height
-                    width: btns_col.btn_width
-                    text: "CNN"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
-                    onClicked: {
-                        image_handler.cnn()
-                    }
-                }
-                Button {
-                    height: parent.height
-                    width: btns_col.btn_width
-                    text: "HOG + CNN"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
-                    onClicked: {
-                        image_handler.hog_and_cnn()
-                    }
-                }
-            }
             Row {
                 width: parent.width
                 height: parent.row_height
@@ -406,7 +434,39 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "extract face"
+                    text: "HOG"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    onClicked: {
+                        image_handler.hog()
+                    }
+                }
+                Button {
+                    height: parent.height
+                    width: btns_col.btn_width
+                    text: "CNN"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
+                    onClicked: {
+                        image_handler.cnn()
+                    }
+                }
+                Button {
+                    height: parent.height
+                    width: btns_col.btn_width
+                    text: "HOG + CNN"
+                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
+                    onClicked: {
+                        image_handler.hog_and_cnn()
+                    }
+                }
+            }
+            Row {
+                width: parent.width
+                height: parent.row_height
+                spacing: parent.space_between_btns_in_row
+                Button {
+                    height: parent.height
+                    width: btns_col.btn_width
+                    text: "extract face(s)"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_faces_enable
                     onClicked: {
                         image_handler.extract_face()
@@ -427,8 +487,8 @@ Page {
                     text: "add"
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
-                        if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_curr_img())) {
-                            selected_imgs.set_curr_img_index(0)
+                        if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img())) {
+                            selected_imgs.set_curr_img_index(selected_imgs_list_view.currentIndex)
                         }
                     }
                 }
@@ -446,5 +506,9 @@ Page {
         width: 200
         height: 50
         text: "Finish"
+        enabled: !image_handler.is_busy_indicator_running && extracted_faces_list_view.count > 0
+        onClicked: {
+            stack_view.pop(null, StackView.Immediate)
+        }
     }
 }

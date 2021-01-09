@@ -12,6 +12,7 @@ namespace Dir_names {
         namespace Img_file_names {
         static const QString source = "source";
         static const QString extracted_face = "extracted_face";
+        static const QString img_extension = ".jpg";
         }
     }
 }
