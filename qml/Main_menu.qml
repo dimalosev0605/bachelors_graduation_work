@@ -165,6 +165,7 @@ Page {
                 hoverEnabled: true
                 onEntered: {
                     scale_anim.start()
+                    menu_grid_view.currentIndex = index
                 }
                 onClicked: {
                     model.action()
