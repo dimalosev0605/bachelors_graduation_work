@@ -5,6 +5,8 @@ Selected_imgs::Selected_imgs(QObject* parent)
 {
     roles[static_cast<int>(RolesNames::img_file_path)] = "img_file_path";
     roles[static_cast<int>(RolesNames::img_file_name)] = "img_file_name";
+
+    connect(&file_system_watcher, &QFileSystemWatcher::fileChanged, this, &Selected_imgs::file_changed_slot);
 }
 
 int Selected_imgs::rowCount([[maybe_unused]]const QModelIndex& index) const
@@ -38,6 +40,7 @@ void Selected_imgs::accept_images(const QList<QUrl>& urls)
     for(const auto& i : urls) {
         if(!model_data.contains(i)) {
             new_imgs.push_back(i);
+            file_system_watcher.addPath(i.path());
         }
     }
 
@@ -49,22 +52,25 @@ void Selected_imgs::accept_images(const QList<QUrl>& urls)
     }
 }
 
+void Selected_imgs::file_changed_slot(const QString& some_file)
+{
+    const int index = model_data.indexOf("file://" + some_file);
+
+    if(index != -1) {
+        beginRemoveRows(QModelIndex(), index, index);
+        model_data.removeAt(index);
+        endRemoveRows();
+    }
+}
+
 void Selected_imgs::delete_image(const int index)
 {
     if(index < 0 || index >= model_data.size()) return;
     beginRemoveRows(QModelIndex(), index, index);
+    file_system_watcher.removePath(model_data[index].path());
     model_data.removeAt(index);
     endRemoveRows();
     set_curr_img_index(index + 1);
-}
-
-void Selected_imgs::clear()
-{
-    if(!model_data.isEmpty()) {
-        beginRemoveRows(QModelIndex(), 0, model_data.size() - 1);
-        model_data.clear();
-        endRemoveRows();
-    }
 }
 
 QHash<int, QByteArray> Selected_imgs::roleNames() const

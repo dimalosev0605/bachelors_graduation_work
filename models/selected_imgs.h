@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QUrl>
 #include <QFile>
-
+#include <QFileSystemWatcher>
 #include <QDir>
 
 class Selected_imgs: public QAbstractListModel
@@ -18,9 +18,13 @@ class Selected_imgs: public QAbstractListModel
     QHash<int, QByteArray> roles;
     QVector<QUrl> model_data;
     QUrl curr_img;
+    QFileSystemWatcher file_system_watcher;
 
 private:
     QHash<int, QByteArray> roleNames() const override;
+
+private slots:
+    void file_changed_slot(const QString& some_file);
 
 public:
     enum class RolesNames {
@@ -36,7 +40,6 @@ public:
 public slots:
     void accept_images(const QList<QUrl>& urls);
     void delete_image(const int index);
-    void clear();
 
     int get_curr_img_index() const;
     void set_curr_img_index(const int some_index);
