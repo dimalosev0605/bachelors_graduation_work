@@ -13,6 +13,10 @@ Page {
         id: process_images_comp
         Process_images {}
     }
+    Component {
+        id: auto_mode_comp
+        Auto_mode_select_one_image {}
+    }
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
@@ -40,9 +44,11 @@ Page {
         width: select_imgs_btn * 2
         height: 40
         RadioButton {
+            id: auto_mode_rb
             text: "auto"
         }
         RadioButton {
+            id: hand_mode_rb
             text: "hand mode"
             checked: true
         }
@@ -84,8 +90,14 @@ Page {
         height: 30
         onClicked: {
             if(selected_imgs_list_view.count > 0) {
-                stack_view.push(process_images_comp, StackView.Immediate)
-                selected_imgs.set_curr_img_index(0)
+                if(hand_mode_rb.checked) {
+                    stack_view.push(process_images_comp, StackView.Immediate)
+                    selected_imgs.set_curr_img_index(0)
+                }
+                if(auto_mode_rb.checked) {
+                    stack_view.push(auto_mode_comp, StackView.Immediate)
+                    selected_imgs.set_curr_img_index(0)
+                }
             }
             else {
                 console.log("You don't select any images!")
