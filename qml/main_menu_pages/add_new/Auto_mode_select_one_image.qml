@@ -4,6 +4,8 @@ import QtQuick.Controls 2.12
 import "../../common"
 import "../../delegates"
 
+import Auto_image_handler_qml 1.0
+
 Page {
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
@@ -11,6 +13,19 @@ Page {
 
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
+    Auto_image_handler {
+        id: auto_image_handler
+        onImage_data_ready: {
+            Image_provider.accept_image_data(some_img_data)
+            target_face_img.curr_image = Math.random().toString()
+        }
+    }
+    Connections {
+        target: selected_imgs
+        function onImage_changed(curr_img_path) {
+            auto_image_handler.curr_image_changed(curr_img_path)
+        }
+    }
     Back_btn {
         id: back_btn
         anchors {
@@ -79,7 +94,30 @@ Page {
         width: 80
         height: 30
         text: "Ok"
+        enabled: auto_image_handler.is_ok_enable
         onClicked: {
+            auto_image_handler.process_target_face()
         }
+    }
+    Image {
+        id: target_face_img
+        anchors {
+            top: ok_btn.bottom
+            topMargin: 10
+            horizontalCenter: parent.horizontalCenter
+        }
+        width: 200
+        height: 200
+        property string curr_image
+        cache: false
+        fillMode: Image.PreserveAspectFit
+        source: "image://Image_provider/" + curr_image
+    }
+    BusyIndicator {
+        id: busy_indicator
+        anchors.centerIn: parent
+        width: parent.width * 0.4
+        height: parent.height * 0.4
+        visible: auto_image_handler.is_busy_indicator_running
     }
 }

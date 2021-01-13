@@ -25,6 +25,9 @@ public slots:
     void pyr_down(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
     void resize(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const int some_width, const int some_height);
 
+    // slots for auto_image_handler
+    void process_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
+
 signals:
     void faces_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::rectangle>& some_rects_around_faces);
     void img_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);

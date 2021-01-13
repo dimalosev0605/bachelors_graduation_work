@@ -131,3 +131,67 @@ void Image_handler_worker::resize(const int some_worker_thread_id, const dlib::m
     emit img_ready(some_worker_thread_id, resized_img);
     QThread::currentThread()->exit(0);
 }
+
+void Image_handler_worker::process_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding)
+{
+    auto local_img = std::move(some_img);
+    auto local_hog_face_detector = std::move(some_hog_face_detector);
+    auto local_cnn_face_detector = std::move(some_cnn_face_detector);
+    auto local_shape_predictor = std::move(some_shape_predictor);
+    auto local_face_chip_size = face_chip_size;
+    auto local_face_chip_padding = face_chip_padding;
+
+    auto rects_around_faces = local_hog_face_detector(local_img);
+    dlib::matrix<dlib::rgb_pixel> pyr_up_img = local_img;
+    bool is_pyr_up = false;
+
+    if(rects_around_faces.empty()) {
+        dlib::pyramid_up(pyr_up_img);
+        is_pyr_up = true;
+        rects_around_faces = local_hog_face_detector(pyr_up_img);
+
+        if(rects_around_faces.empty()) {
+            is_pyr_up = false;
+            auto cnn_mmod_rects_around_faces = local_cnn_face_detector(local_img);
+
+            if(cnn_mmod_rects_around_faces.empty()) {
+                is_pyr_up = true;
+                cnn_mmod_rects_around_faces = local_cnn_face_detector(pyr_up_img);
+                if(cnn_mmod_rects_around_faces.empty()) {
+                    qDebug() << "We did not find any faces. Exit.";
+                    QThread::currentThread()->exit(0);
+                    return;
+                }
+            }
+            for(const auto& mmod_rect : cnn_mmod_rects_around_faces) {
+                rects_around_faces.push_back(mmod_rect.rect);
+            }
+        }
+    }
+
+    if(rects_around_faces.size() != 1) {
+        qDebug() << "must be only one face. Exit.";
+        QThread::currentThread()->exit(0);
+        return;
+    }
+
+    dlib::full_object_detection target_face_shape;
+    if(is_pyr_up) {
+        target_face_shape = local_shape_predictor.operator()(pyr_up_img, rects_around_faces[0]);
+    }
+    else {
+        target_face_shape = local_shape_predictor.operator()(local_img, rects_around_faces[0]);
+    }
+
+    dlib::matrix<dlib::rgb_pixel> target_face;
+    if(is_pyr_up) {
+        dlib::extract_image_chip(pyr_up_img, dlib::get_face_chip_details(target_face_shape, local_face_chip_size, local_face_chip_padding), target_face);
+    }
+    else {
+        dlib::extract_image_chip(local_img, dlib::get_face_chip_details(target_face_shape, local_face_chip_size, local_face_chip_padding), target_face);
+    }
+
+    emit img_ready(some_worker_thread_id, target_face);
+    QThread::currentThread()->exit(0);
+}
+
