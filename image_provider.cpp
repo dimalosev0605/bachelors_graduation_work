@@ -20,3 +20,8 @@ void Image_provider::accept_image_data(const Image_data& some_img_data)
 
     img = local_q_img.copy();
 }
+
+void Image_provider::empty_image()
+{
+    img = QImage{};
+}

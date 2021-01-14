@@ -54,13 +54,16 @@ public:
 
 public slots:
     void curr_image_changed(const QString& curr_img_path);
-    void process_target_face();
+    void search_target_face();
+    void receive_message(const QString& some_message, const int some_worker_thread_id);
+    void cancel();
 
 signals:
     void is_ok_enable_changed();
     void is_busy_indicator_running_changed();
-    void start_process_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
+    void start_search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
     void image_data_ready(const Image_data& some_img_data);
+    void message(const QString& some_message);
 };
 
 #endif // AUTO_IMAGE_HANDLER_H

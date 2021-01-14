@@ -10,6 +10,16 @@ Page {
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
+    Keys.onLeftPressed: {
+        if(!auto_image_handler.is_busy_indicator_running) {
+            selected_imgs.set_curr_img_index(all_imgs_list_view.currentIndex - 1)
+        }
+    }
+    Keys.onRightPressed: {
+        if(!auto_image_handler.is_busy_indicator_running) {
+            selected_imgs.set_curr_img_index(all_imgs_list_view.currentIndex + 1)
+        }
+    }
 
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
@@ -19,11 +29,17 @@ Page {
             Image_provider.accept_image_data(some_img_data)
             target_face_img.curr_image = Math.random().toString()
         }
+        onMessage: {
+            message_dialog.text = some_message
+            message_dialog.open()
+        }
     }
     Connections {
         target: selected_imgs
         function onImage_changed(curr_img_path) {
             auto_image_handler.curr_image_changed(curr_img_path)
+            Image_provider.empty_image()
+            target_face_img.curr_image = Math.random().toString()
         }
     }
     Back_btn {
@@ -74,6 +90,7 @@ Page {
             orientation: ListView.Horizontal
             clip: true
             currentIndex: selected_imgs.curr_img_index
+            enabled: !auto_image_handler.is_busy_indicator_running
             delegate: Selected_img_only_img {
                 height: all_imgs_frame.height
                 width: height
@@ -96,7 +113,7 @@ Page {
         text: "Ok"
         enabled: auto_image_handler.is_ok_enable
         onClicked: {
-            auto_image_handler.process_target_face()
+            auto_image_handler.search_target_face()
         }
     }
     Image {
@@ -112,6 +129,15 @@ Page {
         cache: false
         fillMode: Image.PreserveAspectFit
         source: "image://Image_provider/" + curr_image
+        MouseArea {
+            anchors.centerIn: parent
+            width: target_face_img.width
+            height: target_face_img.height
+            onClicked: {
+                var win = full_screen_img_var.createObject(null, { img_source: target_face_img.source })
+                win.show()
+            }
+        }
     }
     BusyIndicator {
         id: busy_indicator
@@ -119,5 +145,19 @@ Page {
         width: parent.width * 0.4
         height: parent.height * 0.4
         visible: auto_image_handler.is_busy_indicator_running
+    }
+    Button {
+        id: cancel_btn
+        anchors {
+            top: busy_indicator.bottom
+            horizontalCenter: busy_indicator.horizontalCenter
+        }
+        width: 80
+        height: 30
+        visible: auto_image_handler.is_busy_indicator_running
+        text: "Cancel"
+        onClicked: {
+            auto_image_handler.cancel()
+        }
     }
 }

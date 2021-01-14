@@ -26,7 +26,7 @@ void Image_handler_worker::hog(const int some_worker_thread_id, dlib::matrix<dli
     }
 
     emit faces_ready(some_worker_thread_id, local_img, local_rects_around_faces);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 
 void Image_handler_worker::cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector)
@@ -48,7 +48,7 @@ void Image_handler_worker::cnn(const int some_worker_thread_id, dlib::matrix<dli
     }
 
     emit faces_ready(some_worker_thread_id, local_img, local_rects_around_faces);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 
 void Image_handler_worker::hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector)
@@ -101,7 +101,7 @@ void Image_handler_worker::hog_and_cnn(const int some_worker_thread_id, dlib::ma
     }
 
     emit faces_ready(some_worker_thread_id, local_img, result_rects_around_faces);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 
 void Image_handler_worker::pyr_up(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img)
@@ -109,7 +109,7 @@ void Image_handler_worker::pyr_up(const int some_worker_thread_id, const dlib::m
     auto local_img = std::move(some_img);
     dlib::pyramid_up(local_img);
     emit img_ready(some_worker_thread_id, local_img);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 
 void Image_handler_worker::pyr_down(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img)
@@ -118,7 +118,7 @@ void Image_handler_worker::pyr_down(const int some_worker_thread_id, const dlib:
     dlib::pyramid_down<2> pyr;
     pyr(local_img);
     emit img_ready(some_worker_thread_id, local_img);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 
 void Image_handler_worker::resize(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const int some_width, const int some_height)
@@ -129,10 +129,10 @@ void Image_handler_worker::resize(const int some_worker_thread_id, const dlib::m
     dlib::resize_image(local_img, resized_img);
 
     emit img_ready(some_worker_thread_id, resized_img);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 
-void Image_handler_worker::process_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding)
+void Image_handler_worker::search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding)
 {
     auto local_img = std::move(some_img);
     auto local_hog_face_detector = std::move(some_hog_face_detector);
@@ -158,8 +158,8 @@ void Image_handler_worker::process_target_face(const int some_worker_thread_id, 
                 is_pyr_up = true;
                 cnn_mmod_rects_around_faces = local_cnn_face_detector(pyr_up_img);
                 if(cnn_mmod_rects_around_faces.empty()) {
-                    qDebug() << "We did not find any faces. Exit.";
-                    QThread::currentThread()->exit(0);
+                    emit message("We did not find any faces on the image", some_worker_thread_id);
+                    QThread::currentThread()->exit();
                     return;
                 }
             }
@@ -170,8 +170,12 @@ void Image_handler_worker::process_target_face(const int some_worker_thread_id, 
     }
 
     if(rects_around_faces.size() != 1) {
-        qDebug() << "must be only one face. Exit.";
-        QThread::currentThread()->exit(0);
+        for(const auto& rect : rects_around_faces) {
+            dlib::draw_rectangle(local_img, rect, dlib::rgb_pixel{255, 0, 0}, 2);
+        }
+        emit img_ready(some_worker_thread_id, local_img);
+        emit message(QString("Only one face must be on the image. Was found: %1").arg(rects_around_faces.size()), some_worker_thread_id);
+        QThread::currentThread()->exit();
         return;
     }
 
@@ -192,6 +196,6 @@ void Image_handler_worker::process_target_face(const int some_worker_thread_id, 
     }
 
     emit img_ready(some_worker_thread_id, target_face);
-    QThread::currentThread()->exit(0);
+    QThread::currentThread()->exit();
 }
 

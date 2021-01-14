@@ -43,17 +43,17 @@ void Auto_image_handler::set_is_ok_enable(const bool some_value)
     emit is_ok_enable_changed();
 }
 
-void Auto_image_handler::process_target_face()
+void Auto_image_handler::search_target_face()
 {
     set_is_busy_indicator_running(true);
 
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Auto_image_handler::start_process_target_face, worker, &Image_handler_worker::process_target_face);
-//    connect() // на мессейдж ошибки
+    connect(this, &Auto_image_handler::start_search_target_face, worker, &Image_handler_worker::search_target_face);
+    connect(worker, &Image_handler_worker::message, this, &Auto_image_handler::receive_message);
     connect(worker, &Image_handler_worker::img_ready, this, &Auto_image_handler::img_ready_slot);
 
-    emit start_process_target_face(++worker_thread_id, img_with_target_face, hog_face_detector, cnn_face_detector, shape_predictor, face_chip_size, face_chip_padding);
+    emit start_search_target_face(++worker_thread_id, img_with_target_face, hog_face_detector, cnn_face_detector, shape_predictor, face_chip_size, face_chip_padding);
 }
 
 bool Auto_image_handler::get_is_busy_indicator_running() const
@@ -85,6 +85,23 @@ void Auto_image_handler::send_image_data_ready_signal()
     const auto data = dlib::image_data(target_face);
     Image_data image_data(data, target_face.nc(), target_face.nr());
     emit image_data_ready(image_data);
+}
+
+void Auto_image_handler::receive_message(const QString& some_message, const int some_worker_thread_id)
+{
+    if(worker_thread_id == some_worker_thread_id) {
+        set_is_busy_indicator_running(false);
+        emit message(some_message);
+    }
+    else {
+        qDebug() << "Ignore message.";
+    }
+}
+
+void Auto_image_handler::cancel()
+{
+    ++worker_thread_id;
+    set_is_busy_indicator_running(false);
 }
 
 
