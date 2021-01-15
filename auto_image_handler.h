@@ -21,8 +21,16 @@ class Auto_image_handler : public QObject
     Q_PROPERTY(bool is_busy_indicator_running READ get_is_busy_indicator_running WRITE set_is_busy_indicator_running NOTIFY is_busy_indicator_running_changed)
     bool is_busy_indicator_running = false;
 
-    dlib::matrix<dlib::rgb_pixel> img_with_target_face;
-    dlib::matrix<dlib::rgb_pixel> target_face;
+    Q_PROPERTY(bool is_choose_face_enable READ get_is_choose_face_enable WRITE set_is_choose_face_enable NOTIFY is_choose_face_enable_changed)
+    bool is_choose_face_enable = false;
+
+    Q_PROPERTY(bool is_process_remain_imgs_visible READ get_is_process_remain_imgs_visible WRITE set_is_process_remain_imgs_visible NOTIFY is_process_remain_imgs_visible_changed)
+    bool is_process_remain_imgs_visible = false;
+
+    Q_PROPERTY(bool is_cancel_visible READ get_is_cancel_visible WRITE set_is_cancel_visible NOTIFY is_cancel_visible_changed)
+    bool is_cancel_visible = false;
+
+    std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
 
     hog_face_detector_type hog_face_detector;
     cnn_face_detector_type cnn_face_detector;
@@ -41,7 +49,8 @@ private slots:
     void receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector);
     void receive_shape_predictor(dlib::shape_predictor& some_shape_predictor);
 
-    void img_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
+    void target_face_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int number_of_faces);
+    void receive_message(const QString& some_message, const int some_worker_thread_id);
 
 public:
     explicit Auto_image_handler(QObject *parent = nullptr);
@@ -52,16 +61,29 @@ public:
     bool get_is_busy_indicator_running() const;
     void set_is_busy_indicator_running(const bool some_value);
 
+    bool get_is_choose_face_enable() const;
+    void set_is_choose_face_enable(const bool some_value);
+
+    bool get_is_cancel_visible() const;
+    void set_is_cancel_visible(const bool some_value);
+
+    bool get_is_process_remain_imgs_visible() const;
+    void set_is_process_remain_imgs_visible(const bool some_value);
+
 public slots:
     void curr_image_changed(const QString& curr_img_path);
     void search_target_face();
-    void receive_message(const QString& some_message, const int some_worker_thread_id);
-    void cancel();
+    void cancel_processing();
+    void cancel_last_action();
+    void choose_face(const double x, const double y);
 
 signals:
     void is_ok_enable_changed();
     void is_busy_indicator_running_changed();
-    void start_search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
+    void is_choose_face_enable_changed();
+    void is_cancel_visible_changed();
+    void is_process_remain_imgs_visible_changed();
+    void start_search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
     void image_data_ready(const Image_data& some_img_data);
     void message(const QString& some_message);
 };

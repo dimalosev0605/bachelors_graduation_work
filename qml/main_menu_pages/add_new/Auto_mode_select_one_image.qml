@@ -70,7 +70,7 @@ Page {
         font.pointSize: 15
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
-        text: "Select one image"
+        text: "Select the image with target face and press \"Ok\" button"
     }
     Rectangle {
         id: all_imgs_frame
@@ -128,15 +128,76 @@ Page {
         property string curr_image
         cache: false
         fillMode: Image.PreserveAspectFit
+        enabled: !auto_image_handler.is_busy_indicator_running
         source: "image://Image_provider/" + curr_image
         MouseArea {
             anchors.centerIn: parent
             width: target_face_img.width
             height: target_face_img.height
             onClicked: {
-                var win = full_screen_img_var.createObject(null, { img_source: target_face_img.source })
-                win.show()
+                if(auto_image_handler.is_choose_face_enable) {
+                    var p_to_s_width_k = target_face_img.paintedWidth / target_face_img.sourceSize.width
+                    var p_to_s_height_k = target_face_img.paintedHeight / target_face_img.sourceSize.height
+
+                    var s_to_p_width_k = target_face_img.sourceSize.width / target_face_img.paintedWidth
+                    var s_to_p_height_k = target_face_img.sourceSize.height / target_face_img.paintedHeight
+
+                    var p_m_x = mouseX
+                    var p_m_y = mouseY
+
+                    var s_m_x = 0
+                    var s_m_y = 0
+
+                    if(p_to_s_width_k > 1) {
+                        s_m_x = p_m_x / p_to_s_width_k
+                    }
+                    else {
+                        s_m_x = p_m_x * s_to_p_width_k
+                    }
+
+                    if(p_to_s_height_k > 1) {
+                        s_m_y = p_m_y / p_to_s_height_k
+                    }
+                    else {
+                        s_m_y = p_m_y * s_to_p_height_k
+                    }
+
+                    auto_image_handler.choose_face(s_m_x, s_m_y)
+                }
+                else {
+                    var win = full_screen_img_var.createObject(null, { img_source: target_face_img.source })
+                    win.show()
+                }
             }
+        }
+    }
+    Button {
+        id: cancel_last_action_btn
+        anchors {
+            top: target_face_img.bottom
+            topMargin: 5
+            horizontalCenter: target_face_img.horizontalCenter
+        }
+        width: 80
+        height: 30
+        text: "cancel"
+        visible: !auto_image_handler.is_busy_indicator_running && auto_image_handler.is_cancel_visible
+        onClicked: {
+            auto_image_handler.cancel_last_action()
+        }
+    }
+    Button {
+        id: process_remain_imgs_btn
+        anchors {
+            left: target_face_img.right
+            leftMargin: 5
+            verticalCenter: target_face_img.verticalCenter
+        }
+        width: 200
+        height: 30
+        text: "Process remain images."
+        visible: auto_image_handler.is_process_remain_imgs_visible
+        onClicked: {
         }
     }
     BusyIndicator {
@@ -157,7 +218,7 @@ Page {
         visible: auto_image_handler.is_busy_indicator_running
         text: "Cancel"
         onClicked: {
-            auto_image_handler.cancel()
+            auto_image_handler.cancel_processing()
         }
     }
 }
