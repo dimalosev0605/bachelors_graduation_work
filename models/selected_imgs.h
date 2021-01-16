@@ -40,6 +40,7 @@ public:
 public slots:
     void accept_images(const QList<QUrl>& urls);
     void delete_image(const int index);
+    QVector<QString> get_selected_imgs_paths() const;
 
     int get_curr_img_index() const;
     void set_curr_img_index(const int some_index);

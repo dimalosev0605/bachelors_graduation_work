@@ -35,6 +35,7 @@ class Auto_image_handler : public QObject
     hog_face_detector_type hog_face_detector;
     cnn_face_detector_type cnn_face_detector;
     dlib::shape_predictor shape_predictor;
+    face_recognition_dnn_type face_recognition_dnn;
 
     const unsigned long face_chip_size = 150;
     const double face_chip_padding = 0.25;
@@ -48,9 +49,11 @@ private slots:
     void receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector);
     void receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector);
     void receive_shape_predictor(dlib::shape_predictor& some_shape_predictor);
+    void receive_face_recognition_dnn(face_recognition_dnn_type& some_face_recognition_dnn);
 
     void target_face_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int number_of_faces);
     void receive_message(const QString& some_message, const int some_worker_thread_id);
+    void remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs);
 
 public:
     explicit Auto_image_handler(QObject *parent = nullptr);
@@ -76,6 +79,7 @@ public slots:
     void cancel_processing();
     void cancel_last_action();
     void choose_face(const double x, const double y);
+    void handle_remaining_images(const QVector<QString>& some_selected_imgs_paths);
 
 signals:
     void is_ok_enable_changed();
@@ -83,9 +87,11 @@ signals:
     void is_choose_face_enable_changed();
     void is_cancel_visible_changed();
     void is_process_remain_imgs_visible_changed();
-    void start_search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
+    void start_search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
     void image_data_ready(const Image_data& some_img_data);
     void message(const QString& some_message);
+    void start_handle_remaining_images(const int some_worker_thread_id, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, dlib::matrix<dlib::rgb_pixel>& some_target_face_img , const QVector<QString>& some_selected_imgs_paths, const unsigned long face_chip_size, const double face_chip_padding);
+    void image_ready(const Image_data& some_source_img_data, const Image_data& some_extracted_face_image_data);
 };
 
 #endif // AUTO_IMAGE_HANDLER_H

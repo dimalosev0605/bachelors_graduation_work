@@ -44,11 +44,17 @@ int main(int argc, char *argv[])
     qRegisterMetaType<cnn_face_detector_type>("cnn_face_detector_type");
     qRegisterMetaType<cnn_face_detector_type>("cnn_face_detector_type&");
 
+    qRegisterMetaType<face_recognition_dnn_type>("face_recognition_dnn_type");
+    qRegisterMetaType<face_recognition_dnn_type>("face_recognition_dnn_type&");
+
     qRegisterMetaType<dlib::matrix<dlib::rgb_pixel>>("dlib::matrix<dlib::rgb_pixel>");
     qRegisterMetaType<dlib::matrix<dlib::rgb_pixel>>("dlib::matrix<dlib::rgb_pixel>&");
 
     qRegisterMetaType<std::vector<dlib::rectangle>>("std::vector<dlib::rectangle>");
     qRegisterMetaType<std::vector<dlib::rectangle>>("std::vector<dlib::rectangle>&");
+
+    qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>");
+    qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>&");
 
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);

@@ -6,6 +6,7 @@ Auto_image_handler::Auto_image_handler(QObject *parent) : QObject(parent)
     connect(image_handler_initializer, &Image_handler_initializer::hog_face_detector_ready, this, &Auto_image_handler::receive_hog_face_detector);
     connect(image_handler_initializer, &Image_handler_initializer::cnn_face_detector_ready, this, &Auto_image_handler::receive_cnn_face_detector);
     connect(image_handler_initializer, &Image_handler_initializer::shape_predictor_ready, this, &Auto_image_handler::receive_shape_predictor);
+    connect(image_handler_initializer, &Image_handler_initializer::face_recognition_dnn_ready, this, &Auto_image_handler::receive_face_recognition_dnn);
     connect(image_handler_initializer, &Image_handler_initializer::finished, image_handler_initializer, &Image_handler_initializer::deleteLater);
     image_handler_initializer->start();
 }
@@ -35,6 +36,11 @@ void Auto_image_handler::receive_hog_face_detector(hog_face_detector_type& some_
 void Auto_image_handler::receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector)
 {
     cnn_face_detector = std::move(some_cnn_face_detector);
+}
+
+void Auto_image_handler::receive_face_recognition_dnn(face_recognition_dnn_type& some_face_recognition_dnn)
+{
+    face_recognition_dnn = std::move(some_face_recognition_dnn);
     // Image_handler_initializer emits signal for this slot last of all.
     set_is_ok_enable(true);
 }
@@ -191,3 +197,27 @@ void Auto_image_handler::choose_face(const double x, [[maybe_unused]]const doubl
     set_is_busy_indicator_running(false);
 }
 
+void Auto_image_handler::handle_remaining_images(const QVector<QString>& some_selected_imgs_paths)
+{
+    set_is_busy_indicator_running(true);
+
+    Image_handler_worker* worker = new Image_handler_worker;
+
+    connect(this, &Auto_image_handler::start_handle_remaining_images, worker, &Image_handler_worker::handle_remaining_images);
+    connect(worker, &Image_handler_worker::remaining_images_ready, this, &Auto_image_handler::remaining_images_ready);
+    emit start_handle_remaining_images(++worker_thread_id, hog_face_detector, shape_predictor, face_recognition_dnn, imgs.back(), some_selected_imgs_paths, face_chip_size, face_chip_padding);
+}
+
+void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs)
+{
+    if(worker_thread_id == some_worker_thread_id) {
+        for(std::size_t i = 0; i < some_imgs.size(); ++i) {
+            emit image_ready(Image_data(dlib::image_data(std::get<0>(some_imgs[i])), std::get<0>(some_imgs[i]).nc(), std::get<0>(some_imgs[i]).nr()),
+                             Image_data(dlib::image_data(std::get<1>(some_imgs[i])), std::get<1>(some_imgs[i]).nc(), std::get<1>(some_imgs[i]).nr()));
+        }
+        set_is_busy_indicator_running(false);
+    }
+    else {
+        qDebug() << "Ignore target face image.";
+    }
+}

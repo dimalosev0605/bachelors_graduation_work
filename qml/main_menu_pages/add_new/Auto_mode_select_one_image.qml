@@ -5,6 +5,7 @@ import "../../common"
 import "../../delegates"
 
 import Auto_image_handler_qml 1.0
+import Individual_file_manager_qml 1.0
 
 Page {
     Keys.onEscapePressed: {
@@ -33,7 +34,17 @@ Page {
             message_dialog.text = some_message
             message_dialog.open()
         }
+        onImage_ready: {
+            individual_file_manager.add_face(some_source_img_data, some_extracted_face_image_data)
+        }
     }
+    Individual_file_manager {
+        id: individual_file_manager
+        Component.onCompleted: {
+            individual_file_manager.set_individual_name(individual_checker.get_individual_name())
+        }
+    }
+
     Connections {
         target: selected_imgs
         function onImage_changed(curr_img_path) {
@@ -195,9 +206,10 @@ Page {
         }
         width: 200
         height: 30
-        text: "Process remain images."
+        text: "Handle remaining images."
         visible: auto_image_handler.is_process_remain_imgs_visible
         onClicked: {
+            auto_image_handler.handle_remaining_images(selected_imgs.get_selected_imgs_paths())
         }
     }
     BusyIndicator {

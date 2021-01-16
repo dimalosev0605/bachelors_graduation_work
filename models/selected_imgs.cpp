@@ -91,3 +91,16 @@ void Selected_imgs::set_curr_img_index(const int some_index)
     emit curr_img_index_changed();
     emit image_changed(curr_img.path());
 }
+
+QVector<QString> Selected_imgs::get_selected_imgs_paths() const
+{
+    QVector<QString> res;
+    res.reserve(model_data.size());
+
+    for(const auto& elem : model_data) {
+        res.push_back(elem.path());
+    }
+
+    return res;
+}
+

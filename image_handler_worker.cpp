@@ -132,7 +132,7 @@ void Image_handler_worker::resize(const int some_worker_thread_id, const dlib::m
     QThread::currentThread()->exit();
 }
 
-void Image_handler_worker::search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, const dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding)
+void Image_handler_worker::search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding)
 {
     auto local_img = std::move(some_img);
     auto local_hog_face_detector = std::move(some_hog_face_detector);
@@ -184,3 +184,49 @@ void Image_handler_worker::search_target_face(const int some_worker_thread_id, d
     emit target_faces_ready(some_worker_thread_id, img, static_cast<int>(processed_faces.size()));
     QThread::currentThread()->exit();
 }
+
+void Image_handler_worker::handle_remaining_images(const int some_worker_thread_id, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, dlib::matrix<dlib::rgb_pixel>& some_target_face_img , const QVector<QString>& some_selected_imgs_paths, const unsigned long face_chip_size, const double face_chip_padding)
+{
+    auto local_target_face_img = std::move(some_target_face_img);
+    auto local_hog_face_detector = std::move(some_hog_face_detector);
+    auto local_shape_predictor = std::move(some_shape_predictor);
+    auto local_face_recognition_dnn = some_face_recognition_dnn;
+
+    dlib::matrix<float, 0, 1> target_face_descriptor = local_face_recognition_dnn.operator()(local_target_face_img);
+
+    std::vector<dlib::matrix<dlib::rgb_pixel>> selected_imgs;
+    selected_imgs.reserve(some_selected_imgs_paths.size());
+
+    for(int i = 0; i < some_selected_imgs_paths.size(); ++i) {
+        dlib::matrix<dlib::rgb_pixel> img;
+        dlib::load_image(img, some_selected_imgs_paths[i].toStdString());
+        selected_imgs.push_back(std::move(img));
+    }
+
+    std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>> res; // 1 - original image, 2 - extracted face.
+
+    for(std::size_t i = 0; i < selected_imgs.size(); ++i) {
+        auto rects_around_faces = local_hog_face_detector.operator()(selected_imgs[i]);
+        if(rects_around_faces.empty()) continue;
+
+        std::vector<dlib::matrix<dlib::rgb_pixel>> processed_faces;
+        for(const auto& rect : rects_around_faces) {
+            const auto face_shape = local_shape_predictor.operator()(selected_imgs[i], rect);
+            dlib::matrix<dlib::rgb_pixel> processed_face;
+            dlib::extract_image_chip(selected_imgs[i], dlib::get_face_chip_details(face_shape, face_chip_size, face_chip_padding), processed_face);
+            processed_faces.push_back(std::move(processed_face));
+        }
+
+        std::vector<dlib::matrix<float, 0, 1>> face_descriptors = local_face_recognition_dnn.operator()(processed_faces);
+
+        for(std::size_t j = 0; j < face_descriptors.size(); ++j) {
+            if(dlib::length(face_descriptors[j] - target_face_descriptor) < 0.6) {
+                res.push_back(std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>(selected_imgs[i], processed_faces[j]));
+            }
+        }
+    }
+
+    emit remaining_images_ready(some_worker_thread_id, res);
+    QThread::currentThread()->exit();
+}
+
