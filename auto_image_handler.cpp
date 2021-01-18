@@ -17,7 +17,7 @@ void Auto_image_handler::curr_image_changed(const QString& curr_img_path)
         set_is_busy_indicator_running(false);
         set_is_choose_face_enable(false);
         set_is_cancel_visible(false);
-        set_is_process_remain_imgs_visible(false);
+        set_is_handle_remaining_imgs_visible(false);
         set_is_ok_enable(true);
     }
 
@@ -83,15 +83,15 @@ void Auto_image_handler::set_is_cancel_visible(const bool some_value)
     emit is_cancel_visible_changed();
 }
 
-bool Auto_image_handler::get_is_process_remain_imgs_visible() const
+bool Auto_image_handler::get_is_handle_remaining_imgs_visible() const
 {
-    return is_process_remain_imgs_visible;
+    return is_handle_remaining_imgs_visible;
 }
 
-void Auto_image_handler::set_is_process_remain_imgs_visible(const bool some_value)
+void Auto_image_handler::set_is_handle_remaining_imgs_visible(const bool some_value)
 {
-    is_process_remain_imgs_visible = some_value;
-    emit is_process_remain_imgs_visible_changed();
+    is_handle_remaining_imgs_visible = some_value;
+    emit is_handle_remaining_imgs_visible_changed();
 }
 
 void Auto_image_handler::search_target_face()
@@ -148,7 +148,7 @@ void Auto_image_handler::cancel_last_action()
         imgs.pop_back();
         set_is_choose_face_enable(true);
         set_is_cancel_visible(false);
-        set_is_process_remain_imgs_visible(false);
+        set_is_handle_remaining_imgs_visible(false);
         send_image_data_ready_signal();
     }
 }
@@ -163,7 +163,7 @@ void Auto_image_handler::target_face_ready(const int some_worker_thread_id, dlib
             set_is_choose_face_enable(true);
         }
         else {
-            set_is_process_remain_imgs_visible(true);
+            set_is_handle_remaining_imgs_visible(true);
         }
         set_is_ok_enable(false);
         set_is_busy_indicator_running(false);
@@ -193,7 +193,7 @@ void Auto_image_handler::choose_face(const double x, [[maybe_unused]]const doubl
 
     set_is_cancel_visible(true);
     set_is_choose_face_enable(false);
-    set_is_process_remain_imgs_visible(true);
+    set_is_handle_remaining_imgs_visible(true);
     set_is_busy_indicator_running(false);
 }
 
@@ -205,6 +205,7 @@ void Auto_image_handler::handle_remaining_images(const QVector<QString>& some_se
 
     connect(this, &Auto_image_handler::start_handle_remaining_images, worker, &Image_handler_worker::handle_remaining_images);
     connect(worker, &Image_handler_worker::remaining_images_ready, this, &Auto_image_handler::remaining_images_ready);
+    connect(worker, &Image_handler_worker::message, this, &Auto_image_handler::receive_progress_message);
     emit start_handle_remaining_images(++worker_thread_id, hog_face_detector, shape_predictor, face_recognition_dnn, imgs.back(), some_selected_imgs_paths, face_chip_size, face_chip_padding);
 }
 
@@ -215,9 +216,22 @@ void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id,
             emit image_ready(Image_data(dlib::image_data(std::get<0>(some_imgs[i])), std::get<0>(some_imgs[i]).nc(), std::get<0>(some_imgs[i]).nr()),
                              Image_data(dlib::image_data(std::get<1>(some_imgs[i])), std::get<1>(some_imgs[i]).nc(), std::get<1>(some_imgs[i]).nr()));
         }
+        if(!some_imgs.empty()) {
+            emit all_remaining_images_received();
+        }
         set_is_busy_indicator_running(false);
     }
     else {
         qDebug() << "Ignore target face image.";
+    }
+}
+
+void Auto_image_handler::receive_progress_message(const QString& some_message, const int some_worker_thread_id)
+{
+    if(worker_thread_id == some_worker_thread_id) {
+        qDebug() << "progress: " << some_message;
+    }
+    else {
+        qDebug() << "Ignore progress.";
     }
 }

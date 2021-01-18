@@ -206,6 +206,8 @@ void Image_handler_worker::handle_remaining_images(const int some_worker_thread_
     std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>> res; // 1 - original image, 2 - extracted face.
 
     for(std::size_t i = 0; i < selected_imgs.size(); ++i) {
+        emit message(QString("Processing image %1 of %2").arg(i + 1).arg(selected_imgs.size()), some_worker_thread_id);
+
         auto rects_around_faces = local_hog_face_detector.operator()(selected_imgs[i]);
         if(rects_around_faces.empty()) continue;
 

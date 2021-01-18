@@ -21,6 +21,10 @@ Page {
             selected_imgs.set_curr_img_index(all_imgs_list_view.currentIndex + 1)
         }
     }
+    Component {
+        id: check_auto_retrieved_images_comp
+        Check_auto_retrieved_images {}
+    }
 
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
@@ -36,6 +40,9 @@ Page {
         }
         onImage_ready: {
             individual_file_manager.add_face(some_source_img_data, some_extracted_face_image_data)
+        }
+        onAll_remaining_images_received: {
+            stack_view.push(check_auto_retrieved_images_comp, StackView.Immediate)
         }
     }
     Individual_file_manager {
@@ -122,7 +129,7 @@ Page {
         width: 80
         height: 30
         text: "Ok"
-        enabled: auto_image_handler.is_ok_enable
+        enabled: auto_image_handler.is_ok_enable && !auto_image_handler.is_busy_indicator_running
         onClicked: {
             auto_image_handler.search_target_face()
         }
@@ -192,13 +199,14 @@ Page {
         width: 80
         height: 30
         text: "cancel"
-        visible: !auto_image_handler.is_busy_indicator_running && auto_image_handler.is_cancel_visible
+        visible: auto_image_handler.is_cancel_visible
+        enabled: !auto_image_handler.is_busy_indicator_running
         onClicked: {
             auto_image_handler.cancel_last_action()
         }
     }
     Button {
-        id: process_remain_imgs_btn
+        id: handle_remain_imgs_btn
         anchors {
             left: target_face_img.right
             leftMargin: 5
@@ -207,7 +215,8 @@ Page {
         width: 200
         height: 30
         text: "Handle remaining images."
-        visible: auto_image_handler.is_process_remain_imgs_visible
+        visible: auto_image_handler.is_handle_remaining_imgs_visible
+        enabled: !auto_image_handler.is_busy_indicator_running
         onClicked: {
             auto_image_handler.handle_remaining_images(selected_imgs.get_selected_imgs_paths())
         }

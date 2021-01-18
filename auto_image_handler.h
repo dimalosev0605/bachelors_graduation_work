@@ -24,8 +24,8 @@ class Auto_image_handler : public QObject
     Q_PROPERTY(bool is_choose_face_enable READ get_is_choose_face_enable WRITE set_is_choose_face_enable NOTIFY is_choose_face_enable_changed)
     bool is_choose_face_enable = false;
 
-    Q_PROPERTY(bool is_process_remain_imgs_visible READ get_is_process_remain_imgs_visible WRITE set_is_process_remain_imgs_visible NOTIFY is_process_remain_imgs_visible_changed)
-    bool is_process_remain_imgs_visible = false;
+    Q_PROPERTY(bool is_handle_remaining_imgs_visible READ get_is_handle_remaining_imgs_visible WRITE set_is_handle_remaining_imgs_visible NOTIFY is_handle_remaining_imgs_visible_changed)
+    bool is_handle_remaining_imgs_visible = false;
 
     Q_PROPERTY(bool is_cancel_visible READ get_is_cancel_visible WRITE set_is_cancel_visible NOTIFY is_cancel_visible_changed)
     bool is_cancel_visible = false;
@@ -53,6 +53,7 @@ private slots:
 
     void target_face_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int number_of_faces);
     void receive_message(const QString& some_message, const int some_worker_thread_id);
+    void receive_progress_message(const QString& some_message, const int some_worker_thread_id);
     void remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs);
 
 public:
@@ -70,8 +71,8 @@ public:
     bool get_is_cancel_visible() const;
     void set_is_cancel_visible(const bool some_value);
 
-    bool get_is_process_remain_imgs_visible() const;
-    void set_is_process_remain_imgs_visible(const bool some_value);
+    bool get_is_handle_remaining_imgs_visible() const;
+    void set_is_handle_remaining_imgs_visible(const bool some_value);
 
 public slots:
     void curr_image_changed(const QString& curr_img_path);
@@ -86,12 +87,13 @@ signals:
     void is_busy_indicator_running_changed();
     void is_choose_face_enable_changed();
     void is_cancel_visible_changed();
-    void is_process_remain_imgs_visible_changed();
+    void is_handle_remaining_imgs_visible_changed();
     void start_search_target_face(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, const unsigned long face_chip_size, const double face_chip_padding);
     void image_data_ready(const Image_data& some_img_data);
     void message(const QString& some_message);
     void start_handle_remaining_images(const int some_worker_thread_id, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, dlib::matrix<dlib::rgb_pixel>& some_target_face_img , const QVector<QString>& some_selected_imgs_paths, const unsigned long face_chip_size, const double face_chip_padding);
     void image_ready(const Image_data& some_source_img_data, const Image_data& some_extracted_face_image_data);
+    void all_remaining_images_received();
 };
 
 #endif // AUTO_IMAGE_HANDLER_H

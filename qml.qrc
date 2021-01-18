@@ -13,5 +13,6 @@
         <file>qml/delegates/Selected_img_only_img.qml</file>
         <file>qml/delegates/Source_and_extr_imgs.qml</file>
         <file>qml/main_menu_pages/add_new/Auto_mode_select_one_image.qml</file>
+        <file>qml/main_menu_pages/add_new/Check_auto_retrieved_images.qml</file>
     </qresource>
 </RCC>
