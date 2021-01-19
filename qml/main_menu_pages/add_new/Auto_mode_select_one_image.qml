@@ -44,6 +44,9 @@ Page {
         onAll_remaining_images_received: {
             stack_view.push(check_auto_retrieved_images_comp, StackView.Immediate)
         }
+        onCurrent_progress: {
+            progress_info.text = some_progress
+        }
     }
     Individual_file_manager {
         id: individual_file_manager
@@ -240,6 +243,21 @@ Page {
         text: "Cancel"
         onClicked: {
             auto_image_handler.cancel_processing()
+        }
+    }
+    Text {
+        id: progress_info
+        anchors {
+            top: cancel_btn.bottom
+            topMargin: 2
+        }
+        width: cancel_btn.width
+        height: cancel_btn.height
+        visible: auto_image_handler.is_busy_indicator_running
+        onVisibleChanged: {
+            if(!visible) {
+                text = ""
+            }
         }
     }
 }

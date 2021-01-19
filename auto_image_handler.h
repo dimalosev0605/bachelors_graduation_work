@@ -94,6 +94,7 @@ signals:
     void start_handle_remaining_images(const int some_worker_thread_id, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, dlib::matrix<dlib::rgb_pixel>& some_target_face_img , const QVector<QString>& some_selected_imgs_paths, const unsigned long face_chip_size, const double face_chip_padding);
     void image_ready(const Image_data& some_source_img_data, const Image_data& some_extracted_face_image_data);
     void all_remaining_images_received();
+    void current_progress(const QString& some_progress);
 };
 
 #endif // AUTO_IMAGE_HANDLER_H

@@ -33,6 +33,7 @@ Page {
         width: 140
         height: 30
         text: "Finish"
+        enabled: extracted_faces_list_view.count > 0
         onClicked: {
             stack_view.pop(null, StackView.Immediate)
         }

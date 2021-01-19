@@ -212,13 +212,16 @@ void Auto_image_handler::handle_remaining_images(const QVector<QString>& some_se
 void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs)
 {
     if(worker_thread_id == some_worker_thread_id) {
+        if(some_imgs.empty()) {
+            set_is_busy_indicator_running(false);
+            emit message("We did not find any faces");
+            return;
+        }
         for(std::size_t i = 0; i < some_imgs.size(); ++i) {
             emit image_ready(Image_data(dlib::image_data(std::get<0>(some_imgs[i])), std::get<0>(some_imgs[i]).nc(), std::get<0>(some_imgs[i]).nr()),
                              Image_data(dlib::image_data(std::get<1>(some_imgs[i])), std::get<1>(some_imgs[i]).nc(), std::get<1>(some_imgs[i]).nr()));
         }
-        if(!some_imgs.empty()) {
-            emit all_remaining_images_received();
-        }
+        emit all_remaining_images_received();
         set_is_busy_indicator_running(false);
     }
     else {
@@ -230,6 +233,7 @@ void Auto_image_handler::receive_progress_message(const QString& some_message, c
 {
     if(worker_thread_id == some_worker_thread_id) {
         qDebug() << "progress: " << some_message;
+        emit current_progress(some_message);
     }
     else {
         qDebug() << "Ignore progress.";

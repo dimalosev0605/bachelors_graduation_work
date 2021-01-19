@@ -4,6 +4,9 @@ Image_handler_worker::Image_handler_worker(QObject* parent)
     : QObject(parent),
       thread(new QThread)
 {
+    QSettings app_settings("app_settings.ini", QSettings::Format::IniFormat);
+    face_recognition_threshold = app_settings.value("face_recognition_threshold").toFloat();
+
     this->moveToThread(thread);
     connect(thread, &QThread::finished, this, &QObject::deleteLater);
     thread->start();
@@ -222,7 +225,7 @@ void Image_handler_worker::handle_remaining_images(const int some_worker_thread_
         std::vector<dlib::matrix<float, 0, 1>> face_descriptors = local_face_recognition_dnn.operator()(processed_faces);
 
         for(std::size_t j = 0; j < face_descriptors.size(); ++j) {
-            if(dlib::length(face_descriptors[j] - target_face_descriptor) < 0.6) {
+            if(dlib::length(face_descriptors[j] - target_face_descriptor) < face_recognition_threshold) {
                 res.push_back(std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>(selected_imgs[i], processed_faces[j]));
             }
         }

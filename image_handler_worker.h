@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QThread>
+#include <QSettings>
 
 #include "image_handler_initializer.h"
 
@@ -11,6 +12,7 @@ class Image_handler_worker : public QObject
 {
     Q_OBJECT
     QThread* thread;
+    float face_recognition_threshold = 0.6;
 
 public:
     explicit Image_handler_worker(QObject* parent = nullptr);
