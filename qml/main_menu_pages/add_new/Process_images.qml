@@ -10,6 +10,7 @@ import Individual_file_manager_qml 1.0
 
 Page {
     Keys.onEscapePressed: {
+        individual_file_manager.delete_all_faces()
         stack_view.pop(StackView.Immediate)
     }
 
@@ -46,6 +47,7 @@ Page {
             leftMargin: 5
         }
         onClicked: {
+            individual_file_manager.delete_all_faces()
             stack_view.pop(StackView.Immediate)
         }
     }

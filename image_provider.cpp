@@ -7,6 +7,9 @@ Image_provider::Image_provider(QObject* parent)
 
 QImage Image_provider::requestImage([[maybe_unused]]const QString &id, [[maybe_unused]]QSize *size, [[maybe_unused]]const QSize &requestedSize)
 {
+    if(img.isNull()) {
+        return QImage(":/qml/icons/black_cross.png");
+    }
     return img;
 }
 
@@ -19,4 +22,9 @@ void Image_provider::accept_image_data(const Image_data& some_img_data)
                              QImage::Format_RGB888);
 
     img = local_q_img.copy();
+}
+
+void Image_provider::empty_image()
+{
+    img = QImage{};
 }

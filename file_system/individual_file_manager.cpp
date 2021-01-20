@@ -99,3 +99,16 @@ void Individual_file_manager::delete_face(const int index)
     }
 }
 
+void Individual_file_manager::delete_all_faces()
+{
+    QFile src_img_file;
+    QFile extr_face_img_file;
+    for(int i = 0; i < model_data.size(); ++i) {
+        src_img_file.remove(std::get<0>(model_data[i]));
+        extr_face_img_file.remove(std::get<1>(model_data[i]));
+    }
+    beginResetModel();
+    model_data.clear();
+    endResetModel();
+}
+
