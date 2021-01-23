@@ -20,6 +20,15 @@ Page {
             topMargin: 15
             horizontalCenter: parent.horizontalCenter
         }
+        onTextChanged: {
+//            all_people_list_view.currentIndex = -1
+            if(search_input.text.length === 0) {
+                all_people.cancel_search()
+                return
+            }
+            all_people.search(search_input.text)
+        }
+
         width: 150
         height: 30
     }

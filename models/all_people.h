@@ -15,6 +15,7 @@ class All_people: public QAbstractListModel
     Q_OBJECT
     QHash<int, QByteArray> roles;
     QVector<std::tuple<QString, QString, int>> model_data; // individual name, avatar path, count of faces.
+    std::unique_ptr<QVector<std::tuple<QString, QString, int>>> copy_model_data = nullptr;
     Dir_paths dir_paths;
 
 private:
@@ -33,6 +34,8 @@ public:
 
 public slots:
     void delete_individual(const int some_index);
+    void search(const QString& some_input);
+    void cancel_search();
 };
 
 #endif // ALL_PEOPLE_H
