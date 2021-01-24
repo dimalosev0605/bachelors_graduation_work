@@ -21,6 +21,18 @@ Rectangle {
 
     property var full_screen_avatar_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
+    property ListView view
+
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: {
+            view.currentIndex = index
+            stack_view.push(edit_individual_comp, StackView.Immediate)
+            console.log("clicked")
+        }
+    }
+
     Text {
         id: number
         height: parent.height

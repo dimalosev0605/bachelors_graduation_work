@@ -31,10 +31,35 @@ QVariant Individual_file_manager::data(const QModelIndex& index, int role) const
     return QVariant{};
 }
 
-void Individual_file_manager::set_individual_name(const QString& some_name)
+void Individual_file_manager::set_individual_name(const QString& some_name, const bool is_load_data)
 {
     name = some_name;
     set_individual_dirs_paths();
+    if(is_load_data) {
+        QDir sources_dir(sources_path);
+        sources_dir.setFilter(QDir::Files | QDir::NoDot | QDir::NoDotDot);
+        sources_dir.setSorting(QDir::Name);
+        const auto sources = sources_dir.entryInfoList();
+
+        QDir extracted_dir(extracted_faces_path);
+        extracted_dir.setFilter(QDir::Files | QDir::NoDot | QDir::NoDotDot);
+        extracted_dir.setSorting(QDir::Name);
+        const auto extracted_faces = extracted_dir.entryInfoList();
+
+        if(sources.size() != extracted_faces.size()) {
+            qDebug() << "pizda";
+            return;
+        }
+        QVector<std::tuple<QString, QString>> loaded_data;
+        for(int i = 0; i < sources.size(); ++i) {
+            const auto source_path = sources[i].filePath();
+            const auto extracted_face_path = extracted_faces[i].filePath();
+            loaded_data.push_back(std::tuple<QString, QString>(source_path, extracted_face_path));
+        }
+        beginResetModel();
+        model_data = std::move(loaded_data);
+        endResetModel();
+    }
 }
 
 QHash<int, QByteArray> Individual_file_manager::roleNames() const

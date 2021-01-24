@@ -16,5 +16,6 @@
         <file>qml/main_menu_pages/add_new/Check_auto_retrieved_images.qml</file>
         <file>qml/main_menu_pages/people/All_people.qml</file>
         <file>qml/delegates/Individual.qml</file>
+        <file>qml/main_menu_pages/people/Edit_individual.qml</file>
     </qresource>
 </RCC>

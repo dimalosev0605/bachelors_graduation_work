@@ -13,6 +13,11 @@ Page {
     All_people {
         id: all_people
     }
+    Component {
+        id: edit_individual_comp
+        Edit_individual {}
+    }
+
     TextField {
         id: search_input
         anchors {
@@ -58,6 +63,8 @@ Page {
             avatar.source: "file://" + model.avatar_path
             count_of_faces.text: model.count_of_faces
             nickname.text: model.individual_name
+
+            view: all_people_list_view
 
             delete_btn_m_area.onClicked: {
                 all_people.delete_individual(index)
