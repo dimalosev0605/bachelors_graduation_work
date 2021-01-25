@@ -40,6 +40,7 @@ public slots:
     bool add_face(const Image_data& some_src_img_data, const Image_data& some_extr_face_img_data);
     void delete_face(const int index);
     void delete_all_faces();
+    bool delete_individual();
 };
 
 #endif // INDIVIDUAL_FILE_MANAGER_H

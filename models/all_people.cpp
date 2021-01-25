@@ -122,3 +122,12 @@ void All_people::cancel_search()
     endResetModel();
 }
 
+void All_people::update()
+{
+    beginResetModel();
+    copy_model_data = nullptr;
+    model_data.clear();
+    load_all_people();
+    endResetModel();
+}
+

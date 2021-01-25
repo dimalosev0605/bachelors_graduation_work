@@ -137,3 +137,9 @@ void Individual_file_manager::delete_all_faces()
     endResetModel();
 }
 
+bool Individual_file_manager::delete_individual()
+{
+    if(dir_path.isEmpty()) return false;
+    QDir dir(dir_path);
+    return dir.removeRecursively();
+}

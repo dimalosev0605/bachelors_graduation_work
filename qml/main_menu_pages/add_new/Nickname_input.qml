@@ -39,6 +39,7 @@ Page {
     }
     Keys.onEscapePressed: {
         individual_checker.delete_individual_dirs()
+        Image_provider.empty_image()
         stack_view.pop(StackView.Immediate)
     }
     Button {
@@ -65,6 +66,7 @@ Page {
         }
         onClicked: {
             individual_checker.delete_individual_dirs()
+            Image_provider.empty_image()
             stack_view.pop(StackView.Immediate)
         }
     }

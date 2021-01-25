@@ -18,6 +18,7 @@ public:
 public slots:
     void accept_image_data(const Image_data& some_img_data);
     void empty_image();
+    bool is_null() const;
 };
 
 #endif // IMAGE_PROVIDER_H

@@ -9,13 +9,19 @@ import Image_handler_qml 1.0
 import Individual_file_manager_qml 1.0
 
 Page {
-    property string individual_name: all_people_list_view.currentItem.nickname.text
+    property string individual_name: all_people_list_view.currentItem === null ? "null" : all_people_list_view.currentItem.nickname.text
 
     Component.onCompleted: {
         console.log("individual_name = ", individual_name)
     }
 
     Keys.onEscapePressed: {
+        if(extracted_faces_list_view.count === 0) {
+            console.log("zero faces -> delete individual.")
+            individual_file_manager.delete_individual()
+            all_people.update()
+        }
+        Image_provider.empty_image()
         stack_view.pop(StackView.Immediate)
     }
 
@@ -68,6 +74,12 @@ Page {
             leftMargin: 5
         }
         onClicked: {
+            if(extracted_faces_list_view.count === 0) {
+                console.log("zero faces -> delete individual.")
+                individual_file_manager.delete_individual()
+                all_people.update()
+            }
+            Image_provider.empty_image()
             stack_view.pop(StackView.Immediate)
         }
     }
@@ -91,7 +103,7 @@ Page {
                 horizontalCenter: parent.horizontalCenter
             }
             height: 30
-            width: parent.width
+            width: parent.width - select_imgs_btn.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.Fit
@@ -101,6 +113,18 @@ Page {
             wrapMode: Text.WordWrap
             text: "Original: " + img.sourceSize.width + " X " + img.sourceSize.height + " --- " +
                   "Painted: " + img.paintedWidth + " X " + img.paintedHeight
+        }
+        Button {
+            id: select_imgs_btn
+            anchors {
+                right: parent.right
+            }
+            height: img_info.height
+            width: height * 2
+            text: "Select"
+            onClicked: {
+                file_dialog.open()
+            }
         }
         Image {
             id: img
@@ -123,6 +147,10 @@ Page {
                 width: img.paintedWidth
                 height: img.paintedHeight
                 onClicked: {
+                    if(Image_provider.is_null()) {
+                        file_dialog.open()
+                        return
+                    }
                     if(image_handler.is_choose_face_enable) {
                         var p_to_s_width_k = img.paintedWidth / img.sourceSize.width
                         var p_to_s_height_k = img.paintedHeight / img.sourceSize.height
@@ -510,7 +538,7 @@ Page {
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
                         if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img())) {
-                            selected_imgs.set_curr_img_index(selected_imgs_list_view.currentIndex)
+                            selected_imgs.set_curr_img_index(all_imgs_list_view.currentIndex)
                         }
                     }
                 }
@@ -527,10 +555,16 @@ Page {
         }
         width: 200
         height: 50
-        text: "Finish"
-        enabled: !image_handler.is_busy_indicator_running && extracted_faces_list_view.count > 0
+        text: extracted_faces_list_view.count === 0 ? "Delete" : "Finish"
+        enabled: !image_handler.is_busy_indicator_running
         onClicked: {
-            stack_view.pop(null, StackView.Immediate)
+            if(extracted_faces_list_view.count === 0) {
+                console.log("zero faces -> delete individual.")
+                individual_file_manager.delete_individual()
+                all_people.update()
+            }
+            Image_provider.empty_image()
+            stack_view.pop(StackView.Immediate)
         }
     }
 }

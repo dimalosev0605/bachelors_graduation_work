@@ -7,8 +7,6 @@
 #include <QDir>
 
 #include "../file_system/dir_paths.h"
-//#include "../file_system/individual_file_manager.h"
-//#include "../file_system/individual_checker.h"
 
 class All_people: public QAbstractListModel
 {
@@ -36,6 +34,7 @@ public slots:
     void delete_individual(const int some_index);
     void search(const QString& some_input);
     void cancel_search();
+    void update();
 };
 
 #endif // ALL_PEOPLE_H
