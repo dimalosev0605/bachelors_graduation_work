@@ -107,9 +107,9 @@ bool Individual_file_manager::add_face(const Image_data& some_src_img_data, cons
     }
 }
 
-void Individual_file_manager::delete_face(const int index)
+bool Individual_file_manager::delete_face(const int index)
 {
-    if(index < 0 || index > model_data.size()) return;
+    if(index < 0 || index > model_data.size()) return false;
 
     QFile src_img_file;
     QFile extr_face_img_file;
@@ -118,9 +118,11 @@ void Individual_file_manager::delete_face(const int index)
         beginRemoveRows(QModelIndex(), index, index);
         model_data.removeAt(index);
         endRemoveRows();
+        return true;
     }
     else {
         qDebug() << "Deletion error.";
+        return false;
     }
 }
 
@@ -142,4 +144,16 @@ bool Individual_file_manager::delete_individual()
     if(dir_path.isEmpty()) return false;
     QDir dir(dir_path);
     return dir.removeRecursively();
+}
+
+bool Individual_file_manager::rename(const QString& some_name)
+{
+    QDir dir(dir_paths.people());
+    if(dir.rename(name, some_name)) {
+        set_individual_name(some_name, true);
+        return true;
+    }
+    else {
+        return false;
+    }
 }

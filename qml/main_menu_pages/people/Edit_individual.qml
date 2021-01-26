@@ -283,15 +283,61 @@ Page {
                 top: parent.top
             }
             height: 30
-            width: parent.width
+            width: parent.width - individual_name_input_wrapper.width
             verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: Text.AlignRight
             fontSizeMode: Text.Fit
             minimumPointSize: 1
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "Extracted faces for: " + individual_name
+            text: "Extracted faces for:"
+        }
+        Item {
+            id: individual_name_input_wrapper
+            anchors {
+                left: table_title.right
+            }
+            height: table_title.height
+            width: parent.width / 2
+            TextField {
+                id: individual_name_input
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                }
+                width: parent.width / 2
+                height: parent.height * 0.8
+//                text: individual_name
+                Component.onCompleted: {
+                    text = individual_name
+                }
+            }
+            Button {
+                id: change_individual_name_btn
+                anchors {
+                    left: individual_name_input.right
+                    verticalCenter: parent.verticalCenter
+                }
+                height: parent.height * 0.8
+                width: parent.width * 0.3
+                text: "Save"
+                onClicked: {
+                    if(individual_name_input.text === "") {
+                        message_dialog.text = "Empty name"
+                        message_dialog.open()
+                        return
+                    }
+                    if(individual_file_manager.rename(individual_name_input.text)) {
+                        all_people.update()
+                        message_dialog.text = "Success"
+                        message_dialog.open()
+                    }
+                    else {
+                        message_dialog.text = "Not Success"
+                        message_dialog.open()
+                    }
+                }
+            }
         }
         ListView {
             id: extracted_faces_list_view
@@ -318,7 +364,9 @@ Page {
                 extr_face_img.source: "file://" + model.extr_face_img_path
 
                 delete_btn_m_area.onClicked: {
-                    individual_file_manager.delete_face(index)
+                    if(individual_file_manager.delete_face(index)) {
+                        all_people.update()
+                    }
                 }
             }
             header: Rectangle {
