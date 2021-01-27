@@ -9,6 +9,7 @@ Page {
         id: select_images_comp
         Select_images {}
     }
+
     Individual_checker {
         id: individual_checker
         onMessage: {
@@ -38,9 +39,8 @@ Page {
         }
     }
     Keys.onEscapePressed: {
-        individual_checker.delete_individual_dirs()
-        Image_provider.empty_image()
         stack_view.pop(StackView.Immediate)
+        individual_checker.delete_individual_dirs()
     }
     Button {
         id: next_btn
@@ -65,9 +65,8 @@ Page {
             leftMargin: 5
         }
         onClicked: {
-            individual_checker.delete_individual_dirs()
-            Image_provider.empty_image()
             stack_view.pop(StackView.Immediate)
+            individual_checker.delete_individual_dirs()
         }
     }
 }

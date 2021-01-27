@@ -14,14 +14,16 @@ Page {
     Component.onCompleted: {
         console.log("individual_name = ", individual_name)
     }
-
-    Keys.onEscapePressed: {
+    Component.onDestruction: {
         if(extracted_faces_list_view.count === 0) {
             console.log("zero faces -> delete individual.")
             individual_file_manager.delete_individual()
-            all_people.update()
         }
+        all_people.update()
         Image_provider.empty_image()
+    }
+
+    Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
 
@@ -74,12 +76,6 @@ Page {
             leftMargin: 5
         }
         onClicked: {
-            if(extracted_faces_list_view.count === 0) {
-                console.log("zero faces -> delete individual.")
-                individual_file_manager.delete_individual()
-                all_people.update()
-            }
-            Image_provider.empty_image()
             stack_view.pop(StackView.Immediate)
         }
     }
@@ -328,7 +324,6 @@ Page {
                         return
                     }
                     if(individual_file_manager.rename(individual_name_input.text)) {
-                        all_people.update()
                         message_dialog.text = "Success"
                         message_dialog.open()
                     }
@@ -364,9 +359,7 @@ Page {
                 extr_face_img.source: "file://" + model.extr_face_img_path
 
                 delete_btn_m_area.onClicked: {
-                    if(individual_file_manager.delete_face(index)) {
-                        all_people.update()
-                    }
+                    individual_file_manager.delete_face(index)
                 }
             }
             header: Rectangle {
@@ -606,12 +599,6 @@ Page {
         text: extracted_faces_list_view.count === 0 ? "Delete" : "Finish"
         enabled: !image_handler.is_busy_indicator_running
         onClicked: {
-            if(extracted_faces_list_view.count === 0) {
-                console.log("zero faces -> delete individual.")
-                individual_file_manager.delete_individual()
-                all_people.update()
-            }
-            Image_provider.empty_image()
             stack_view.pop(StackView.Immediate)
         }
     }

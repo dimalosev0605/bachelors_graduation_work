@@ -26,7 +26,7 @@ Rectangle {
         height: parent.height
         asynchronous: true
         mipmap: true
-        scale: img_preview_m_area.containsMouse ? 1.1 : 1.0
+        scale: (img_preview_m_area.containsMouse || delete_btn_m_area.containsMouse) ? 1.1 : 1.0
         fillMode: Image.PreserveAspectCrop
         layer.enabled: true
         layer.effect: OpacityMask {
@@ -47,6 +47,25 @@ Rectangle {
                 selected_imgs_model.set_curr_img_index(index)
                 var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: Full_screen_img.Window_type.With_btns, view: view, selected_imgs: selected_imgs_model})
                 win.show()
+            }
+        }
+        Rectangle {
+            id: delete_btn
+            anchors {
+                right: parent.right
+            }
+            radius: 5
+            height: 20
+            width: height
+            color: "black"
+            scale: delete_btn_m_area.containsMouse ? 1.1 : 1.0
+            MouseArea {
+                id: delete_btn_m_area
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    selected_imgs_model.delete_image(index)
+                }
             }
         }
     }

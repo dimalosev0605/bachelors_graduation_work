@@ -26,6 +26,10 @@ Page {
         Check_auto_retrieved_images {}
     }
 
+    Component.onDestruction: {
+        Image_provider.empty_image()
+    }
+
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
     Auto_image_handler {
@@ -51,7 +55,8 @@ Page {
     Individual_file_manager {
         id: individual_file_manager
         Component.onCompleted: {
-            individual_file_manager.set_individual_name(individual_checker.get_individual_name())
+            individual_file_manager.set_individual_name(individual_checker.get_individual_name(), true)
+            individual_file_manager.delete_all_faces() // delete faces that were probably added in "hand mode".
         }
     }
 
@@ -59,7 +64,6 @@ Page {
         target: selected_imgs
         function onImage_changed(curr_img_path) {
             auto_image_handler.curr_image_changed(curr_img_path)
-            Image_provider.empty_image()
             target_face_img.curr_image = Math.random().toString()
         }
     }

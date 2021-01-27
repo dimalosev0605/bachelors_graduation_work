@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QAbstractListModel>
 #include <QImage>
+#include <QDateTime>
 
 #include "dir_paths.h"
 #include "image_data.h"

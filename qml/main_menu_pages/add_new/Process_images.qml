@@ -10,8 +10,11 @@ import Individual_file_manager_qml 1.0
 
 Page {
     Keys.onEscapePressed: {
-        individual_file_manager.delete_all_faces()
         stack_view.pop(StackView.Immediate)
+    }
+
+    Component.onDestruction: {
+        Image_provider.empty_image()
     }
 
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
@@ -34,7 +37,7 @@ Page {
     Individual_file_manager {
         id: individual_file_manager
         Component.onCompleted: {
-            individual_file_manager.set_individual_name(individual_checker.get_individual_name())
+            individual_file_manager.set_individual_name(individual_checker.get_individual_name(), true)
         }
     }
 
@@ -47,7 +50,6 @@ Page {
             leftMargin: 5
         }
         onClicked: {
-            individual_file_manager.delete_all_faces()
             stack_view.pop(StackView.Immediate)
         }
     }

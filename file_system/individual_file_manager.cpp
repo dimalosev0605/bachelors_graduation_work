@@ -88,9 +88,11 @@ bool Individual_file_manager::add_face(const Image_data& some_src_img_data, cons
                                some_extr_face_img_data.get_bytes_per_pixel() * static_cast<int>(some_extr_face_img_data.get_nc()),
                                QImage::Format_RGB888);
 
+    QString generated_file_name = QString::number(QDateTime::currentMSecsSinceEpoch());
+
     QDir src_dir(sources_path);
-    QString src_file_name = sources_path + '/' + Dir_names::Individual::Img_file_names::source + '_' + QString::number(src_dir.count()) + Dir_names::Individual::Img_file_names::img_extension;
-    QString extr_face_file_name = extracted_faces_path + '/' + Dir_names::Individual::Img_file_names::extracted_face + '_' + QString::number(src_dir.count()) + Dir_names::Individual::Img_file_names::img_extension;
+    QString src_file_name = sources_path + '/' + Dir_names::Individual::Img_file_names::source + '_' + generated_file_name + Dir_names::Individual::Img_file_names::img_extension;
+    QString extr_face_file_name = extracted_faces_path + '/' + Dir_names::Individual::Img_file_names::extracted_face + '_' + generated_file_name + Dir_names::Individual::Img_file_names::img_extension;
 
     if(src_img.save(src_file_name) && extr_face_img.save(extr_face_file_name)) {
         beginInsertRows(QModelIndex(), model_data.size(), model_data.size());
