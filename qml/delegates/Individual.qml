@@ -18,19 +18,14 @@ Rectangle {
     property alias delete_btn_wrapper: delete_btn_wrapper
 
     property alias delete_btn_m_area: delete_btn_m_area
+    property alias body_m_area: body_m_area
 
     property var full_screen_avatar_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
-    property ListView view
-
     MouseArea {
+        id: body_m_area
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: {
-            view.currentIndex = index
-            stack_view.push(edit_individual_comp, StackView.Immediate)
-            console.log("clicked")
-        }
     }
 
     Text {

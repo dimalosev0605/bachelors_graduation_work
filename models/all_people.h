@@ -35,6 +35,7 @@ public slots:
     void search(const QString& some_input);
     void cancel_search();
     void update();
+    QString get_individual_name(const int some_index) const;
 };
 
 #endif // ALL_PEOPLE_H

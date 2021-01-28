@@ -131,3 +131,10 @@ void All_people::update()
     endResetModel();
 }
 
+QString All_people::get_individual_name(const int some_index) const
+{
+    if(some_index < 0 || some_index >= model_data.size()) return QString{};
+    auto res = std::get<0>(model_data[some_index]);
+    res = res.remove("<b>").remove("</b>");
+    return res;
+}

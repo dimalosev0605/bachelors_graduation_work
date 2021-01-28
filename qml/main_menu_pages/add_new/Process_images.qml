@@ -41,6 +41,18 @@ Page {
         }
     }
 
+    Connections {
+        id: file_dialog_connections
+        target: file_dialog
+        function onAccepted(fileUrls) {
+            selected_imgs.accept_images(file_dialog.fileUrls)
+            file_dialog.close()
+        }
+        function onRejected() {
+            file_dialog.close()
+        }
+    }
+
     Back_btn {
         id: back_btn
         anchors {
@@ -73,7 +85,7 @@ Page {
                 horizontalCenter: parent.horizontalCenter
             }
             height: 30
-            width: parent.width
+            width: parent.width - select_imgs_btn.width
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.Fit
@@ -83,6 +95,18 @@ Page {
             wrapMode: Text.WordWrap
             text: "Original: " + img.sourceSize.width + " X " + img.sourceSize.height + " --- " +
                   "Painted: " + img.paintedWidth + " X " + img.paintedHeight
+        }
+        Button {
+            id: select_imgs_btn
+            anchors {
+                right: parent.right
+            }
+            height: img_info.height
+            width: height * 2
+            text: "Select"
+            onClicked: {
+                file_dialog.open()
+            }
         }
         Image {
             id: img

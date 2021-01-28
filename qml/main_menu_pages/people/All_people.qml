@@ -64,7 +64,11 @@ Page {
             count_of_faces.text: model.count_of_faces
             nickname.text: model.individual_name
 
-            view: all_people_list_view
+            body_m_area.onClicked: {
+                var individual_name = all_people.get_individual_name(index)
+                if(individual_name === "") return
+                stack_view.push(edit_individual_comp, {"individual_name": individual_name}, StackView.Immediate)
+            }
 
             delete_btn_m_area.onClicked: {
                 all_people.delete_individual(index)

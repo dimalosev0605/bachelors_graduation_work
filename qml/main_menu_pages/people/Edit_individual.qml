@@ -9,7 +9,7 @@ import Image_handler_qml 1.0
 import Individual_file_manager_qml 1.0
 
 Page {
-    property string individual_name: all_people_list_view.currentItem === null ? "null" : all_people_list_view.currentItem.nickname.text
+    property string individual_name
 
     Component.onCompleted: {
         console.log("individual_name = ", individual_name)
@@ -20,6 +20,7 @@ Page {
             individual_file_manager.delete_individual()
         }
         all_people.update()
+        search_input.clear()
         Image_provider.empty_image()
     }
 
@@ -31,6 +32,9 @@ Page {
 
     Selected_imgs {
         id: selected_imgs
+        onImage_changed: {
+            image_handler.curr_image_changed(curr_img_path)
+        }
     }
 
     Connections {
@@ -42,13 +46,6 @@ Page {
         }
         function onRejected() {
             file_dialog.close()
-        }
-    }
-
-    Connections {
-        target: selected_imgs
-        function onImage_changed(curr_img_path) {
-            image_handler.curr_image_changed(curr_img_path)
         }
     }
 
@@ -303,10 +300,7 @@ Page {
                 }
                 width: parent.width / 2
                 height: parent.height * 0.8
-//                text: individual_name
-                Component.onCompleted: {
-                    text = individual_name
-                }
+                text: individual_name
             }
             Button {
                 id: change_individual_name_btn
