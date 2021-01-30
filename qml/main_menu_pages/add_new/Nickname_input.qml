@@ -10,6 +10,10 @@ Page {
         Select_images {}
     }
 
+    Component.onDestruction: {
+        individual_checker.delete_individual_dirs()
+    }
+
     Individual_checker {
         id: individual_checker
         onMessage: {
@@ -40,7 +44,6 @@ Page {
     }
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
-        individual_checker.delete_individual_dirs()
     }
     Button {
         id: next_btn
@@ -66,7 +69,6 @@ Page {
         }
         onClicked: {
             stack_view.pop(StackView.Immediate)
-            individual_checker.delete_individual_dirs()
         }
     }
 }
