@@ -17,5 +17,7 @@
         <file>qml/main_menu_pages/people/All_people.qml</file>
         <file>qml/delegates/Individual.qml</file>
         <file>qml/main_menu_pages/people/Edit_individual.qml</file>
+        <file>qml/main_menu_pages/photos/Select_people_for_recognition.qml</file>
+        <file>qml/delegates/Select_individual.qml</file>
     </qresource>
 </RCC>
