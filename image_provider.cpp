@@ -28,3 +28,8 @@ void Image_provider::empty_image()
 {
     img = QImage{};
 }
+
+bool Image_provider::is_null() const
+{
+    return img.isNull();
+}

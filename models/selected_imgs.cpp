@@ -70,7 +70,7 @@ void Selected_imgs::delete_image(const int index)
     file_system_watcher.removePath(model_data[index].path());
     model_data.removeAt(index);
     endRemoveRows();
-    set_curr_img_index(index + 1);
+    set_curr_img_index(index - 1);
 }
 
 QHash<int, QByteArray> Selected_imgs::roleNames() const

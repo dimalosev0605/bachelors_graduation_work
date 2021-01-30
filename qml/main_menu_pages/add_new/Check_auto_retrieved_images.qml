@@ -22,6 +22,7 @@ Page {
             stack_view.pop(StackView.Immediate)
         }
     }
+
     Button {
         id: finish_btn
         anchors {

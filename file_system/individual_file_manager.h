@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QAbstractListModel>
 #include <QImage>
+#include <QDateTime>
 
 #include "dir_paths.h"
 #include "image_data.h"
@@ -36,10 +37,12 @@ public:
     virtual QVariant data(const QModelIndex& index, int role) const override;
 
 public slots:
-    void set_individual_name(const QString& some_name);
+    void set_individual_name(const QString& some_name, const bool is_load_data = false);
     bool add_face(const Image_data& some_src_img_data, const Image_data& some_extr_face_img_data);
-    void delete_face(const int index);
+    bool delete_face(const int index);
     void delete_all_faces();
+    bool delete_individual();
+    bool rename(const QString& some_name);
 };
 
 #endif // INDIVIDUAL_FILE_MANAGER_H

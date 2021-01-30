@@ -4,6 +4,7 @@ import QtQuick.Controls 2.12
 
 import Default_dir_creator_qml 1.0
 import "../qml/main_menu_pages/add_new"
+import "../qml/main_menu_pages/people"
 
 Page {
     property alias file_dialog: file_dialog
@@ -15,6 +16,10 @@ Page {
     Component {
         id: nickname_input_comp
         Nickname_input {}
+    }
+    Component {
+        id: all_people_comp
+        All_people {}
     }
     FileDialog {
         id: file_dialog
@@ -55,6 +60,9 @@ Page {
                 text: "People"
                 img_source: ""
                 color: "#ff0000"
+                action: function() {
+                    stack_view.push(all_people_comp, StackView.Immediate)
+                }
             }
             ListElement {
                 text: "Add new"

@@ -33,6 +33,8 @@ add_executable(face_rec_diplom
 
   models/selected_imgs.h
   models/selected_imgs.cpp
+  models/all_people.h
+  models/all_people.cpp
 
   image_provider.h
   image_provider.cpp

@@ -9,20 +9,43 @@ import Image_handler_qml 1.0
 import Individual_file_manager_qml 1.0
 
 Page {
+    property string individual_name
+
+    Component.onCompleted: {
+        console.log("individual_name = ", individual_name)
+    }
+    Component.onDestruction: {
+        if(extracted_faces_list_view.count === 0) {
+            console.log("zero faces -> delete individual.")
+            individual_file_manager.delete_individual()
+        }
+        all_people.update()
+        search_input.clear()
+        Image_provider.empty_image()
+    }
+
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
 
-    Component.onDestruction: {
-        Image_provider.empty_image()
-    }
-
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
-    Connections {
-        target: selected_imgs
-        function onImage_changed(curr_img_path) {
+    Selected_imgs {
+        id: selected_imgs
+        onImage_changed: {
             image_handler.curr_image_changed(curr_img_path)
+        }
+    }
+
+    Connections {
+        id: file_dialog_connections
+        target: file_dialog
+        function onAccepted(fileUrls) {
+            selected_imgs.accept_images(file_dialog.fileUrls)
+            file_dialog.close()
+        }
+        function onRejected() {
+            file_dialog.close()
         }
     }
 
@@ -37,19 +60,7 @@ Page {
     Individual_file_manager {
         id: individual_file_manager
         Component.onCompleted: {
-            individual_file_manager.set_individual_name(individual_checker.get_individual_name(), true)
-        }
-    }
-
-    Connections {
-        id: file_dialog_connections
-        target: file_dialog
-        function onAccepted(fileUrls) {
-            selected_imgs.accept_images(file_dialog.fileUrls)
-            file_dialog.close()
-        }
-        function onRejected() {
-            file_dialog.close()
+            individual_file_manager.set_individual_name(individual_name, true)
         }
     }
 
@@ -129,6 +140,10 @@ Page {
                 width: img.paintedWidth
                 height: img.paintedHeight
                 onClicked: {
+                    if(Image_provider.is_null()) {
+                        file_dialog.open()
+                        return
+                    }
                     if(image_handler.is_choose_face_enable) {
                         var p_to_s_width_k = img.paintedWidth / img.sourceSize.width
                         var p_to_s_height_k = img.paintedHeight / img.sourceSize.height
@@ -261,15 +276,57 @@ Page {
                 top: parent.top
             }
             height: 30
-            width: parent.width
+            width: parent.width - individual_name_input_wrapper.width
             verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
+            horizontalAlignment: Text.AlignRight
             fontSizeMode: Text.Fit
             minimumPointSize: 1
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "Extracted faces for: " + individual_checker.get_individual_name()
+            text: "Extracted faces for:"
+        }
+        Item {
+            id: individual_name_input_wrapper
+            anchors {
+                left: table_title.right
+            }
+            height: table_title.height
+            width: parent.width / 2
+            TextField {
+                id: individual_name_input
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                }
+                width: parent.width / 2
+                height: parent.height * 0.8
+                text: individual_name
+            }
+            Button {
+                id: change_individual_name_btn
+                anchors {
+                    left: individual_name_input.right
+                    verticalCenter: parent.verticalCenter
+                }
+                height: parent.height * 0.8
+                width: parent.width * 0.3
+                text: "Save"
+                onClicked: {
+                    if(individual_name_input.text === "") {
+                        message_dialog.text = "Empty name"
+                        message_dialog.open()
+                        return
+                    }
+                    if(individual_file_manager.rename(individual_name_input.text)) {
+                        message_dialog.text = "Success"
+                        message_dialog.open()
+                    }
+                    else {
+                        message_dialog.text = "Not Success"
+                        message_dialog.open()
+                    }
+                }
+            }
         }
         ListView {
             id: extracted_faces_list_view
@@ -516,7 +573,7 @@ Page {
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
                         if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img())) {
-                            selected_imgs.set_curr_img_index(selected_imgs_list_view.currentIndex)
+                            selected_imgs.set_curr_img_index(all_imgs_list_view.currentIndex)
                         }
                     }
                 }
@@ -533,10 +590,10 @@ Page {
         }
         width: 200
         height: 50
-        text: "Finish"
-        enabled: !image_handler.is_busy_indicator_running && extracted_faces_list_view.count > 0
+        text: extracted_faces_list_view.count === 0 ? "Delete" : "Finish"
+        enabled: !image_handler.is_busy_indicator_running
         onClicked: {
-            stack_view.pop(null, StackView.Immediate)
+            stack_view.pop(StackView.Immediate)
         }
     }
 }
