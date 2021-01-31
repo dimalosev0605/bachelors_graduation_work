@@ -64,6 +64,13 @@ Page {
             }
             width: 150
             height: 30
+            onTextChanged: {
+                if(search_all_people_input.length === 0) {
+                    all_people.cancel_search()
+                    return
+                }
+                all_people.search(search_all_people_input.text)
+            }
         }
         ListView {
             id: all_people_list_view
@@ -85,15 +92,13 @@ Page {
                 avatar_wrapper.width: all_people_list_view.headerItem.avatar_w
                 nickname.width: all_people_list_view.headerItem.nickname_w
                 count_of_faces.width: all_people_list_view.headerItem.count_of_faces_w
-                check_box_wrapper.width: all_people_list_view.headerItem.check_box_w
 
                 avatar.source: "file://" + model.avatar_path
                 count_of_faces.text: model.count_of_faces
                 nickname.text: model.individual_name
 
-                check_box.checked: model.is_checked
-                check_box.onClicked: {
-                    all_people.set_is_checked(index, check_box.checked)
+                body_m_area.onClicked: {
+                    all_people.delete_item(index)
                 }
             }
             header: Rectangle {
@@ -103,10 +108,9 @@ Page {
                 height: 40
                 width: all_people_list_view.width
                 property real number_w: 40
-                property real avatar_w: (parent.width - number_w - check_box_w) * 0.25
-                property real nickname_w: (parent.width - number_w - check_box_w) * 0.5
-                property real count_of_faces_w: (parent.width - number_w - check_box_w) * 0.25
-                property real check_box_w: 40
+                property real avatar_w: (parent.width - number_w) * 0.25
+                property real nickname_w: (parent.width - number_w) * 0.5
+                property real count_of_faces_w: (parent.width - number_w) * 0.25
                 Row {
                     anchors.fill: parent
                     Text {
@@ -161,12 +165,6 @@ Page {
                         wrapMode: Text.WordWrap
                         text: "Number of \nfaces"
                     }
-                    Rectangle {
-                        id: check_box
-                        height: parent.height
-                        width: all_people_list_view_header.check_box_w
-                        color: "blue"
-                    }
                 }
             }
         }
@@ -184,12 +182,9 @@ Page {
         height: 100
         color: "green"
         Button {
-            id: select_btn
             width: parent.width
             height: 30
-            text: all_people.is_checked_counter === 0 ? "Select all" : "Select " + all_people.is_checked_counter
-            onClicked: {
-            }
+            text: "Select all"
         }
     }
     Rectangle {

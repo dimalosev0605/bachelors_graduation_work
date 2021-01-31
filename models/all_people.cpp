@@ -6,24 +6,12 @@ All_people::All_people(QObject* parent)
     roles[static_cast<int>(RolesNames::individual_name)] = "individual_name";
     roles[static_cast<int>(RolesNames::avatar_path)] = "avatar_path";
     roles[static_cast<int>(RolesNames::count_of_faces)] = "count_of_faces";
-    roles[static_cast<int>(RolesNames::is_checked)] = "is_checked";
     load_all_people();
 }
 
 QHash<int, QByteArray> All_people::roleNames() const
 {
     return roles;
-}
-
-int All_people::get_is_checked_counter() const
-{
-    return is_checked_counter;
-}
-
-void All_people::set_is_checked_counter(const int some_value)
-{
-    is_checked_counter = some_value;
-    emit is_checked_counter_changed();
 }
 
 int All_people::rowCount([[maybe_unused]]const QModelIndex& index) const
@@ -49,10 +37,6 @@ QVariant All_people::data(const QModelIndex& index, int role) const
         return std::get<2>(model_data[row]);
     }
 
-    case static_cast<int>(RolesNames::is_checked): {
-        return std::get<3>(model_data[row]);
-    }
-
     }
 
     return QVariant{};
@@ -75,7 +59,7 @@ void All_people::load_all_people()
         const auto extracted_faces_images_list = extracted_faces_individual_dir.entryInfoList();
         if(!extracted_faces_images_list.empty()) {
             const QString avatar_path = extracted_faces_images_list.first().filePath();
-            model_data.push_back(std::tuple<QString, QString, int, bool>(individual_name, avatar_path, count_of_faces, false));
+            model_data.push_back(std::tuple<QString, QString, int>(individual_name, avatar_path, count_of_faces));
         }
         else {
             qDebug() << "skip individual, no extracted faces.";
@@ -112,20 +96,20 @@ void All_people::search(const QString& some_input)
     if(some_input.isEmpty()) return;
 
     if(copy_model_data == nullptr) {
-        copy_model_data = std::unique_ptr<QVector<std::tuple<QString, QString, int, bool>>>(new QVector<std::tuple<QString, QString, int, bool>>(model_data));
+        copy_model_data = std::unique_ptr<QVector<std::tuple<QString, QString, int>>>(new QVector<std::tuple<QString, QString, int>>(model_data));
     }
 
-    QVector<std::tuple<QString, QString, int, bool>> res;
+    QVector<std::tuple<QString, QString, int>> res;
     for(int i = 0; i < copy_model_data->size(); ++i) {
         if(std::get<0>(copy_model_data->operator[](i)).contains(some_input)) {
             QString bold_str = std::get<0>(copy_model_data->operator[](i));
             bold_str = bold_str.replace(some_input, "<b>" + some_input + "</b>");
-            res.push_back(std::make_tuple(bold_str, std::get<1>(copy_model_data->operator[](i)), std::get<2>(copy_model_data->operator[](i)), std::get<3>(copy_model_data->operator[](i))));
+            res.push_back(std::make_tuple(bold_str, std::get<1>(copy_model_data->operator[](i)), std::get<2>(copy_model_data->operator[](i))));
         }
     }
 
     beginResetModel();
-    model_data = res;
+    model_data = std::move(res);
     endResetModel();
 }
 
@@ -154,15 +138,39 @@ QString All_people::get_individual_name(const int some_index) const
     return res;
 }
 
-void All_people::set_is_checked(const int some_index, const bool some_value)
+std::tuple<QString, QString, int> All_people::delete_item(const int some_index)
 {
-    if(some_index < 0 || some_index >= model_data.size()) return;
-    std::get<3>(model_data[some_index]) = some_value;
-    if(some_value) {
-        set_is_checked_counter(is_checked_counter + 1);
+    if(some_index < 0 || some_index >= model_data.size()) return std::tuple<QString, QString, int>{};
+
+    auto name = std::get<0>(model_data[some_index]);
+    name = name.remove("<b>").remove("</b>");
+
+    if(copy_model_data != nullptr) {
+        for(int i = 0; i < copy_model_data->size(); ++i) {
+            if(name == std::get<0>(copy_model_data->operator[](i))) {
+                copy_model_data->removeAt(i);
+                break;
+            }
+        }
     }
-    else {
-        set_is_checked_counter(is_checked_counter - 1);
-    }
+
+    auto res = model_data[some_index];
+    std::get<0>(res) = std::get<0>(res).remove("<b>").remove("</b>");
+
+    beginRemoveRows(QModelIndex(), some_index, some_index);
+    model_data.removeAt(some_index);
+    endRemoveRows();
+
+    return res;
 }
 
+void All_people::add_item(const std::tuple<QString, QString, int>& some_item)
+{
+    if(some_item == std::tuple<QString, QString, int>{}) return;
+    beginInsertRows(QModelIndex(), model_data.size(), model_data.size());
+    model_data.push_back(some_item);
+    if(copy_model_data != nullptr) {
+        copy_model_data->push_back(some_item);
+    }
+    endInsertRows();
+}

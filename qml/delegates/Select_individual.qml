@@ -15,9 +15,8 @@ Rectangle {
     property alias avatar_wrapper: avatar_wrapper
     property alias nickname: nickname
     property alias count_of_faces: count_of_faces
-    property alias check_box_wrapper: check_box_wrapper
 
-    property alias check_box: check_box
+    property alias body_m_area: body_m_area
 
     property var full_screen_avatar_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
@@ -103,17 +102,5 @@ Rectangle {
         font.pointSize: 10
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
-    }
-    Item {
-        id: check_box_wrapper
-        height: parent.height
-        anchors {
-            left: count_of_faces.right
-        }
-        CheckBox {
-            id: check_box
-            width: parent.height
-            height: width
-        }
     }
 }

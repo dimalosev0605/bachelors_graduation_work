@@ -11,12 +11,10 @@
 class All_people: public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(int is_checked_counter READ get_is_checked_counter WRITE set_is_checked_counter NOTIFY is_checked_counter_changed)
-    int is_checked_counter = 0;
 
     QHash<int, QByteArray> roles;
-    QVector<std::tuple<QString, QString, int, bool>> model_data; // individual name, avatar path, count of faces, is checked
-    std::unique_ptr<QVector<std::tuple<QString, QString, int, bool>>> copy_model_data = nullptr;
+    QVector<std::tuple<QString, QString, int>> model_data; // individual name, avatar path, count of faces
+    std::unique_ptr<QVector<std::tuple<QString, QString, int>>> copy_model_data = nullptr;
     Dir_paths dir_paths;
 
 private:
@@ -27,15 +25,11 @@ public:
     enum class RolesNames {
         individual_name = Qt::UserRole,
         avatar_path,
-        count_of_faces,
-        is_checked
+        count_of_faces
     };
     explicit All_people(QObject* parent = nullptr);
     virtual int rowCount(const QModelIndex& index = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex& index, int role) const override;
-
-    int get_is_checked_counter() const;
-    void set_is_checked_counter(const int some_value);
 
 public slots:
     void delete_individual(const int some_index);
@@ -43,10 +37,8 @@ public slots:
     void cancel_search();
     void update();
     QString get_individual_name(const int some_index) const;
-    void set_is_checked(const int some_index, const bool some_value);
-
-signals:
-    void is_checked_counter_changed();
+    std::tuple<QString, QString, int> delete_item(const int some_index);
+    void add_item(const std::tuple<QString, QString, int>& some_item);
 };
 
 #endif // ALL_PEOPLE_H
