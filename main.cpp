@@ -7,7 +7,8 @@
 #include "file_system/individual_file_manager.h"
 
 #include "models/selected_imgs.h"
-#include "models/all_people.h"
+#include "models/available_people.h"
+#include "models/selected_people.h"
 
 #include "image_data.h"
 #include "image_provider.h"
@@ -30,7 +31,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<Individual_file_manager>("Individual_file_manager_qml", 1, 0, "Individual_file_manager");
 
     qmlRegisterType<Selected_imgs>("Selected_imgs_qml", 1, 0, "Selected_imgs");
-    qmlRegisterType<All_people>("All_people_qml", 1, 0, "All_people");
+    qmlRegisterType<Available_people>("Available_people_qml", 1, 0, "Available_people");
+    qmlRegisterType<Selected_people>("Selected_people_qml", 1, 0, "Selected_people");
+
 
     qmlRegisterType<Image_handler>("Image_handler_qml", 1, 0, "Image_handler");
     qmlRegisterType<Auto_image_handler>("Auto_image_handler_qml", 1, 0, "Auto_image_handler");
