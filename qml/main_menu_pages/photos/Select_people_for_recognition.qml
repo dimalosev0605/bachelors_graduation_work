@@ -187,9 +187,25 @@ Page {
         height: 100
         color: "green"
         Button {
+            id: pass_all_data_from_available_people_btn
             width: parent.width
             height: 30
-            text: "Select all"
+            text: "All -->"
+            onClicked: {
+                selected_people.receive_model_data(available_people.pass_all_model_data())
+            }
+        }
+        Button {
+            anchors {
+                top: pass_all_data_from_available_people_btn.bottom
+                topMargin: 2
+            }
+            width: parent.width
+            height: 30
+            text: "<-- All"
+            onClicked: {
+                available_people.receive_model_data(selected_people.pass_all_model_data())
+            }
         }
     }
     Rectangle {

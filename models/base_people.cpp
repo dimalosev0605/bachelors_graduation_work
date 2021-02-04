@@ -140,3 +140,42 @@ void Base_people::add_item(const std::tuple<QString, QString, int>& some_item)
     }
     endInsertRows();
 }
+
+QVector<std::tuple<QString, QString, int>> Base_people::pass_all_model_data()
+{
+    QVector<std::tuple<QString, QString, int>> res;
+
+    beginResetModel();
+    res = std::move(model_data);
+    model_data = QVector<std::tuple<QString, QString, int>>{};
+    endResetModel();
+
+    for(auto& elem: res) {
+        std::get<0>(elem) = std::get<0>(elem).remove("<b>").remove("</b>");
+    }
+
+    if(copy_model_data != nullptr) {
+        for(int i = 0; i < res.size(); ++i) {
+            for(int j = 0; j < copy_model_data->size(); ++j) {
+                if(std::get<0>(res[i]) == std::get<0>(copy_model_data->operator[](j))) {
+                    copy_model_data->removeAt(j);
+                    break;
+                }
+            }
+        }
+    }
+
+    return res;
+}
+
+void Base_people::receive_model_data(const QVector<std::tuple<QString, QString, int>>& some_model_data)
+{
+    for(const auto& elem : some_model_data) {
+        beginInsertRows(QModelIndex(), model_data.size(), model_data.size());
+        model_data.push_back(elem);
+        if(copy_model_data != nullptr) {
+            copy_model_data->push_back(elem);
+        }
+        endInsertRows();
+    }
+}

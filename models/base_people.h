@@ -40,6 +40,8 @@ public slots:
     void update();
     std::tuple<QString, QString, int> delete_item(const int some_index);
     void add_item(const std::tuple<QString, QString, int>& some_item);
+    QVector<std::tuple<QString, QString, int>> pass_all_model_data();
+    void receive_model_data(const QVector<std::tuple<QString, QString, int>>& some_model_data);
 };
 
 #endif // BASE_PEOPLE_H

@@ -64,6 +64,9 @@ int main(int argc, char *argv[])
     qRegisterMetaType<std::tuple<QString, QString, int>>("std::tuple<QString, QString, int>");
     qRegisterMetaType<std::tuple<QString, QString, int>>("std::tuple<QString, QString, int>&");
 
+    qRegisterMetaType<QVector<std::tuple<QString, QString, int>>>("QVector<std::tuple<QString, QString, int>>");
+    qRegisterMetaType<QVector<std::tuple<QString, QString, int>>>("QVector<std::tuple<QString, QString, int>>&");
+
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);
     engine.addImageProvider("Image_provider", image_provider);
