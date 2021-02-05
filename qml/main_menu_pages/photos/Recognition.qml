@@ -6,29 +6,39 @@ import "../../delegates"
 
 import Selected_imgs_qml 1.0
 import Image_handler_qml 1.0
-import Individual_file_manager_qml 1.0
 
 Page {
-    property string individual_name
 
-    Component.onCompleted: {
-        console.log("individual_name = ", individual_name)
-    }
-    Component.onDestruction: {
-        if(extracted_faces_list_view.count === 0) {
-            console.log("zero faces -> delete individual.")
-            individual_file_manager.delete_individual()
-        }
-        available_people.update()
-        search_input.clear()
-        Image_provider.empty_image()
-    }
+    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
 
-    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    Component.onDestruction: {
+        Image_provider.empty_image()
+    }
+
+    Back_btn {
+        id: back_btn
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 5
+            left: parent.left
+            leftMargin: 5
+        }
+        onClicked: {
+            stack_view.pop(StackView.Immediate)
+        }
+    }
+
+    Image_handler {
+        id: image_handler
+        onImage_data_ready: {
+            Image_provider.accept_image_data(some_img_data)
+            img.curr_image = Math.random().toString()
+        }
+    }
 
     Selected_imgs {
         id: selected_imgs
@@ -49,33 +59,6 @@ Page {
         }
     }
 
-    Image_handler {
-        id: image_handler
-        onImage_data_ready: {
-            Image_provider.accept_image_data(some_img_data)
-            img.curr_image = Math.random().toString()
-        }
-    }
-
-    Individual_file_manager {
-        id: individual_file_manager
-        Component.onCompleted: {
-            individual_file_manager.set_individual_name(individual_name, true)
-        }
-    }
-
-    Back_btn {
-        id: back_btn
-        anchors {
-            bottom: parent.bottom
-            bottomMargin: 5
-            left: parent.left
-            leftMargin: 5
-        }
-        onClicked: {
-            stack_view.pop(StackView.Immediate)
-        }
-    }
     Rectangle {
         id: img_frame
         anchors {
@@ -84,11 +67,11 @@ Page {
             left: parent.left
             leftMargin: 5
             bottom: back_btn.top
-            bottomMargin: buttons_frame.height + buttons_frame.anchors.topMargin * 2
+            bottomMargin: buttons_frame.height + buttons_frame.anchors.topMargin * 2 + accuracy_slider.height + accuracy_slider.anchors.topMargin + recognize_btn.height + recognize_btn.anchors.topMargin
         }
         color: "#00ff00"
-        property int space_between_img_and_extr_faces: 10
-        width: (parent.width - anchors.leftMargin * 2 - space_between_img_and_extr_faces) / 2
+        property int space_between_frames: 10
+        width: (parent.width - anchors.leftMargin * 2 - space_between_frames) / 2
         Text {
             id: img_info
             anchors {
@@ -258,173 +241,46 @@ Page {
             }
         }
     }
-    Rectangle {
-        id: extr_faces_frame
+    Slider {
+        id: accuracy_slider
         anchors {
-            top: parent.top
-            topMargin: img_frame.anchors.topMargin
-            right: parent.right
-            rightMargin: img_frame.anchors.leftMargin
-            bottom: img_frame.anchors.bottom
-            bottomMargin: img_frame.anchors.bottomMargin
+            horizontalCenter: img_frame.horizontalCenter
+            top: img_frame.bottom
+            topMargin: 5
         }
-        color: "#00ff00"
-        width: img_frame.width
-        Text {
-            id: table_title
-            anchors {
-                top: parent.top
-            }
-            height: 30
-            width: parent.width - individual_name_input_wrapper.width
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignRight
-            fontSizeMode: Text.Fit
-            minimumPointSize: 1
-            font.pointSize: 10
-            elide: Text.ElideRight
-            wrapMode: Text.WordWrap
-            text: "Extracted faces for:"
+        from: 0.0
+        to: 1.0
+        value: 0.55
+        stepSize: 0.05
+    }
+    Button {
+        id: recognize_btn
+        anchors {
+            top: accuracy_slider.bottom
+            topMargin: 5
+            horizontalCenter: accuracy_slider.horizontalCenter
         }
-        Item {
-            id: individual_name_input_wrapper
-            anchors {
-                left: table_title.right
-            }
-            height: table_title.height
-            width: parent.width / 2
-            TextField {
-                id: individual_name_input
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                }
-                width: parent.width / 2
-                height: parent.height * 0.8
-                text: individual_name
-            }
-            Button {
-                id: change_individual_name_btn
-                anchors {
-                    left: individual_name_input.right
-                    verticalCenter: parent.verticalCenter
-                }
-                height: parent.height * 0.8
-                width: parent.width * 0.3
-                text: "Save"
-                onClicked: {
-                    if(individual_name_input.text === "") {
-                        message_dialog.text = "Empty name"
-                        message_dialog.open()
-                        return
-                    }
-                    if(individual_file_manager.rename(individual_name_input.text)) {
-                        message_dialog.text = "Success"
-                        message_dialog.open()
-                    }
-                    else {
-                        message_dialog.text = "Not Success"
-                        message_dialog.open()
-                    }
-                }
-            }
-        }
-        ListView {
-            id: extracted_faces_list_view
-            anchors {
-                top: table_title.bottom
-                topMargin: 5
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            model: individual_file_manager
-            clip: true
-            currentIndex: -1
-            delegate: Source_and_extr_imgs {
-                height: 40
-                width: extracted_faces_list_view.width
-
-                img_number.width: extracted_faces_list_view.headerItem.number_w
-                src_img_wrapper.width: extracted_faces_list_view.headerItem.img_w
-                extr_face_img_wrapper.width: extracted_faces_list_view.headerItem.img_w
-                delete_btn_wrapper.width: extracted_faces_list_view.headerItem.delete_btn_w
-
-                src_img.source: "file://" + model.src_img_path
-                extr_face_img.source: "file://" + model.extr_face_img_path
-
-                delete_btn_m_area.onClicked: {
-                    individual_file_manager.delete_face(index)
-                }
-            }
-            header: Rectangle {
-                id: extracted_faces_table_header
-                height: 40
-                width: extracted_faces_list_view.width
-                color: "transparent"
-                border.width: 1
-                border.color: "#000000"
-                property int number_w: 30
-                property int delete_btn_w: 50
-                property real img_w: (extracted_faces_table_header.width - extracted_faces_table_header.number_w - extracted_faces_table_header.delete_btn_w) / 2
-                Row {
-                    anchors.fill: parent
-                    Rectangle {
-                        id: image_number
-                        height: parent.height
-                        width: extracted_faces_table_header.number_w
-                        color: "transparent"
-                    }
-                    Text {
-                        width: extracted_faces_table_header.img_w
-                        height: parent.height
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        fontSizeMode: Text.Fit
-                        minimumPointSize: 1
-                        font.pointSize: 10
-                        elide: Text.ElideRight
-                        wrapMode: Text.WordWrap
-                        text: "Source image"
-                    }
-                    Text {
-                        width: extracted_faces_table_header.img_w
-                        height: parent.height
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        fontSizeMode: Text.Fit
-                        minimumPointSize: 1
-                        font.pointSize: 10
-                        elide: Text.ElideRight
-                        wrapMode: Text.WordWrap
-                        text: "Extracted face"
-                    }
-                    Rectangle {
-                        id: delete_btn
-                        height: parent.height
-                        width: extracted_faces_table_header.delete_btn_w
-                        color: "transparent"
-                    }
-                }
-            }
-        }
+        width: 150
+        height: 30
+        text: "Recognize" + accuracy_slider.value.toFixed(2)
     }
 
     Rectangle {
         id: buttons_frame
         anchors {
             horizontalCenter: img_frame.horizontalCenter
-            top: img_frame.bottom
+            top: recognize_btn.bottom
             topMargin: 5
         }
         width: img_frame.width * 0.8
-        height: 150
+        height: 100
         color: "#ff0000"
         Column {
             id: btns_col
             anchors.fill: parent
             spacing: 3
             property int count_of_btns_in_row: 3
-            property int count_of_rows: 3
+            property int count_of_rows: 2
             property real row_height: (height - spacing * (count_of_rows - 1)) / count_of_rows
             property real btn_width: (width - space_between_btns_in_row * (count_of_btns_in_row - 1)) / count_of_btns_in_row
             property real space_between_btns_in_row: 3
@@ -544,56 +400,132 @@ Page {
                     }
                 }
             }
-            Row {
-                width: parent.width
-                height: parent.row_height
-                spacing: parent.space_between_btns_in_row
-                Button {
-                    height: parent.height
-                    width: btns_col.btn_width
-                    text: "extract face(s)"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_faces_enable
-                    onClicked: {
-                        image_handler.extract_face()
-                    }
-                }
-                Button {
-                    height: parent.height
-                    width: btns_col.btn_width
-                    text: "cancel"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cancel_enabled
-                    onClicked: {
-                        image_handler.cancel_last_action()
-                    }
-                }
-                Button {
-                    height: parent.height
-                    width: btns_col.btn_width
-                    text: "add"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
-                    onClicked: {
-                        if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img())) {
-                            selected_imgs.set_curr_img_index(all_imgs_list_view.currentIndex)
-                        }
-                    }
-                }
-            }
         }
     }
 
-    Button {
-        id: finish_btn
+    Rectangle {
+        id: selected_people_frame
         anchors {
-            horizontalCenter: extr_faces_frame.horizontalCenter
-            top: extr_faces_frame.bottom
-            topMargin: 10
+            top: parent.top
+            topMargin: img_frame.anchors.topMargin
+            bottom: back_btn.top
+            bottomMargin: img_frame.anchors.bottomMargin
+            right: parent.right
+            rightMargin: img_frame.anchors.leftMargin
         }
-        width: 200
-        height: 50
-        text: extracted_faces_list_view.count === 0 ? "Delete" : "Finish"
-        enabled: !image_handler.is_busy_indicator_running
-        onClicked: {
-            stack_view.pop(StackView.Immediate)
+        width: img_frame.width
+        color: "yellow"
+        TextField {
+            id: search_selected_people_input
+            anchors {
+                top: parent.top
+                topMargin: 5
+                horizontalCenter: parent.horizontalCenter
+            }
+            width: 150
+            height: 30
+            onTextChanged: {
+                if(search_selected_people_input.length === 0) {
+                    selected_people.cancel_search()
+                    return
+                }
+                selected_people.search(search_selected_people_input.text)
+            }
+        }
+        ListView {
+            id: selected_people_list_view
+            anchors {
+                top: search_selected_people_input.bottom
+                topMargin: 5
+                bottom: parent.bottom
+                bottomMargin: 5
+            }
+            width: parent.width
+            clip: true
+            currentIndex: -1
+            model: selected_people
+            delegate: Select_individual {
+                width: selected_people_list_view.width
+                height: 40
+
+                number.width: selected_people_list_view.headerItem.number_w
+                avatar_wrapper.width: selected_people_list_view.headerItem.avatar_w
+                nickname.width: selected_people_list_view.headerItem.nickname_w
+                count_of_faces.width: selected_people_list_view.headerItem.count_of_faces_w
+
+                avatar.source: "file://" + model.avatar_path
+                count_of_faces.text: model.count_of_faces
+                nickname.text: model.individual_name
+
+                body_m_area.onClicked: {
+                }
+            }
+            header: Rectangle {
+                id: selected_people_list_view_header
+                border.width: 1
+                border.color: "#000000"
+                height: 40
+                width: selected_people_list_view.width
+                property real number_w: 40
+                property real avatar_w: (parent.width - number_w) * 0.25
+                property real nickname_w: (parent.width - number_w) * 0.5
+                property real count_of_faces_w: (parent.width - number_w) * 0.25
+                Row {
+                    anchors.fill: parent
+                    Text {
+                        id: number
+                        height: parent.height
+                        width: selected_people_list_view_header.number_w
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.Fit
+                        minimumPointSize: 1
+                        font.pointSize: 10
+                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        text: "Number"
+                    }
+                    Text {
+                        id: avatar
+                        height: parent.height
+                        width: selected_people_list_view_header.avatar_w
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.Fit
+                        minimumPointSize: 1
+                        font.pointSize: 10
+                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        text: "Avatar"
+                    }
+                    Text {
+                        id: nickname
+                        width: selected_people_list_view_header.nickname_w
+                        height: parent.height
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.Fit
+                        minimumPointSize: 1
+                        font.pointSize: 10
+                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        text: "Nickname"
+                    }
+                    Text {
+                        id: number_of_faces
+                        width: selected_people_list_view_header.count_of_faces_w
+                        height: parent.height
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.Fit
+                        minimumPointSize: 1
+                        font.pointSize: 10
+                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        text: "Number of \nfaces"
+                    }
+                }
+            }
         }
     }
 }

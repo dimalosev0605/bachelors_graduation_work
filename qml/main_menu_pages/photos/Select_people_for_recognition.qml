@@ -13,6 +13,11 @@ Page {
         stack_view.pop(StackView.Immediate)
     }
 
+    Component {
+        id: recognition_comp
+        Recognition {}
+    }
+
     Available_people {
         id: available_people
     }
@@ -45,6 +50,23 @@ Page {
         }
         onClicked: {
             stack_view.pop(StackView.Immediate)
+        }
+    }
+
+    Button {
+        id: next_btn
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 5
+            right: parent.right
+            rightMargin: 5
+        }
+        height: 30
+        width: 60
+        enabled: selected_people_list_view.count > 0
+        text: "Next"
+        onClicked: {
+            stack_view.push(recognition_comp, StackView.Immediate)
         }
     }
 

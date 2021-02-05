@@ -101,6 +101,7 @@ void Base_people::update()
     beginResetModel();
     copy_model_data = nullptr;
     model_data.clear();
+    load_model_data();
     endResetModel();
 }
 
