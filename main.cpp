@@ -14,6 +14,7 @@
 #include "image_provider.h"
 #include "image_handler.h"
 #include "auto_image_handler.h"
+#include "recognition_image_handler.h"
 
 int main(int argc, char *argv[])
 {
@@ -37,6 +38,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<Image_handler>("Image_handler_qml", 1, 0, "Image_handler");
     qmlRegisterType<Auto_image_handler>("Auto_image_handler_qml", 1, 0, "Auto_image_handler");
+    qmlRegisterType<Recognition_image_handler>("Recognition_image_handler_qml", 1, 0, "Recognition_image_handler");
 
     qRegisterMetaType<Image_data>("Image_data");
 

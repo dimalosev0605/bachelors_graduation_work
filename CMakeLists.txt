@@ -52,6 +52,9 @@ add_executable(face_rec_diplom
   auto_image_handler.h
   auto_image_handler.cpp
 
+  recognition_image_handler.h
+  recognition_image_handler.cpp
+
   image_handler_initializer.h
   image_handler_initializer.cpp
 

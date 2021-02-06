@@ -5,7 +5,7 @@ import "../../common"
 import "../../delegates"
 
 import Selected_imgs_qml 1.0
-import Image_handler_qml 1.0
+import Recognition_image_handler_qml 1.0
 
 Page {
 
@@ -32,8 +32,8 @@ Page {
         }
     }
 
-    Image_handler {
-        id: image_handler
+    Recognition_image_handler {
+        id: recognition_image_handler
         onImage_data_ready: {
             Image_provider.accept_image_data(some_img_data)
             img.curr_image = Math.random().toString()
@@ -43,7 +43,7 @@ Page {
     Selected_imgs {
         id: selected_imgs
         onImage_changed: {
-            image_handler.curr_image_changed(curr_img_path)
+            recognition_image_handler.curr_image_changed(curr_img_path)
         }
     }
 
@@ -127,39 +127,8 @@ Page {
                         file_dialog.open()
                         return
                     }
-                    if(image_handler.is_choose_face_enable) {
-                        var p_to_s_width_k = img.paintedWidth / img.sourceSize.width
-                        var p_to_s_height_k = img.paintedHeight / img.sourceSize.height
-
-                        var s_to_p_width_k = img.sourceSize.width / img.paintedWidth
-                        var s_to_p_height_k = img.sourceSize.height / img.paintedHeight
-
-                        var p_m_x = mouseX
-                        var p_m_y = mouseY
-
-                        var s_m_x = 0
-                        var s_m_y = 0
-
-                        if(p_to_s_width_k > 1) {
-                            s_m_x = p_m_x / p_to_s_width_k
-                        }
-                        else {
-                            s_m_x = p_m_x * s_to_p_width_k
-                        }
-
-                        if(p_to_s_height_k > 1) {
-                            s_m_y = p_m_y / p_to_s_height_k
-                        }
-                        else {
-                            s_m_y = p_m_y * s_to_p_height_k
-                        }
-
-                        image_handler.choose_face(s_m_x, s_m_y)
-                    }
-                    else {
-                        var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
-                        win.show()
-                    }
+                    var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
+                    win.show()
                 }
             }
             BusyIndicator {
@@ -167,7 +136,7 @@ Page {
                 anchors.centerIn: parent
                 width: parent.width * 0.4
                 height: parent.height * 0.4
-                visible: image_handler.is_busy_indicator_running
+                visible: recognition_image_handler.is_busy_indicator_running
             }
             Button {
                 anchors {
@@ -180,7 +149,7 @@ Page {
                 visible: busy_indicator.visible
                 text: "Cancel"
                 onClicked: {
-                    image_handler.cancel_processing()
+                    recognition_image_handler.cancel_processing()
                 }
             }
         }
@@ -200,7 +169,7 @@ Page {
                 orientation: ListView.Horizontal
                 clip: true
                 currentIndex: selected_imgs.curr_img_index
-                enabled: !image_handler.is_busy_indicator_running
+                enabled: !recognition_image_handler.is_busy_indicator_running
                 delegate: Selected_img_only_img {
                     height: all_imgs_frame.height
                     width: height
@@ -214,7 +183,7 @@ Page {
 
         Button {
             id: prev_img_btn
-            enabled: !image_handler.is_busy_indicator_running
+            enabled: !recognition_image_handler.is_busy_indicator_running
             anchors {
                 left: parent.left
                 top: img.top
@@ -228,7 +197,7 @@ Page {
         }
         Button {
             id: next_img_btn
-            enabled: !image_handler.is_busy_indicator_running
+            enabled: !recognition_image_handler.is_busy_indicator_running
             anchors {
                 left: img.right
                 top: img.top
@@ -280,7 +249,7 @@ Page {
             anchors.fill: parent
             spacing: 3
             property int count_of_btns_in_row: 3
-            property int count_of_rows: 2
+            property int count_of_rows: 3
             property real row_height: (height - spacing * (count_of_rows - 1)) / count_of_rows
             property real btn_width: (width - space_between_btns_in_row * (count_of_btns_in_row - 1)) / count_of_btns_in_row
             property real space_between_btns_in_row: 3
@@ -292,18 +261,18 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr up"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
-                        image_handler.pyr_up()
+                        recognition_image_handler.pyr_up()
                     }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr down"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
-                        image_handler.pyr_down()
+                        recognition_image_handler.pyr_down()
                     }
                 }
                 Button {
@@ -311,7 +280,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "resize"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
                         new_size_popup.open()
                     }
@@ -359,7 +328,7 @@ Page {
                                 text: "Ok"
                                 onClicked: {
                                     if(width_input.acceptableInput && height_input.acceptableInput) {
-                                        image_handler.resize(width_input.text, height_input.text)
+                                        recognition_image_handler.resize(width_input.text, height_input.text)
                                         new_size_popup.close()
                                     }
                                 }
@@ -376,28 +345,40 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
-                        image_handler.hog()
+                        recognition_image_handler.hog()
                     }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "CNN"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
+                    enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_cnn_enable
                     onClicked: {
-                        image_handler.cnn()
+                        recognition_image_handler.cnn()
                     }
                 }
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG + CNN"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
+                    enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable && recognition_image_handler.is_cnn_enable
                     onClicked: {
-                        image_handler.hog_and_cnn()
+                        recognition_image_handler.hog_and_cnn()
                     }
+                }
+            }
+            Button {
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                }
+                height: parent.row_height
+                width: btns_col.btn_width
+                text: "Cancel"
+                enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_cancel_enabled
+                onClicked: {
+                    recognition_image_handler.cancel_last_action()
                 }
             }
         }
