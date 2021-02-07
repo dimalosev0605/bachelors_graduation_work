@@ -68,6 +68,38 @@ void Recognition_image_handler::set_is_recognize_enable(const bool some_value)
     emit is_recognize_enable_changed();
 }
 
+bool Recognition_image_handler::get_is_auto_recognize() const
+{
+    return is_auto_recognize;
+}
+
+void Recognition_image_handler::set_is_auto_recognize(const bool some_value)
+{
+    is_auto_recognize = some_value;
+
+    modified_img_index = 0;
+    if(!imgs.empty()) {
+        set_is_busy_indicator_running(false);
+        set_is_hog_enable(true);
+        set_is_cnn_enable(true);
+        if(is_auto_recognize) {
+            set_is_recognize_enable(true);
+        }
+        else {
+            set_is_recognize_enable(false);
+        }
+
+        dlib::matrix<dlib::rgb_pixel> img = imgs.front();
+
+        imgs.clear();
+        imgs.push_back(std::move(img));
+
+        send_image_data_ready_signal();
+    }
+
+    emit is_auto_recognize_changed();
+}
+
 bool Recognition_image_handler::get_is_cancel_enabled() const
 {
     return is_cancel_enabled;
@@ -110,6 +142,12 @@ void Recognition_image_handler::curr_image_changed(const QString& curr_img_path)
         set_is_busy_indicator_running(false);
         set_is_hog_enable(true);
         set_is_cnn_enable(true);
+        if(is_auto_recognize) {
+            set_is_recognize_enable(true);
+        }
+        else {
+            set_is_recognize_enable(false);
+        }
     }
 
     dlib::matrix<dlib::rgb_pixel> img;
@@ -126,10 +164,10 @@ void Recognition_image_handler::hog()
     set_is_busy_indicator_running(true);
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Recognition_image_handler::start_hog, worker, &Image_handler_worker::hog);
-    connect(worker, &Image_handler_worker::faces_ready, this, &Recognition_image_handler::faces_ready_slot);
+    connect(this, &Recognition_image_handler::start_hog, worker, &Image_handler_worker::hog_2);
+    connect(worker, &Image_handler_worker::faces_ready_2, this, &Recognition_image_handler::faces_ready_slot);
 
-    emit start_hog(++worker_thread_id, imgs.back(), hog_face_detector);
+    emit start_hog(++worker_thread_id, imgs.back(), hog_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding);
 }
 
 void Recognition_image_handler::cnn()
@@ -137,10 +175,10 @@ void Recognition_image_handler::cnn()
     set_is_busy_indicator_running(true);
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Recognition_image_handler::start_cnn, worker, &Image_handler_worker::cnn);
-    connect(worker, &Image_handler_worker::faces_ready, this, &Recognition_image_handler::faces_ready_slot);
+    connect(this, &Recognition_image_handler::start_cnn, worker, &Image_handler_worker::cnn_2);
+    connect(worker, &Image_handler_worker::faces_ready_2, this, &Recognition_image_handler::faces_ready_slot);
 
-    emit start_cnn(++worker_thread_id, imgs.back(), cnn_face_detector);
+    emit start_cnn(++worker_thread_id, imgs.back(), cnn_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding);
 }
 
 void Recognition_image_handler::hog_and_cnn()
@@ -148,10 +186,10 @@ void Recognition_image_handler::hog_and_cnn()
     set_is_busy_indicator_running(true);
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Recognition_image_handler::start_hog_and_cnn, worker, &Image_handler_worker::hog_and_cnn);
-    connect(worker, &Image_handler_worker::faces_ready, this, &Recognition_image_handler::faces_ready_slot);
+    connect(this, &Recognition_image_handler::start_hog_and_cnn, worker, &Image_handler_worker::hog_and_cnn_2);
+    connect(worker, &Image_handler_worker::faces_ready_2, this, &Recognition_image_handler::faces_ready_slot);
 
-    emit start_hog_and_cnn(++worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector);
+    emit start_hog_and_cnn(++worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding);
 }
 
 void Recognition_image_handler::pyr_up()
@@ -187,10 +225,10 @@ void Recognition_image_handler::resize(const int some_width, const int some_heig
     emit start_resize(++worker_thread_id, imgs.back(), some_width, some_height);
 }
 
-void Recognition_image_handler::faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::rectangle>& some_rects_around_faces)
+void Recognition_image_handler::faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::matrix<float, 0, 1>>& some_face_descriptors, std::vector<dlib::rectangle>& some_rects_around_faces)
 {
     if(worker_thread_id == some_worker_thread_id) {
-        if(some_rects_around_faces.empty()) {
+        if(some_face_descriptors.empty()) {
             qDebug() << "We did not find any faces.";
             set_is_busy_indicator_running(false);
             return;
@@ -198,10 +236,12 @@ void Recognition_image_handler::faces_ready_slot(const int some_worker_thread_id
         qDebug() << "Update image.";
         imgs.push_back(std::move(some_img));
         find_faces_img_index = imgs.size() - 1;
+        face_descriptors = std::move(some_face_descriptors);
         rects_around_faces = std::move(some_rects_around_faces);
         send_image_data_ready_signal();
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
+        set_is_recognize_enable(true);
         set_is_busy_indicator_running(false);
     }
     else {
@@ -227,6 +267,20 @@ void Recognition_image_handler::img_ready_slot(const int some_worker_thread_id, 
     }
 }
 
+void Recognition_image_handler::auto_recognize_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img)
+{
+    if(worker_thread_id == some_worker_thread_id) {
+        qDebug() << "Update image.";
+        imgs.push_back(std::move(some_img));
+        set_is_recognize_enable(false);
+        send_image_data_ready_signal();
+        set_is_busy_indicator_running(false);
+    }
+    else {
+        qDebug() << "Ignore image.";
+    }
+}
+
 void Recognition_image_handler::cancel_processing()
 {
     ++worker_thread_id;
@@ -237,6 +291,11 @@ void Recognition_image_handler::cancel_last_action()
 {
     if(imgs.size() != 1) {
         const auto curr_index = imgs.size() - 1;
+
+        if(curr_index == recognized_img_index) {
+            recognized_img_index = 0;
+            set_is_recognize_enable(true);
+        }
 
         if(curr_index == find_faces_img_index) {
             find_faces_img_index = 0;
@@ -251,4 +310,85 @@ void Recognition_image_handler::cancel_last_action()
         imgs.pop_back();
         send_image_data_ready_signal();
     }
+}
+
+void Recognition_image_handler::accept_selected_people(const QVector<QString>& some_selected_people)
+{
+    Image_handler_worker* worker = new Image_handler_worker;
+
+    auto local_selected_people = some_selected_people;
+
+    connect(this, &Recognition_image_handler::start_selected_people_initializing, worker, &Image_handler_worker::selected_people_initializing);
+    connect(worker, &Image_handler_worker::selected_people_initialized, this, &Recognition_image_handler::selected_people_initialized_slot);
+
+    emit start_selected_people_initializing(local_selected_people );
+}
+
+void Recognition_image_handler::selected_people_initialized_slot(std::map<dlib::matrix<float, 0, 1>, std::string>& some_people)
+{
+    known_people = some_people;
+    qDebug() << "known_people.size() = " << known_people.size();
+}
+
+void Recognition_image_handler::set_threshold(const double some_threshold)
+{
+    threshold = some_threshold;
+}
+
+void Recognition_image_handler::recognize()
+{
+    dlib::matrix<dlib::rgb_pixel> dlib_img = imgs[find_faces_img_index];
+    cv::Mat img = dlib::toMat(dlib_img);
+
+    std::vector<bool> is_known(face_descriptors.size(), false);
+
+    for(std::size_t i = 0; i < face_descriptors.size(); ++i) {
+
+        float min_diff = 1000.0f;
+        std::string min_diff_name;
+
+        for(const auto& entry : known_people) {
+            const auto diff = dlib::length(face_descriptors[i] - entry.first);
+            if(diff < threshold) {
+                if(diff < min_diff) {
+                    min_diff = diff;
+                    min_diff_name = entry.second;
+                }
+                is_known[i] = true;
+            }
+        }
+
+        if(is_known[i]) {
+            cv::rectangle(img, cv::Point(rects_around_faces[i].tl_corner().x(), rects_around_faces[i].tl_corner().y()),
+                               cv::Point(rects_around_faces[i].br_corner().x(), rects_around_faces[i].br_corner().y()),
+                               cv::Scalar(0, 255, 0), 2);
+            cv::putText(img, min_diff_name, cv::Point(rects_around_faces[i].tl_corner().x(), rects_around_faces[i].tl_corner().y()), cv::FONT_HERSHEY_DUPLEX, 0.70, cv::Scalar(0, 255, 0), 2);
+        }
+    }
+
+    for(std::size_t i = 0; i < is_known.size(); ++i) {
+        if(!is_known[i]) {
+            cv::putText(img, "unknown", cv::Point(rects_around_faces[i].tl_corner().x(), rects_around_faces[i].tl_corner().y()), cv::FONT_HERSHEY_DUPLEX, 0.70, cv::Scalar(255, 0, 0), 2);
+        }
+    }
+
+    dlib::cv_image<dlib::rgb_pixel> res_dlib_img = img;
+    dlib::matrix<dlib::rgb_pixel> res_img;
+    dlib::assign_image(res_img, res_dlib_img);
+    imgs.push_back(std::move(res_img));
+
+    recognized_img_index = imgs.size() - 1;
+
+    send_image_data_ready_signal();
+}
+
+void Recognition_image_handler::auto_recognize()
+{
+    set_is_busy_indicator_running(true);
+    Image_handler_worker* worker = new Image_handler_worker;
+
+    connect(this, &Recognition_image_handler::start_auto_recognize, worker, &Image_handler_worker::auto_recognize);
+    connect(worker, &Image_handler_worker::auto_recognize_ready, this, &Recognition_image_handler::auto_recognize_ready_slot);
+
+    emit start_auto_recognize(++worker_thread_id, imgs.back(), hog_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding, known_people, threshold);
 }

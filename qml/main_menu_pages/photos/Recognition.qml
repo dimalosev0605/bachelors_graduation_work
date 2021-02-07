@@ -18,6 +18,9 @@ Page {
     Component.onDestruction: {
         Image_provider.empty_image()
     }
+    Component.onCompleted: {
+        recognition_image_handler.accept_selected_people(selected_people.get_selected_names())
+    }
 
     Back_btn {
         id: back_btn
@@ -219,8 +222,11 @@ Page {
         }
         from: 0.0
         to: 1.0
-        value: 0.55
+        value: 0.5
         stepSize: 0.05
+        onValueChanged: {
+            recognition_image_handler.set_threshold(value)
+        }
     }
     Button {
         id: recognize_btn
@@ -229,9 +235,36 @@ Page {
             topMargin: 5
             horizontalCenter: accuracy_slider.horizontalCenter
         }
+        enabled: recognition_image_handler.is_auto_recognize ? recognition_image_handler.is_recognize_enable && !recognition_image_handler.is_busy_indicator_running : recognition_image_handler.is_recognize_enable && !recognition_image_handler.is_busy_indicator_running && !recognition_image_handler.is_hog_enable && !recognition_image_handler.is_cnn_enable
         width: 150
         height: 30
         text: "Recognize" + accuracy_slider.value.toFixed(2)
+        onClicked: {
+            if(recognition_image_handler.is_auto_recognize) {
+                recognition_image_handler.auto_recognize()
+            }
+            else {
+                recognition_image_handler.recognize()
+            }
+        }
+    }
+    Button {
+        id: is_controls_visible_btn
+        anchors {
+            bottom: recognize_btn.bottom
+            left: recognize_btn.right
+        }
+        width: 10
+        height: 10
+        enabled: !recognition_image_handler.is_busy_indicator_running
+        onClicked: {
+            if(recognition_image_handler.is_auto_recognize) {
+                recognition_image_handler.is_auto_recognize = false
+            }
+            else {
+                recognition_image_handler.is_auto_recognize = true
+            }
+        }
     }
 
     Rectangle {
@@ -241,6 +274,7 @@ Page {
             top: recognize_btn.bottom
             topMargin: 5
         }
+        visible: !recognition_image_handler.is_auto_recognize
         width: img_frame.width * 0.8
         height: 100
         color: "#ff0000"

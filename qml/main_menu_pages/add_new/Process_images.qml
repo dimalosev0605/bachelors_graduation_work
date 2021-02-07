@@ -536,6 +536,7 @@ Page {
         text: "Finish"
         enabled: !image_handler.is_busy_indicator_running && extracted_faces_list_view.count > 0
         onClicked: {
+            nickname_input_page.is_delete_individual_dirs = false
             stack_view.pop(null, StackView.Immediate)
         }
     }

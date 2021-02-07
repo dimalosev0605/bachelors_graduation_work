@@ -69,6 +69,15 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QVector<std::tuple<QString, QString, int>>>("QVector<std::tuple<QString, QString, int>>");
     qRegisterMetaType<QVector<std::tuple<QString, QString, int>>>("QVector<std::tuple<QString, QString, int>>&");
 
+    qRegisterMetaType<QVector<QString>>("QVector<QString>");
+    qRegisterMetaType<QVector<QString>>("QVector<QString>&");
+
+    qRegisterMetaType<std::map<dlib::matrix<float, 0, 1>, std::string>>("std::map<dlib::matrix<float, 0, 1>, std::string>");
+    qRegisterMetaType<std::map<dlib::matrix<float, 0, 1>, std::string>>("std::map<dlib::matrix<float, 0, 1>, std::string>&");
+
+    qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>");
+    qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>&");
+
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);
     engine.addImageProvider("Image_provider", image_provider);

@@ -11,6 +11,7 @@ public:
     explicit Selected_people(QObject* parent = nullptr);
 
 public slots:
+    QVector<QString> get_selected_names() const;
 };
 
 #endif // SELECTED_PEOPLE_H

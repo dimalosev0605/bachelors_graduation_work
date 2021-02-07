@@ -27,24 +27,31 @@ class Recognition_image_handler : public QObject
     Q_PROPERTY(bool is_recognize_enable READ get_is_recognize_enable WRITE set_is_recognize_enable NOTIFY is_recognize_enable_changed)
     bool is_recognize_enable = false;
 
+    Q_PROPERTY(bool is_auto_recognize READ get_is_auto_recognize WRITE set_is_auto_recognize NOTIFY is_auto_recognize_changed)
+    bool is_auto_recognize = false;
+
     Q_PROPERTY(bool is_cancel_enabled READ get_is_cancel_enabled WRITE set_is_cancel_enabled NOTIFY is_cancel_enabled_changed)
     bool is_cancel_enabled = false;
 
     std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
     std::vector<dlib::rectangle> rects_around_faces;
+    std::vector<dlib::matrix<float, 0, 1>> face_descriptors;
 
     std::size_t find_faces_img_index = 0;
     std::size_t modified_img_index = 0;
+    std::size_t recognized_img_index = 0;
 
     hog_face_detector_type hog_face_detector;
     cnn_face_detector_type cnn_face_detector;
     dlib::shape_predictor shape_predictor;
     face_recognition_dnn_type face_recognition_dnn;
 
+    int worker_thread_id = 0;
+
+    std::map<dlib::matrix<float, 0, 1>, std::string> known_people;
+    double threshold = 0.5;
     const unsigned long face_chip_size = 150;
     const double face_chip_padding = 0.25;
-
-    int worker_thread_id = 0;
 
 private slots:
     void receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector);
@@ -52,8 +59,11 @@ private slots:
     void receive_shape_predictor(dlib::shape_predictor& some_shape_predictor);
     void receive_face_recognition_dnn(face_recognition_dnn_type& some_face_recognition_dnn);
 
-    void faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::rectangle>& some_rects_around_faces);
+    void faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::matrix<float, 0, 1>>& some_face_descriptors, std::vector<dlib::rectangle>& some_rects_around_faces);
     void img_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
+    void auto_recognize_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
+
+    void selected_people_initialized_slot(std::map<dlib::matrix<float, 0, 1>, std::string>& some_people);
 
 private:
     void send_image_data_ready_signal();
@@ -73,6 +83,9 @@ public:
     bool get_is_recognize_enable() const;
     void set_is_recognize_enable(const bool some_value);
 
+    bool get_is_auto_recognize() const;
+    void set_is_auto_recognize(const bool some_value);
+
     bool get_is_cancel_enabled() const;
     void set_is_cancel_enabled(const bool some_value);
 
@@ -90,22 +103,33 @@ public slots:
     void cancel_processing();
     void cancel_last_action();
 
+    void accept_selected_people(const QVector<QString>& some_selected_people);
+    void set_threshold(const double some_threshold);
+
+    void recognize();
+    void auto_recognize();
+
 signals:
     void is_busy_indicator_running_changed();
     void is_hog_enable_changed();
     void is_cnn_enable_changed();
     void is_recognize_enable_changed();
+    void is_auto_recognize_changed();
     void is_cancel_enabled_changed();
 
-    void start_hog(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
-    void start_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector);
-    void start_hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector);
+    void start_hog(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding);
+    void start_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn,  const unsigned long face_chip_size, const double face_chip_padding);
+    void start_hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding);
 
     void start_pyr_up(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
     void start_pyr_down(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
     void start_resize(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img, const int some_width, const int some_height);
 
+    void start_auto_recognize(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding, std::map<dlib::matrix<float, 0, 1>, std::string>& some_known_people, const double some_threshold);
+
     void image_data_ready(const Image_data& some_img_data);
+
+    void start_selected_people_initializing(QVector<QString>& some_selected_people);
 };
 
 #endif // RECOGNITION_IMAGE_HANDLER_H
