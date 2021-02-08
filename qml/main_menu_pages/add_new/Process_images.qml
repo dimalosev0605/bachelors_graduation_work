@@ -211,6 +211,12 @@ Page {
                     full_screen_img: full_screen_img_var
                     selected_imgs_model: selected_imgs
                 }
+                onCountChanged: {
+                    if(count === 0) {
+                        Image_provider.empty_image()
+                        img.curr_image = Math.random().toString()
+                    }
+                }
             }
         }
 
