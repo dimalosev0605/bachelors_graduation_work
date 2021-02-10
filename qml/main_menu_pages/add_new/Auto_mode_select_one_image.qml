@@ -67,6 +67,18 @@ Page {
             target_face_img.curr_image = Math.random().toString()
         }
     }
+    Connections {
+        id: file_dialog_connections
+        target: file_dialog
+        function onAccepted(fileUrls) {
+            selected_imgs.accept_images(file_dialog.fileUrls)
+            file_dialog.close()
+        }
+        function onRejected() {
+            file_dialog.close()
+        }
+    }
+
     Back_btn {
         id: back_btn
         anchors {
@@ -126,6 +138,20 @@ Page {
             }
         }
     }
+    Button {
+        id: select_img_btn
+        anchors {
+            bottom: all_imgs_frame.top
+            bottomMargin: 3
+            right: all_imgs_frame.right
+        }
+        height: 30
+        width: 100
+        onClicked: {
+            file_dialog.open()
+        }
+    }
+
     Button {
         id: ok_btn
         anchors {

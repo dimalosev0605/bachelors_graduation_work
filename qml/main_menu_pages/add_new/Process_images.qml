@@ -129,6 +129,10 @@ Page {
                 width: img.paintedWidth
                 height: img.paintedHeight
                 onClicked: {
+                    if(Image_provider.is_null()) {
+                        file_dialog.open()
+                        return
+                    }
                     if(image_handler.is_choose_face_enable) {
                         var p_to_s_width_k = img.paintedWidth / img.sourceSize.width
                         var p_to_s_height_k = img.paintedHeight / img.sourceSize.height

@@ -36,6 +36,7 @@ Page {
         text: "Finish"
         enabled: extracted_faces_list_view.count > 0
         onClicked: {
+            nickname_input_page.is_delete_individual_dirs = false
             stack_view.pop(null, StackView.Immediate)
         }
     }
