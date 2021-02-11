@@ -5,6 +5,7 @@
 #include "file_system/default_dir_creator.h"
 #include "file_system/individual_checker.h"
 #include "file_system/individual_file_manager.h"
+#include "file_system/janitor.h"
 
 #include "models/selected_imgs.h"
 #include "models/available_people.h"
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Default_dir_creator>("Default_dir_creator_qml", 1, 0, "Default_dir_creator");
     qmlRegisterType<Individual_checker>("Individual_checker_qml", 1, 0, "Individual_checker");
     qmlRegisterType<Individual_file_manager>("Individual_file_manager_qml", 1, 0, "Individual_file_manager");
+    qmlRegisterType<Janitor>("Janitor_qml", 1, 0, "Janitor");
 
     qmlRegisterType<Selected_imgs>("Selected_imgs_qml", 1, 0, "Selected_imgs");
     qmlRegisterType<Available_people>("Available_people_qml", 1, 0, "Available_people");

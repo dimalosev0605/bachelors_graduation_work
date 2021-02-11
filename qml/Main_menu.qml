@@ -3,6 +3,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
 
 import Default_dir_creator_qml 1.0
+import Janitor_qml 1.0
 import "../qml/main_menu_pages/add_new"
 import "../qml/main_menu_pages/people"
 import "../qml/main_menu_pages/photos"
@@ -50,6 +51,9 @@ Page {
             message_dialog.text = message_str
             message_dialog.open()
         }
+    }
+    Janitor {
+        id: janitor
     }
     GridView {
         id: menu_grid_view
