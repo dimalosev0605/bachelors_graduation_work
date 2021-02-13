@@ -36,6 +36,8 @@ void Selected_imgs::accept_images(const QList<QUrl>& urls)
 {
     if(urls.isEmpty()) return;
 
+    const auto was_model_data_empty = model_data.isEmpty();
+
     QVector<QUrl> new_imgs;
     for(const auto& i : urls) {
         if(!model_data.contains(i)) {
@@ -49,6 +51,10 @@ void Selected_imgs::accept_images(const QList<QUrl>& urls)
         beginInsertRows(QModelIndex(), model_data.size(), model_data.size() + new_imgs.size() - 1);
         std::move(new_imgs.begin(), new_imgs.end(), std::back_inserter(model_data));
         endInsertRows();
+    }
+
+    if(was_model_data_empty) {
+        set_curr_img_index(0);
     }
 }
 

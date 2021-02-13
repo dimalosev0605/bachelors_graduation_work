@@ -92,11 +92,9 @@ Page {
             if(selected_imgs_list_view.count > 0) {
                 if(hand_mode_rb.checked) {
                     stack_view.push(process_images_comp, StackView.Immediate)
-                    selected_imgs.set_curr_img_index(0)
                 }
                 if(auto_mode_rb.checked) {
                     stack_view.push(auto_mode_comp, StackView.Immediate)
-                    selected_imgs.set_curr_img_index(0)
                 }
             }
             else {

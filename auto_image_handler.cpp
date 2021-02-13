@@ -26,6 +26,8 @@ void Auto_image_handler::curr_image_changed(const QString& curr_img_path)
 
     imgs.clear();
     imgs.push_back(std::move(img));
+
+    send_image_data_ready_signal();
 }
 
 void Auto_image_handler::receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector)
