@@ -36,6 +36,8 @@ void Selected_imgs::accept_images(const QList<QUrl>& urls)
 {
     if(urls.isEmpty()) return;
 
+    const auto was_model_data_empty = model_data.isEmpty();
+
     QVector<QUrl> new_imgs;
     for(const auto& i : urls) {
         if(!model_data.contains(i)) {
@@ -49,6 +51,10 @@ void Selected_imgs::accept_images(const QList<QUrl>& urls)
         beginInsertRows(QModelIndex(), model_data.size(), model_data.size() + new_imgs.size() - 1);
         std::move(new_imgs.begin(), new_imgs.end(), std::back_inserter(model_data));
         endInsertRows();
+    }
+
+    if(was_model_data_empty) {
+        set_curr_img_index(0);
     }
 }
 
@@ -70,7 +76,13 @@ void Selected_imgs::delete_image(const int index)
     file_system_watcher.removePath(model_data[index].path());
     model_data.removeAt(index);
     endRemoveRows();
-    set_curr_img_index(index - 1);
+    if(index == 0) {
+        set_curr_img_index(0);
+        return;
+    }
+    if(index <= curr_img_index) {
+        set_curr_img_index(curr_img_index - 1);
+    }
 }
 
 QHash<int, QByteArray> Selected_imgs::roleNames() const

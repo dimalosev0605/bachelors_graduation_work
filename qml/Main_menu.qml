@@ -3,8 +3,10 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
 
 import Default_dir_creator_qml 1.0
+import Janitor_qml 1.0
 import "../qml/main_menu_pages/add_new"
 import "../qml/main_menu_pages/people"
+import "../qml/main_menu_pages/photos"
 
 Page {
     property alias file_dialog: file_dialog
@@ -21,6 +23,11 @@ Page {
         id: all_people_comp
         All_people {}
     }
+    Component {
+        id: select_people_for_recognition_comp
+        Select_people_for_recognition {}
+    }
+
     FileDialog {
         id: file_dialog
         title: "Please choose files"
@@ -44,6 +51,9 @@ Page {
             message_dialog.text = message_str
             message_dialog.open()
         }
+    }
+    Janitor {
+        id: janitor
     }
     GridView {
         id: menu_grid_view
@@ -86,6 +96,9 @@ Page {
                 text: "Photos"
                 img_source: ""
                 color: "orange"
+                action: function() {
+                    stack_view.push(select_people_for_recognition_comp, StackView.Immediate)
+                }
             }
             ListElement {
                 text: "Video"

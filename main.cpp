@@ -5,14 +5,17 @@
 #include "file_system/default_dir_creator.h"
 #include "file_system/individual_checker.h"
 #include "file_system/individual_file_manager.h"
+#include "file_system/janitor.h"
 
 #include "models/selected_imgs.h"
-#include "models/all_people.h"
+#include "models/available_people.h"
+#include "models/selected_people.h"
 
 #include "image_data.h"
 #include "image_provider.h"
 #include "image_handler.h"
 #include "auto_image_handler.h"
+#include "recognition_image_handler.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,12 +31,16 @@ int main(int argc, char *argv[])
     qmlRegisterType<Default_dir_creator>("Default_dir_creator_qml", 1, 0, "Default_dir_creator");
     qmlRegisterType<Individual_checker>("Individual_checker_qml", 1, 0, "Individual_checker");
     qmlRegisterType<Individual_file_manager>("Individual_file_manager_qml", 1, 0, "Individual_file_manager");
+    qmlRegisterType<Janitor>("Janitor_qml", 1, 0, "Janitor");
 
     qmlRegisterType<Selected_imgs>("Selected_imgs_qml", 1, 0, "Selected_imgs");
-    qmlRegisterType<All_people>("All_people_qml", 1, 0, "All_people");
+    qmlRegisterType<Available_people>("Available_people_qml", 1, 0, "Available_people");
+    qmlRegisterType<Selected_people>("Selected_people_qml", 1, 0, "Selected_people");
+
 
     qmlRegisterType<Image_handler>("Image_handler_qml", 1, 0, "Image_handler");
     qmlRegisterType<Auto_image_handler>("Auto_image_handler_qml", 1, 0, "Auto_image_handler");
+    qmlRegisterType<Recognition_image_handler>("Recognition_image_handler_qml", 1, 0, "Recognition_image_handler");
 
     qRegisterMetaType<Image_data>("Image_data");
 
@@ -57,6 +64,21 @@ int main(int argc, char *argv[])
 
     qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>");
     qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>&");
+
+    qRegisterMetaType<std::tuple<QString, QString, int>>("std::tuple<QString, QString, int>");
+    qRegisterMetaType<std::tuple<QString, QString, int>>("std::tuple<QString, QString, int>&");
+
+    qRegisterMetaType<QVector<std::tuple<QString, QString, int>>>("QVector<std::tuple<QString, QString, int>>");
+    qRegisterMetaType<QVector<std::tuple<QString, QString, int>>>("QVector<std::tuple<QString, QString, int>>&");
+
+    qRegisterMetaType<QVector<QString>>("QVector<QString>");
+    qRegisterMetaType<QVector<QString>>("QVector<QString>&");
+
+    qRegisterMetaType<std::map<dlib::matrix<float, 0, 1>, std::string>>("std::map<dlib::matrix<float, 0, 1>, std::string>");
+    qRegisterMetaType<std::map<dlib::matrix<float, 0, 1>, std::string>>("std::map<dlib::matrix<float, 0, 1>, std::string>&");
+
+    qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>");
+    qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>&");
 
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);

@@ -4,14 +4,14 @@ import QtQuick.Controls 2.12
 import "../../common"
 import "../../delegates"
 
-import All_people_qml 1.0
+import Available_people_qml 1.0
 
 Page {
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
-    All_people {
-        id: all_people
+    Available_people {
+        id: available_people
     }
     Component {
         id: edit_individual_comp
@@ -26,19 +26,18 @@ Page {
             horizontalCenter: parent.horizontalCenter
         }
         onTextChanged: {
-//            all_people_list_view.currentIndex = -1
             if(search_input.text.length === 0) {
-                all_people.cancel_search()
+                available_people.cancel_search()
                 return
             }
-            all_people.search(search_input.text)
+            available_people.search(search_input.text)
         }
 
         width: 150
         height: 30
     }
     ListView {
-        id: all_people_list_view
+        id: available_people_list_view
         anchors {
             top: search_input.bottom
             topMargin: 10
@@ -49,37 +48,37 @@ Page {
         width: parent.width / 2
         clip: true
         currentIndex: -1
-        model: all_people
+        model: available_people
         delegate: Individual {
-            width: all_people_list_view.width
+            width: available_people_list_view.width
             height: 40
 
-            number.width: all_people_list_view.headerItem.number_w
-            avatar_wrapper.width: all_people_list_view.headerItem.avatar_w
-            nickname.width: all_people_list_view.headerItem.nickname_w
-            count_of_faces.width: all_people_list_view.headerItem.count_of_faces_w
-            delete_btn_wrapper.width: all_people_list_view.headerItem.delete_btn_w
+            number.width: available_people_list_view.headerItem.number_w
+            avatar_wrapper.width: available_people_list_view.headerItem.avatar_w
+            nickname.width: available_people_list_view.headerItem.nickname_w
+            count_of_faces.width: available_people_list_view.headerItem.count_of_faces_w
+            delete_btn_wrapper.width: available_people_list_view.headerItem.delete_btn_w
 
             avatar.source: "file://" + model.avatar_path
             count_of_faces.text: model.count_of_faces
             nickname.text: model.individual_name
 
             body_m_area.onClicked: {
-                var individual_name = all_people.get_individual_name(index)
+                var individual_name = available_people.get_individual_name(index)
                 if(individual_name === "") return
                 stack_view.push(edit_individual_comp, {"individual_name": individual_name}, StackView.Immediate)
             }
 
             delete_btn_m_area.onClicked: {
-                all_people.delete_individual(index)
+                available_people.delete_individual(index)
             }
         }
         header: Rectangle {
-            id: all_people_list_view_header
+            id: available_people_list_view_header
             border.width: 1
             border.color: "#000000"
             height: 40
-            width: all_people_list_view.width
+            width: available_people_list_view.width
             property real number_w: 40
             property real avatar_w: (parent.width - number_w - delete_btn_w) * 0.25
             property real nickname_w: (parent.width - number_w - delete_btn_w) * 0.5
@@ -90,7 +89,7 @@ Page {
                 Text {
                     id: number
                     height: parent.height
-                    width: all_people_list_view_header.number_w
+                    width: available_people_list_view_header.number_w
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     fontSizeMode: Text.Fit
@@ -103,7 +102,7 @@ Page {
                 Text {
                     id: avatar
                     height: parent.height
-                    width: all_people_list_view_header.avatar_w
+                    width: available_people_list_view_header.avatar_w
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     fontSizeMode: Text.Fit
@@ -115,7 +114,7 @@ Page {
                 }
                 Text {
                     id: nickname
-                    width: all_people_list_view_header.nickname_w
+                    width: available_people_list_view_header.nickname_w
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -128,7 +127,7 @@ Page {
                 }
                 Text {
                     id: number_of_faces
-                    width: all_people_list_view_header.count_of_faces_w
+                    width: available_people_list_view_header.count_of_faces_w
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -142,7 +141,7 @@ Page {
                 Rectangle {
                     id: delete_btn
                     height: parent.height
-                    width: all_people_list_view_header.delete_btn_w
+                    width: available_people_list_view_header.delete_btn_w
                     color: "blue"
                 }
             }

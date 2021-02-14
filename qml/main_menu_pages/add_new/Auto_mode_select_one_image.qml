@@ -30,6 +30,10 @@ Page {
         Image_provider.empty_image()
     }
 
+    Component.onCompleted: {
+        selected_imgs.set_curr_img_index(0)
+    }
+
     property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
 
     Auto_image_handler {
@@ -64,9 +68,20 @@ Page {
         target: selected_imgs
         function onImage_changed(curr_img_path) {
             auto_image_handler.curr_image_changed(curr_img_path)
-            target_face_img.curr_image = Math.random().toString()
         }
     }
+    Connections {
+        id: file_dialog_connections
+        target: file_dialog
+        function onAccepted(fileUrls) {
+            selected_imgs.accept_images(file_dialog.fileUrls)
+            file_dialog.close()
+        }
+        function onRejected() {
+            file_dialog.close()
+        }
+    }
+
     Back_btn {
         id: back_btn
         anchors {
@@ -124,8 +139,28 @@ Page {
                 full_screen_img: full_screen_img_var
                 selected_imgs_model: selected_imgs
             }
+            onCountChanged: {
+                if(count === 0) {
+                    Image_provider.empty_image()
+                    target_face_img.curr_image = Math.random().toString()
+                }
+            }
         }
     }
+    Button {
+        id: select_img_btn
+        anchors {
+            bottom: all_imgs_frame.top
+            bottomMargin: 3
+            right: all_imgs_frame.right
+        }
+        height: 30
+        width: 100
+        onClicked: {
+            file_dialog.open()
+        }
+    }
+
     Button {
         id: ok_btn
         anchors {
@@ -136,7 +171,7 @@ Page {
         width: 80
         height: 30
         text: "Ok"
-        enabled: auto_image_handler.is_ok_enable && !auto_image_handler.is_busy_indicator_running
+        enabled: all_imgs_list_view.count !== 0 && auto_image_handler.is_ok_enable && !auto_image_handler.is_busy_indicator_running
         onClicked: {
             auto_image_handler.search_target_face()
         }
@@ -160,6 +195,10 @@ Page {
             width: target_face_img.width
             height: target_face_img.height
             onClicked: {
+                if(Image_provider.is_null()) {
+                    file_dialog.open()
+                    return
+                }
                 if(auto_image_handler.is_choose_face_enable) {
                     var p_to_s_width_k = target_face_img.paintedWidth / target_face_img.sourceSize.width
                     var p_to_s_height_k = target_face_img.paintedHeight / target_face_img.sourceSize.height

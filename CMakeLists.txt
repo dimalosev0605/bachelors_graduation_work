@@ -30,11 +30,17 @@ add_executable(face_rec_diplom
   file_system/individual_file_manager.cpp
   file_system/individual_checker.h
   file_system/individual_checker.cpp
+  file_system/janitor.h
+  file_system/janitor.cpp
 
   models/selected_imgs.h
   models/selected_imgs.cpp
-  models/all_people.h
-  models/all_people.cpp
+  models/base_people.h
+  models/base_people.cpp
+  models/available_people.h
+  models/available_people.cpp
+  models/selected_people.h
+  models/selected_people.cpp
 
   image_provider.h
   image_provider.cpp
@@ -47,6 +53,9 @@ add_executable(face_rec_diplom
 
   auto_image_handler.h
   auto_image_handler.cpp
+
+  recognition_image_handler.h
+  recognition_image_handler.cpp
 
   image_handler_initializer.h
   image_handler_initializer.cpp

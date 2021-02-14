@@ -19,7 +19,7 @@ Page {
             console.log("zero faces -> delete individual.")
             individual_file_manager.delete_individual()
         }
-        all_people.update()
+        available_people.update()
         search_input.clear()
         Image_provider.empty_image()
     }

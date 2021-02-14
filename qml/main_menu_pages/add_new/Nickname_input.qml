@@ -5,13 +5,19 @@ import "../../common"
 import Individual_checker_qml 1.0
 
 Page {
+    id: nickname_input_page
+
     Component {
         id: select_images_comp
         Select_images {}
     }
 
+    property bool is_delete_individual_dirs: true
+
     Component.onDestruction: {
-        individual_checker.delete_individual_dirs()
+        if(is_delete_individual_dirs) {
+            individual_checker.delete_individual_dirs()
+        }
     }
 
     Individual_checker {
