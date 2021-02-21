@@ -16,6 +16,7 @@
 #include "image_handler.h"
 #include "auto_image_handler.h"
 #include "recognition_image_handler.h"
+#include "video_capture.h"
 
 int main(int argc, char *argv[])
 {
@@ -41,6 +42,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<Image_handler>("Image_handler_qml", 1, 0, "Image_handler");
     qmlRegisterType<Auto_image_handler>("Auto_image_handler_qml", 1, 0, "Auto_image_handler");
     qmlRegisterType<Recognition_image_handler>("Recognition_image_handler_qml", 1, 0, "Recognition_image_handler");
+
+    qmlRegisterType<Video_capture>("Video_capture_qml", 1, 0, "Video_capture");
 
     qRegisterMetaType<Image_data>("Image_data");
 
@@ -79,6 +82,8 @@ int main(int argc, char *argv[])
 
     qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>");
     qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>&");
+
+    qRegisterMetaType<QImage>("QImage");
 
     Image_provider* image_provider = new Image_provider;
     engine.rootContext()->setContextProperty("Image_provider", image_provider);

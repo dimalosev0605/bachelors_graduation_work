@@ -62,6 +62,9 @@ add_executable(face_rec_diplom
 
   image_handler_worker.h
   image_handler_worker.cpp
+
+  video_capture.h
+  video_capture.cpp
 )
 
 

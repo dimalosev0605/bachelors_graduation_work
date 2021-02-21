@@ -7,6 +7,7 @@ import Janitor_qml 1.0
 import "../qml/main_menu_pages/add_new"
 import "../qml/main_menu_pages/people"
 import "../qml/main_menu_pages/photos"
+import "../qml/main_menu_pages/webcam"
 
 Page {
     property alias file_dialog: file_dialog
@@ -26,6 +27,10 @@ Page {
     Component {
         id: select_people_for_recognition_comp
         Select_people_for_recognition {}
+    }
+    Component {
+        id: select_people_for_recognition_webcam_comp
+        Select_people_for_recognition_webcam {}
     }
 
     FileDialog {
@@ -91,6 +96,9 @@ Page {
                 text: "Web cam"
                 img_source: ""
                 color: "yellow"
+                action: function() {
+                    stack_view.push(select_people_for_recognition_webcam_comp, StackView.Immediate)
+                }
             }
             ListElement {
                 text: "Photos"

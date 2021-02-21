@@ -10,6 +10,9 @@ QImage Image_provider::requestImage([[maybe_unused]]const QString &id, [[maybe_u
     if(img.isNull()) {
         return QImage(":/qml/icons/black_cross.png");
     }
+    if(!is_video_running) {
+        return QImage(":/qml/icons/black_cross.png");
+    }
     return img;
 }
 
@@ -24,6 +27,11 @@ void Image_provider::accept_image_data(const Image_data& some_img_data)
     img = local_q_img.copy();
 }
 
+void Image_provider::accept_image(const QImage& some_img)
+{
+    img = some_img;
+}
+
 void Image_provider::empty_image()
 {
     img = QImage{};
@@ -33,3 +41,15 @@ bool Image_provider::is_null() const
 {
     return img.isNull();
 }
+
+void Image_provider::stop_video_running()
+{
+    is_video_running = false;
+    empty_image();
+}
+
+void Image_provider::start_video_running()
+{
+    is_video_running = true;
+}
+
