@@ -10,7 +10,7 @@ class Image_provider : public QObject, public QQuickImageProvider
 {
     Q_OBJECT
     QImage img;
-    bool is_video_running = true;
+    bool is_show_images = true;
 
 public:
     explicit Image_provider(QObject *parent = nullptr);

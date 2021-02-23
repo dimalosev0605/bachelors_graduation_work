@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QThread>
 
+#include <type_traits>
+
 #include <dlib/image_io.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing.h>
@@ -53,19 +55,34 @@ using face_recognition_dnn_type = dlib::loss_metric<dlib::fc_no_bias<128,dlib::a
                             dlib::input_rgb_image_sized<150>
                             >>>>>>>>>>>>;
 
+enum class Initialization_flags {
+    All                     = ~0,       // all bits equal 1
+    Hog_face_detector       = 1 << 0,   // 1
+    Cnn_face_detector       = 1 << 1,   // 2
+    Shape_predictor         = 1 << 2,   // 4
+    Face_recognition_dnn    = 1 << 3    // 8
+};
+
+Initialization_flags operator | (Initialization_flags lhs, Initialization_flags rhs);
+Initialization_flags operator & (Initialization_flags lhs, Initialization_flags rhs);
+
 class Image_handler_initializer: public QThread
 {
     Q_OBJECT
+
     hog_face_detector_type hog_face_detector;
     cnn_face_detector_type cnn_face_detector;
     dlib::shape_predictor shape_predictor;
     face_recognition_dnn_type face_recognition_dnn;
 
+    Initialization_flags initialization_flags;
+
+private:
     void run() override;
 
 public:
-    explicit Image_handler_initializer(QObject* parent = nullptr);
-    ~Image_handler_initializer();
+    explicit Image_handler_initializer(Initialization_flags some_initialization_flags = Initialization_flags::All, QObject* parent = nullptr);
+    ~Image_handler_initializer() override;
 
 signals:
     void hog_face_detector_ready(hog_face_detector_type& some_hog_face_detector);

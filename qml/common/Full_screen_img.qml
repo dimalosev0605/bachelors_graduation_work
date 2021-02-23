@@ -15,11 +15,19 @@ Window {
     property ListView view // if window_type = Window_type.With_btns you must pass view.
     property Selected_imgs selected_imgs // if window_type = Window_type.With_btns you must pass selected_imgs
     property int window_type: Full_screen_img.Window_type.Without_btns
+    property Image source_image: null // you must pass it for full screen video stream
     property real darker_factor: 1.2
 
     enum Window_type {
         Without_btns,
         With_btns
+    }
+
+    Connections {
+        target: source_image
+        function onUpdate_full_screen_img(source) {
+            img.source = source
+        }
     }
 
     flags: Qt.FramelessWindowHint
@@ -260,7 +268,7 @@ Window {
                 Image {
                     id: img
                     property real prev_scale: 1.0
-                    asynchronous: true
+                    asynchronous: false
                     cache: false
                     smooth: img_flickable.moving
                     anchors.centerIn: parent
@@ -279,7 +287,9 @@ Window {
                     }
                     onStatusChanged: {
                         if (status === Image.Ready) {
-                            img_flickable.fit_to_screen()
+                            if(source_image === null) {
+                                img_flickable.fit_to_screen()
+                            }
                         }
                     }
                 }

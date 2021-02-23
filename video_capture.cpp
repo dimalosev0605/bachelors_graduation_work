@@ -161,68 +161,6 @@ void Video_capture::start()
                 }
             }
 
-            /*
-            if(is_recognize) {
-                std::vector<dlib::full_object_detection> face_shapes;
-                face_shapes.reserve(rects_around_faces.size());
-                for(const auto& rect : rects_around_faces) {
-                    const auto face_shape = shape_predictor.operator()(cimg, rect);
-                    face_shapes.push_back(face_shape);
-                }
-
-                std::vector<dlib::matrix<dlib::rgb_pixel>> processed_faces;
-                processed_faces.reserve(rects_around_faces.size());
-
-                for(const auto& face_shape : face_shapes) {
-                    dlib::matrix<dlib::rgb_pixel> processed_face;
-                    dlib::extract_image_chip(cimg, dlib::get_face_chip_details(face_shape, face_chip_size, face_chip_padding), processed_face);
-                    processed_faces.push_back(std::move(processed_face));
-                }
-
-                std::vector<dlib::matrix<float, 0, 1>> face_descriptors = face_recognition_dnn.operator()(processed_faces);
-
-                for(std::size_t i = 0; i < rects_around_faces.size(); ++i) {
-                    dlib::draw_rectangle(cimg, rects_around_faces[i], dlib::rgb_pixel(255, 0, 0), 2);
-                }
-
-
-                // recognize
-                std::vector<bool> is_known(face_descriptors.size(), false);
-
-                for(std::size_t i = 0; i < face_descriptors.size(); ++i) {
-
-                    float min_diff = 1000.0f;
-                    std::string min_diff_name;
-
-                    for(const auto& entry : known_people) {
-                        const auto diff = dlib::length(face_descriptors[i] - entry.first);
-                        if(diff < threshold) {
-                            if(diff < min_diff) {
-                                min_diff = diff;
-                                min_diff_name = entry.second;
-                            }
-                            is_known[i] = true;
-                        }
-                    }
-
-                    if(is_known[i]) {
-                        cv::rectangle(temp, cv::Point(rects_around_faces[i].tl_corner().x(), rects_around_faces[i].tl_corner().y()),
-                                           cv::Point(rects_around_faces[i].br_corner().x(), rects_around_faces[i].br_corner().y()),
-                                           cv::Scalar(0, 255, 0), 2);
-                        cv::putText(temp, min_diff_name, cv::Point(rects_around_faces[i].tl_corner().x(), rects_around_faces[i].tl_corner().y()), cv::FONT_HERSHEY_DUPLEX, 0.70, cv::Scalar(0, 255, 0), 2);
-                    }
-                }
-
-                for(std::size_t i = 0; i < is_known.size(); ++i) {
-                    if(!is_known[i]) {
-                        cv::putText(temp, "unknown", cv::Point(rects_around_faces[i].tl_corner().x(), rects_around_faces[i].tl_corner().y()), cv::FONT_HERSHEY_DUPLEX, 0.70, cv::Scalar(255, 0, 0), 2);
-                    }
-                }
-
-            }
-            */
-
-
             const auto frame_data = dlib::image_data(dlib_frame);
             const QImage q_img(static_cast<const uchar*>(frame_data),
                                static_cast<int>(dlib_frame.nc()),
@@ -262,6 +200,7 @@ void Video_capture::safe_destroy_slot()
 void Video_capture::receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector)
 {
     hog_face_detector = std::move(some_hog_face_detector);
+    emit enable_hog_searching();
 }
 
 void Video_capture::receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector)
@@ -272,11 +211,15 @@ void Video_capture::receive_cnn_face_detector(cnn_face_detector_type& some_cnn_f
 void Video_capture::receive_shape_predictor(dlib::shape_predictor& some_shape_predictor)
 {
     shape_predictor = std::move(some_shape_predictor);
+    is_shape_predictor_initialized = true;
+    try_enable_face_recognition();
 }
 
 void Video_capture::receive_face_recognition_dnn(face_recognition_dnn_type& some_face_recognition_dnn)
 {
     face_recognition_dnn = std::move(some_face_recognition_dnn);
+    is_face_recognition_dnn_initialized = true;
+    try_enable_face_recognition();
 }
 
 void Video_capture::accept_selected_people(const QVector<QString>& some_selected_people)
@@ -295,4 +238,13 @@ void Video_capture::selected_people_initialized_slot(std::map<dlib::matrix<float
 {
     known_people = some_people;
     qDebug() << "known_people.size() = " << known_people.size();
+    is_known_people_initialized = true;
+    try_enable_face_recognition();
+}
+
+void Video_capture::try_enable_face_recognition()
+{
+    if(is_shape_predictor_initialized && is_face_recognition_dnn_initialized && is_known_people_initialized) {
+        emit enable_face_recognition();
+    }
 }

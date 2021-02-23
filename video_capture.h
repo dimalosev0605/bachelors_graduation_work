@@ -40,11 +40,17 @@ class Video_capture : public QObject
     bool is_destroy = false;
 
     hog_face_detector_type hog_face_detector;
+
     cnn_face_detector_type cnn_face_detector;
+
     dlib::shape_predictor shape_predictor;
+    bool is_shape_predictor_initialized = false;
+
     face_recognition_dnn_type face_recognition_dnn;
+    bool is_face_recognition_dnn_initialized = false;
 
     std::map<dlib::matrix<float, 0, 1>, std::string> known_people;
+    bool is_known_people_initialized = false;
 
     const unsigned long face_chip_size = 150;
     const double face_chip_padding = 0.25;
@@ -54,6 +60,8 @@ private:
     bool get_is_running();
     bool get_is_hog();
     bool get_is_recognize();
+
+    void try_enable_face_recognition();
 
 private slots:
     void receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector);
@@ -86,6 +94,9 @@ signals:
     void safe_destroy();
 
     void start_selected_people_initializing(QVector<QString>& some_selected_people);
+
+    void enable_hog_searching();
+    void enable_face_recognition();
 };
 
 #endif // VIDEO_CAPTURE_H
