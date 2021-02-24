@@ -20,5 +20,7 @@
         <file>qml/main_menu_pages/photos/Select_people_for_recognition.qml</file>
         <file>qml/delegates/Select_individual.qml</file>
         <file>qml/main_menu_pages/photos/Recognition.qml</file>
+        <file>qml/main_menu_pages/webcam/Select_people_for_recognition_webcam.qml</file>
+        <file>qml/main_menu_pages/webcam/Recognition.qml</file>
     </qresource>
 </RCC>
