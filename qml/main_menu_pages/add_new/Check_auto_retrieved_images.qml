@@ -5,6 +5,11 @@ import "../../common"
 import "../../delegates"
 
 Page {
+    id: root
+
+    property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window
+
     Keys.onEscapePressed: {
         individual_file_manager.delete_all_faces()
         stack_view.pop(StackView.Immediate)
@@ -65,6 +70,8 @@ Page {
 
             src_img.source: "file://" + model.src_img_path
             extr_face_img.source: "file://" + model.extr_face_img_path
+
+            parent_obj: root
 
             delete_btn_m_area.onClicked: {
                 individual_file_manager.delete_face(index)

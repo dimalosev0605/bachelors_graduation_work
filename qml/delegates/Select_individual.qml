@@ -18,7 +18,7 @@ Rectangle {
 
     property alias body_m_area: body_m_area
 
-    property var full_screen_avatar_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var parent_obj
 
     MouseArea {
         id: body_m_area
@@ -69,8 +69,8 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    var win = full_screen_avatar_var.createObject(null, { img_source: avatar.source })
-                    win.show()
+                    parent_obj.full_screen_window = parent_obj.full_screen_window_comp.createObject(null, { img_source: avatar.source })
+                    parent_obj.full_screen_window.show()
                 }
             }
         }

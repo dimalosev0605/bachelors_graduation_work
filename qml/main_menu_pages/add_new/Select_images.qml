@@ -6,8 +6,13 @@ import "../../delegates"
 import Selected_imgs_qml 1.0
 
 Page {
+    id: root
 
-    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window
+
+    property var selected_imgs_list_view: selected_imgs_list_view
+    property var selected_imgs_model: selected_imgs
 
     Component {
         id: process_images_comp
@@ -118,12 +123,10 @@ Page {
             width: selected_imgs_list_view.width
             img_file_name: model.img_file_name
             img_file_path: model.img_file_path
-            view: selected_imgs_list_view
-            full_screen_img: full_screen_img_var
+            parent_obj: root
             delete_btn_m_area.onClicked: {
                 selected_imgs.delete_image(index)
             }
-            selected_imgs_model: selected_imgs
 //            delegate_body_m_area.onClicked: {
 //                selected_imgs_list_view.currentIndex = index
 //            }

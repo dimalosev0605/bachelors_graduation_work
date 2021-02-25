@@ -7,6 +7,11 @@ import "../../delegates"
 import Available_people_qml 1.0
 
 Page {
+    id: root
+
+    property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window
+
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
@@ -62,6 +67,8 @@ Page {
             avatar.source: "file://" + model.avatar_path
             count_of_faces.text: model.count_of_faces
             nickname.text: model.individual_name
+
+            parent_obj: root
 
             body_m_area.onClicked: {
                 var individual_name = available_people.get_individual_name(index)

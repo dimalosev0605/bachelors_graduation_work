@@ -9,12 +9,9 @@ Rectangle {
     radius: 2
 
     property alias img_file_path: img_preview.source
+    property var parent_obj
 
-    property ListView view
-    property Selected_imgs selected_imgs_model
-    property var full_screen_img
-
-    color: view.currentIndex === index ? "gray" : "transparent"
+    color: parent_obj.all_imgs_list_view.currentIndex === index ? "gray" : "transparent"
 
     Image {
         id: img_preview
@@ -41,12 +38,12 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                selected_imgs_model.set_curr_img_index(index)
+                parent_obj.selected_imgs_model.set_curr_img_index(index)
             }
             onDoubleClicked: {
-                selected_imgs_model.set_curr_img_index(index)
-                var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: Full_screen_img.Window_type.With_btns, view: view, selected_imgs: selected_imgs_model})
-                win.show()
+                parent_obj.selected_imgs_model.set_curr_img_index(index)
+                parent_obj.full_screen_window = parent_obj.full_screen_window_comp.createObject(null, { img_source: img_preview.source, window_type: Full_screen_img.Window_type.With_btns, view: parent_obj.all_imgs_list_view, selected_imgs: parent_obj.selected_imgs_model })
+                parent_obj.full_screen_window.show()
             }
         }
         Rectangle {
@@ -64,7 +61,7 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    selected_imgs_model.delete_image(index)
+                    parent_obj.selected_imgs_model.delete_image(index)
                 }
             }
         }

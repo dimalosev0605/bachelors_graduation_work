@@ -8,6 +8,7 @@ import Auto_image_handler_qml 1.0
 import Individual_file_manager_qml 1.0
 
 Page {
+    id: root
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
@@ -34,7 +35,11 @@ Page {
         selected_imgs.set_curr_img_index(0)
     }
 
-    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window
+
+    property var all_imgs_list_view: all_imgs_list_view
+    property var selected_imgs_model: selected_imgs
 
     Auto_image_handler {
         id: auto_image_handler
@@ -135,9 +140,7 @@ Page {
                 height: all_imgs_frame.height
                 width: height
                 img_file_path: model.img_file_path
-                view: all_imgs_list_view
-                full_screen_img: full_screen_img_var
-                selected_imgs_model: selected_imgs
+                parent_obj: root
             }
             onCountChanged: {
                 if(count === 0) {
@@ -229,8 +232,8 @@ Page {
                     auto_image_handler.choose_face(s_m_x, s_m_y)
                 }
                 else {
-                    var win = full_screen_img_var.createObject(null, { img_source: target_face_img.source })
-                    win.show()
+                    full_screen_window = full_screen_window_comp.createObject(null, { img_source: target_face_img.source })
+                    full_screen_window.show()
                 }
             }
         }

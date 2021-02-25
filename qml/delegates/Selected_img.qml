@@ -15,11 +15,9 @@ Rectangle {
 //    property alias delegate_body_m_area: delegate_body_m_area
     property alias delete_btn_m_area: delete_btn_m_area
 
-    property ListView view
-    property Selected_imgs selected_imgs_model
-    property var full_screen_img
+    property var parent_obj
 
-    color: view.currentIndex === index ? "#cfcfcf" : (delegate_body_m_area.containsMouse || delete_btn_m_area.containsMouse)
+    color: parent_obj.selected_imgs_list_view.currentIndex === index ? "#cfcfcf" : (delegate_body_m_area.containsMouse || delete_btn_m_area.containsMouse)
            ? delegate_body_m_area.pressed ? "#999999" : "#d4d4d4" : "#ffffff"
 
     Image {
@@ -49,9 +47,9 @@ Rectangle {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: {
-                selected_imgs_model.set_curr_img_index(index)
-                var win = full_screen_img.createObject(null, { img_source: img_preview.source, window_type: Full_screen_img.Window_type.With_btns, view: view, selected_imgs: selected_imgs_model})
-                win.show()
+                parent_obj.selected_imgs_model.set_curr_img_index(index)
+                parent_obj.full_screen_window = parent_obj.full_screen_window_comp.createObject(null, { img_source: img_preview.source, window_type: Full_screen_img.Window_type.With_btns, view: parent_obj.selected_imgs_list_view, selected_imgs: parent_obj.selected_imgs_model})
+                parent_obj.full_screen_window.show()
             }
         }
     }

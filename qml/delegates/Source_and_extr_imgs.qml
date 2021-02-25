@@ -17,7 +17,7 @@ Rectangle {
     property alias extr_face_img_wrapper: extr_face_img_wrapper
     property alias delete_btn_wrapper: delete_btn_wrapper
 
-    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var parent_obj
 
     color: "transparent"
     Text {
@@ -63,8 +63,8 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    var win = full_screen_img_var.createObject(null, { img_source: src_img.source })
-                    win.show()
+                    parent_obj.full_screen_window = parent_obj.full_screen_window_comp.createObject(null, { img_source: src_img.source })
+                    parent_obj.full_screen_window.show()
                 }
             }
         }
@@ -99,8 +99,8 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    var win = full_screen_img_var.createObject(null, { img_source: extr_face_img.source })
-                    win.show()
+                    parent_obj.full_screen_window = parent_obj.full_screen_window_comp.createObject(null, { img_source: extr_face_img.source })
+                    parent_obj.full_screen_window.show()
                 }
             }
         }

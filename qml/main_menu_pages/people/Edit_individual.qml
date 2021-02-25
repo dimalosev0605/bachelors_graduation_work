@@ -9,6 +9,7 @@ import Image_handler_qml 1.0
 import Individual_file_manager_qml 1.0
 
 Page {
+    id: root
     property string individual_name
 
     Component.onCompleted: {
@@ -28,7 +29,11 @@ Page {
         stack_view.pop(StackView.Immediate)
     }
 
-    property var full_screen_img_var: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
+    property var full_screen_window
+
+    property var all_imgs_list_view: all_imgs_list_view
+    property var selected_imgs_model: selected_imgs
 
     Selected_imgs {
         id: selected_imgs
@@ -174,8 +179,8 @@ Page {
                         image_handler.choose_face(s_m_x, s_m_y)
                     }
                     else {
-                        var win = full_screen_img_var.createObject(null, { img_source: img.source, view: all_imgs_list_view })
-                        win.show()
+                        full_screen_window = full_screen_window_comp.createObject(null, { img_source: img.source, view: all_imgs_list_view })
+                        full_screen_window.show()
                     }
                 }
             }
@@ -222,9 +227,7 @@ Page {
                     height: all_imgs_frame.height
                     width: height
                     img_file_path: model.img_file_path
-                    view: all_imgs_list_view
-                    full_screen_img: full_screen_img_var
-                    selected_imgs_model: selected_imgs
+                    parent_obj: root
                 }
             }
         }
@@ -351,6 +354,8 @@ Page {
 
                 src_img.source: "file://" + model.src_img_path
                 extr_face_img.source: "file://" + model.extr_face_img_path
+
+                parent_obj: root
 
                 delete_btn_m_area.onClicked: {
                     individual_file_manager.delete_face(index)
