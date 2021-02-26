@@ -10,9 +10,6 @@ QImage Image_provider::requestImage([[maybe_unused]]const QString &id, [[maybe_u
     if(!is_show_images || img.isNull()) {
         return QImage(":/qml/icons/black_cross.png");
     }
-//    if(!is_show_images) {
-//        return QImage(":/qml/icons/black_cross.png");
-//    }
     return img;
 }
 
