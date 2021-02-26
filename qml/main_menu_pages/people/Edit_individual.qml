@@ -441,7 +441,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr up"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.pyr_up()
                     }
@@ -450,7 +450,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "pyr down"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.pyr_down()
                     }
@@ -460,7 +460,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "resize"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         new_size_popup.open()
                     }
@@ -525,7 +525,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
+                    enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.hog()
                     }
@@ -534,7 +534,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "CNN"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
+                    enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
                     onClicked: {
                         image_handler.cnn()
                     }
@@ -543,7 +543,7 @@ Page {
                     height: parent.height
                     width: btns_col.btn_width
                     text: "HOG + CNN"
-                    enabled: !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
+                    enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
                     onClicked: {
                         image_handler.hog_and_cnn()
                     }
