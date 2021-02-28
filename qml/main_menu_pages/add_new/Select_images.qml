@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
@@ -7,6 +9,8 @@ import Selected_imgs_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
     property var full_screen_window
@@ -25,16 +29,35 @@ Page {
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
-    Button {
-        id: select_imgs_btn
+    Label {
+        id: info_lbl
         anchors {
             top: parent.top
             topMargin: parent.height * 0.2
             horizontalCenter: parent.horizontalCenter
         }
-        height: 35
+        height: 40
+        width: parent.width
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        fontSizeMode: Text.Fit
+        minimumPointSize: 1
+        font.pointSize: 15
+        elide: Text.ElideRight
+        wrapMode: Text.WordWrap
+        text: qsTr("Select images and mode")
+    }
+
+    Button {
+        id: select_imgs_btn
+        anchors {
+            top: info_lbl.bottom
+            topMargin: 20
+            horizontalCenter: parent.horizontalCenter
+        }
+        height: 40
         width: 200
-        text: "Select images"
+        text: qsTr("Select images")
         onClicked: {
             file_dialog.open()
         }
@@ -48,13 +71,14 @@ Page {
         }
         width: select_imgs_btn * 2
         height: 40
+        spacing: 5
         RadioButton {
             id: auto_mode_rb
-            text: "auto"
+            text: qsTr("auto")
         }
         RadioButton {
             id: hand_mode_rb
-            text: "hand mode"
+            text: qsTr("hand mode")
             checked: true
         }
     }
@@ -83,16 +107,16 @@ Page {
     }
     Button {
         id: next_btn
-        visible: selected_imgs_list_view.count !== 0
+        enabled: selected_imgs_list_view.count !== 0
         anchors {
             bottom: parent.bottom
-            bottomMargin: 5
+            bottomMargin: back_btn.anchors.bottomMargin
             right: parent.right
-            rightMargin: 5
+            rightMargin: back_btn.anchors.leftMargin
         }
-        text: "Next"
-        width: 60
-        height: 30
+        text: qsTr("Next")
+        width: back_btn.width
+        height: back_btn.height
         onClicked: {
             if(selected_imgs_list_view.count > 0) {
                 if(hand_mode_rb.checked) {

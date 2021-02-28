@@ -1,6 +1,8 @@
 import QtQuick 2.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import Default_dir_creator_qml 1.0
 import Janitor_qml 1.0
@@ -8,8 +10,12 @@ import "../qml/main_menu_pages/add_new"
 import "../qml/main_menu_pages/people"
 import "../qml/main_menu_pages/photos"
 import "../qml/main_menu_pages/webcam"
+import "../qml/main_menu_pages/settings"
 
 Page {
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
+
     property alias file_dialog: file_dialog
     property alias message_dialog: message_dialog
 
@@ -32,10 +38,14 @@ Page {
         id: select_people_for_recognition_webcam_comp
         Select_people_for_recognition_webcam {}
     }
+    Component {
+        id: settings_comp
+        Settings {}
+    }
 
     FileDialog {
         id: file_dialog
-        title: "Please choose files"
+        title: qsTr("Please choose files")
         folder: shortcuts.home
         visible: false
         selectMultiple: true
@@ -44,7 +54,7 @@ Page {
     MessageDialog {
         id: message_dialog
         modality: Qt.ApplicationModal
-        title: "Information"
+        title: qsTr("Information")
         standardButtons: MessageDialog.Ok
         onAccepted: {
             close()
@@ -64,7 +74,7 @@ Page {
         id: menu_grid_view
         anchors.centerIn: parent
         width: parent.width * 0.6
-        height: parent.height * 0.7
+        height: parent.height * 0.6
         focus: true
         Keys.onReturnPressed: {
             menu_grid_view_model.get(currentIndex).action()
@@ -72,104 +82,80 @@ Page {
         ListModel {
             id: menu_grid_view_model
             ListElement {
-                text: "People"
+                text: qsTr("People")
                 img_source: ""
-                color: "#ff0000"
                 action: function() {
                     stack_view.push(all_people_comp, StackView.Immediate)
                 }
             }
             ListElement {
-                text: "Add new"
+                text: qsTr("Add new")
                 img_source: ""
-                color: "#00ff00"
                 action: function() {
                     stack_view.push(nickname_input_comp, StackView.Immediate)
                 }
             }
             ListElement {
-                text: "Settings"
+                text: qsTr("Settings")
                 img_source: ""
-                color: "gray"
+                action: function() {
+                    stack_view.push(settings_comp, StackView.Immediate)
+                }
             }
             ListElement {
-                text: "Web cam"
+                text: qsTr("Web cam")
                 img_source: ""
-                color: "yellow"
                 action: function() {
                     stack_view.push(select_people_for_recognition_webcam_comp, StackView.Immediate)
                 }
             }
             ListElement {
-                text: "Photos"
+                text: qsTr("Photos")
                 img_source: ""
-                color: "orange"
                 action: function() {
                     stack_view.push(select_people_for_recognition_comp, StackView.Immediate)
                 }
             }
             ListElement {
-                text: "Video"
+                text: qsTr("Video")
                 img_source: ""
-                color: "#00ff00"
             }
             ListElement {
-                text: "About"
+                text: qsTr("About")
                 img_source: ""
-                color: "red"
             }
             ListElement {
-                text: "Help"
+                text: qsTr("Help")
                 img_source: ""
-                color: "orange"
                 action: function() {
                     console.log("Help")
                 }
             }
             ListElement {
-                text: "Exit"
+                text: qsTr("Exit")
                 img_source: ""
-                color: "orange"
                 action: function() { Qt.quit() }
             }
         }
         model: menu_grid_view_model
         cellWidth: width / 3
-        cellHeight: height / 3
+        cellHeight: height / 3 * 0.9
+        interactive: false
         property int spacing: 20
-        delegate: Rectangle {
+        delegate: Button {
             id: delegate
             width: menu_grid_view.cellWidth - menu_grid_view.spacing
             height: menu_grid_view.cellHeight - menu_grid_view.spacing
-            radius: 5
-            color: model.color
-            border.width: GridView.isCurrentItem ? 2 : 0
-            border.color: "#000000"
-            Image {
-                id: img
-                source: model.img_source
-                anchors.centerIn: parent
-                width: parent.width / 2
-                height: parent.height / 2
-                mipmap: true
-                fillMode: Image.PreserveAspectFit
+            text: model.text
+            onClicked: {
+                model.action()
             }
-            Text {
-                anchors {
-                    top: img.bottom
-                    topMargin: 5
-                    horizontalCenter: img.horizontalCenter
+            highlighted: GridView.isCurrentItem
+            onHoveredChanged:  {
+                if(hovered) {
+                    menu_grid_view.currentIndex = index
+                    scale_anim.start()
                 }
-                width: img.width
-                height: delegate.height - anchors.topMargin - img.height - img.y
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                fontSizeMode: Text.Fit
-                minimumPointSize: 1
-                font.pointSize: 20
-                elide: Text.ElideRight
-                wrapMode: Text.WordWrap
-                text: model.text
             }
             SequentialAnimation {
                 id: scale_anim
@@ -186,18 +172,6 @@ Page {
                     from: scale_anim.to_scale
                     to: 1.0
                     duration: scale_anim.duration
-                }
-            }
-            MouseArea {
-                id: m_area
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: {
-                    scale_anim.start()
-                    menu_grid_view.currentIndex = index
-                }
-                onClicked: {
-                    model.action()
                 }
             }
         }

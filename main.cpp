@@ -17,6 +17,7 @@
 #include "auto_image_handler.h"
 #include "recognition_image_handler.h"
 #include "video_capture.h"
+#include "style_control.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,9 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+
+    Style_control* style_control = new Style_control(app);
+    engine.rootContext()->setContextProperty("Style_control", style_control);
 
     app.setOrganizationName("lol");
     app.setOrganizationDomain("kek");
@@ -85,7 +89,7 @@ int main(int argc, char *argv[])
 
     qRegisterMetaType<QImage>("QImage");
 
-    Image_provider* image_provider = new Image_provider;
+    Image_provider* image_provider = new Image_provider();
     engine.rootContext()->setContextProperty("Image_provider", image_provider);
     engine.addImageProvider("Image_provider", image_provider);
 

@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick QuickControls2 REQUIRED)
 find_package(dlib REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -65,10 +65,13 @@ add_executable(face_rec_diplom
 
   video_capture.h
   video_capture.cpp
+
+  style_control.h
+  style_control.cpp
 )
 
 
 target_compile_definitions(face_rec_diplom
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(face_rec_diplom
-  PRIVATE Qt5::Core Qt5::Quick dlib::dlib ${OpenCV_LIBS})
+  PRIVATE Qt5::Core Qt5::Quick dlib::dlib Qt5::QuickControls2 ${OpenCV_LIBS})
