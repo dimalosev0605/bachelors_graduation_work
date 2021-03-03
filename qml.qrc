@@ -23,5 +23,6 @@
         <file>qml/main_menu_pages/webcam/Select_people_for_recognition_webcam.qml</file>
         <file>qml/main_menu_pages/webcam/Recognition.qml</file>
         <file>qml/main_menu_pages/settings/Settings.qml</file>
+        <file>qml/icons/white_cross.png</file>
     </qresource>
 </RCC>

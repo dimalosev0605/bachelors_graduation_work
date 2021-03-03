@@ -33,7 +33,7 @@ Page {
         id: info_lbl
         anchors {
             top: parent.top
-            topMargin: parent.height * 0.2
+            topMargin: parent.height * 0.05
             horizontalCenter: parent.horizontalCenter
         }
         height: 40
@@ -133,7 +133,7 @@ Page {
     }
     ListView {
         id: selected_imgs_list_view
-        width: 400
+        width: parent.width * 0.3 < 400 ? 400 : parent.width * 0.3
         anchors {
             top: mode_row.bottom
             topMargin: 5
@@ -143,8 +143,9 @@ Page {
         clip: true
         currentIndex: selected_imgs.curr_img_index
         model: Selected_imgs { id: selected_imgs }
+        spacing: -1
         delegate: Selected_img {
-            width: selected_imgs_list_view.width
+            width: selected_imgs_list_view.width - selected_imgs_list_view_scroll_bar.implicitWidth
             img_file_name: model.img_file_name
             img_file_path: model.img_file_path
             parent_obj: root
@@ -155,6 +156,6 @@ Page {
 //                selected_imgs_list_view.currentIndex = index
 //            }
         }
-//        ScrollBar.vertical:
+        ScrollBar.vertical: ScrollBar { id: selected_imgs_list_view_scroll_bar }
     }
 }
