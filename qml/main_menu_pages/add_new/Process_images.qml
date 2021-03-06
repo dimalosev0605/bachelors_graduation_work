@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
@@ -10,6 +12,8 @@ import Individual_file_manager_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)

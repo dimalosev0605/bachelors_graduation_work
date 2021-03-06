@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
@@ -9,6 +11,9 @@ import Individual_file_manager_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
+
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
     }
@@ -40,6 +45,8 @@ Page {
 
     property var all_imgs_list_view: all_imgs_list_view
     property var selected_imgs_model: selected_imgs
+
+    property int group_box_border_w: 1
 
     Auto_image_handler {
         id: auto_image_handler
@@ -99,7 +106,7 @@ Page {
             stack_view.pop(StackView.Immediate)
         }
     }
-    Text {
+    Label {
         id: title
         anchors {
             top: parent.top
@@ -107,7 +114,7 @@ Page {
             horizontalCenter: parent.horizontalCenter
         }
         width: parent.width
-        height: 40
+        height: 30
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         fontSizeMode: Text.Fit
@@ -115,29 +122,65 @@ Page {
         font.pointSize: 15
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
-        text: "Select the image with target face and press \"Ok\" button"
+        text: {
+            if(auto_image_handler.is_choose_face_enable) {
+                qsTr("Click on the target face")
+            } else if(auto_image_handler.is_handle_remaining_imgs_visible) {
+                qsTr("Press \"Handle\" button")
+            } else {
+                qsTr("Select the image with target face and press \"Ok\" button")
+            }
+        }
     }
-    Rectangle {
-        id: all_imgs_frame
+    Button {
+        id: select_imgs_btn
         anchors {
-            verticalCenter: parent.verticalCenter
+            top: parent.top
+            topMargin: title.anchors.topMargin
+            right: all_imgs_frame.right
+            rightMargin: 5
+        }
+        height: title.height
+        onClicked: {
+            file_dialog.open()
+        }
+        text: qsTr("Select")
+    }
+    GroupBox {
+        id: all_imgs_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors {
+            top: title.bottom
+            topMargin: 20
             left: parent.left
             leftMargin: 10
             right: parent.right
             rightMargin: anchors.leftMargin
         }
-        color: "#00ff00"
-        height: 140
+        height: {
+            if(root.height * 0.1 < 80) {
+                80
+            }
+            else {
+                root.height * 0.1
+            }
+        }
         ListView {
             id: all_imgs_list_view
-            anchors.fill: parent
+            anchors {
+                fill: parent
+                margins: root.group_box_border_w
+            }
             model: selected_imgs
             orientation: ListView.Horizontal
             clip: true
             currentIndex: selected_imgs.curr_img_index
             enabled: !auto_image_handler.is_busy_indicator_running
             delegate: Selected_img_only_img {
-                height: all_imgs_frame.height
+                height: all_imgs_frame.height - all_imgs_list_view_scroll_bar.height
                 width: height
                 img_file_path: model.img_file_path
                 parent_obj: root
@@ -148,126 +191,152 @@ Page {
                     target_face_img.curr_image = Math.random().toString()
                 }
             }
-        }
-    }
-    Button {
-        id: select_img_btn
-        anchors {
-            bottom: all_imgs_frame.top
-            bottomMargin: 3
-            right: all_imgs_frame.right
-        }
-        height: 30
-        width: 100
-        onClicked: {
-            file_dialog.open()
+            ScrollBar.horizontal: ScrollBar { id: all_imgs_list_view_scroll_bar }
         }
     }
 
-    Button {
-        id: ok_btn
+    GroupBox {
+        id: target_face_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: all_imgs_frame.bottom
-            topMargin: 20
-            horizontalCenter: parent.horizontalCenter
-        }
-        width: 80
-        height: 30
-        text: "Ok"
-        enabled: all_imgs_list_view.count !== 0 && auto_image_handler.is_ok_enable && !auto_image_handler.is_busy_indicator_running
-        onClicked: {
-            auto_image_handler.search_target_face()
-        }
-    }
-    Image {
-        id: target_face_img
-        anchors {
-            top: ok_btn.bottom
             topMargin: 10
             horizontalCenter: parent.horizontalCenter
+            bottom: parent.bottom
+            bottomMargin: anchors.topMargin
         }
-        width: 200
-        height: 200
-        property string curr_image
-        cache: false
-        fillMode: Image.PreserveAspectFit
-        enabled: !auto_image_handler.is_busy_indicator_running
-        source: "image://Image_provider/" + curr_image
-        MouseArea {
-            anchors.centerIn: parent
-            width: target_face_img.width
-            height: target_face_img.height
-            onClicked: {
-                if(Image_provider.is_null()) {
-                    file_dialog.open()
-                    return
-                }
-                if(auto_image_handler.is_choose_face_enable) {
-                    var p_to_s_width_k = target_face_img.paintedWidth / target_face_img.sourceSize.width
-                    var p_to_s_height_k = target_face_img.paintedHeight / target_face_img.sourceSize.height
+        width: parent.width * 0.6
+        Image {
+            id: target_face_img
+            anchors {
+                top: parent.top
+                topMargin: root.group_box_border_w
+                left: parent.left
+                leftMargin: root.group_box_border_w
+                right: parent.right
+                rightMargin: root.group_box_border_w
+            }
+            height: parent.height - anchors.topMargin - anchors.bottomMargin - btns_row.anchors.topMargin - btns_row.height - btns_row.bottom_margin
+            property string curr_image
+            cache: false
+            fillMode: Image.PreserveAspectFit
+            enabled: !auto_image_handler.is_busy_indicator_running
+            source: "image://Image_provider/" + curr_image
+            MouseArea {
+                anchors.centerIn: parent
+                width: target_face_img.paintedWidth
+                height: target_face_img.paintedHeight
+                onClicked: {
+                    if(Image_provider.is_null()) {
+                        file_dialog.open()
+                        return
+                    }
+                    if(auto_image_handler.is_choose_face_enable) {
+                        var p_to_s_width_k = target_face_img.paintedWidth / target_face_img.sourceSize.width
+                        var p_to_s_height_k = target_face_img.paintedHeight / target_face_img.sourceSize.height
 
-                    var s_to_p_width_k = target_face_img.sourceSize.width / target_face_img.paintedWidth
-                    var s_to_p_height_k = target_face_img.sourceSize.height / target_face_img.paintedHeight
+                        var s_to_p_width_k = target_face_img.sourceSize.width / target_face_img.paintedWidth
+                        var s_to_p_height_k = target_face_img.sourceSize.height / target_face_img.paintedHeight
 
-                    var p_m_x = mouseX
-                    var p_m_y = mouseY
+                        var p_m_x = mouseX
+                        var p_m_y = mouseY
 
-                    var s_m_x = 0
-                    var s_m_y = 0
+                        var s_m_x = 0
+                        var s_m_y = 0
 
-                    if(p_to_s_width_k > 1) {
-                        s_m_x = p_m_x / p_to_s_width_k
+                        if(p_to_s_width_k > 1) {
+                            s_m_x = p_m_x / p_to_s_width_k
+                        }
+                        else {
+                            s_m_x = p_m_x * s_to_p_width_k
+                        }
+
+                        if(p_to_s_height_k > 1) {
+                            s_m_y = p_m_y / p_to_s_height_k
+                        }
+                        else {
+                            s_m_y = p_m_y * s_to_p_height_k
+                        }
+
+                        auto_image_handler.choose_face(s_m_x, s_m_y)
                     }
                     else {
-                        s_m_x = p_m_x * s_to_p_width_k
+                        full_screen_window = full_screen_window_comp.createObject(null, { img_source: target_face_img.source })
+                        full_screen_window.show()
                     }
-
-                    if(p_to_s_height_k > 1) {
-                        s_m_y = p_m_y / p_to_s_height_k
-                    }
-                    else {
-                        s_m_y = p_m_y * s_to_p_height_k
-                    }
-
-                    auto_image_handler.choose_face(s_m_x, s_m_y)
-                }
-                else {
-                    full_screen_window = full_screen_window_comp.createObject(null, { img_source: target_face_img.source })
-                    full_screen_window.show()
                 }
             }
         }
-    }
-    Button {
-        id: cancel_last_action_btn
-        anchors {
-            top: target_face_img.bottom
-            topMargin: 5
-            horizontalCenter: target_face_img.horizontalCenter
+        Row {
+            id: btns_row
+            anchors {
+                top: target_face_img.bottom
+                topMargin: 10
+                horizontalCenter: parent.horizontalCenter
+            }
+            width: parent.width * 0.5
+            height: 35
+            spacing: 5
+            property int count_of_btns: 3
+            property int bottom_margin: 5
+            property real btn_w: (width - spacing * (count_of_btns - 1) ) / count_of_btns
+            Button {
+                id: ok_btn
+                height: btns_row.height - btns_row.bottom_margin
+                width: btns_row.btn_w
+                text: qsTr("Ok")
+                enabled: all_imgs_list_view.count !== 0 && auto_image_handler.is_ok_enable && !auto_image_handler.is_busy_indicator_running
+                onClicked: {
+                    auto_image_handler.search_target_face()
+                }
+            }
+            Button {
+                id: cancel_last_action_btn
+                height: btns_row.height - btns_row.bottom_margin
+                width: btns_row.btn_w
+                text: qsTr("Cancel")
+                enabled: auto_image_handler.is_cancel_visible && !auto_image_handler.is_busy_indicator_running
+                onClicked: {
+                    auto_image_handler.cancel_last_action()
+                }
+            }
+            Button {
+                id: handle_remain_imgs_btn
+                height: btns_row.height - btns_row.bottom_margin
+                text: qsTr("Handle")
+                width: btns_row.btn_w
+                enabled: auto_image_handler.is_handle_remaining_imgs_visible && !auto_image_handler.is_busy_indicator_running
+                onClicked: {
+                    auto_image_handler.handle_remaining_images(selected_imgs.get_selected_imgs_paths())
+                }
+            }
         }
-        width: 80
-        height: 30
-        text: "cancel"
-        visible: auto_image_handler.is_cancel_visible
-        enabled: !auto_image_handler.is_busy_indicator_running
-        onClicked: {
-            auto_image_handler.cancel_last_action()
-        }
-    }
-    Button {
-        id: handle_remain_imgs_btn
-        anchors {
-            left: target_face_img.right
-            leftMargin: 5
-            verticalCenter: target_face_img.verticalCenter
-        }
-        width: 200
-        height: 30
-        text: "Handle remaining images."
-        visible: auto_image_handler.is_handle_remaining_imgs_visible
-        enabled: !auto_image_handler.is_busy_indicator_running
-        onClicked: {
-            auto_image_handler.handle_remaining_images(selected_imgs.get_selected_imgs_paths())
+        Label {
+            id: progress_info
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: 1
+                right: parent.right
+                rightMargin: 3
+            }
+            width: btns_row.btn_w
+            height: 30
+            visible: auto_image_handler.is_busy_indicator_running
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignRight
+            fontSizeMode: Text.Fit
+            minimumPointSize: 1
+            font.pointSize: 15
+            elide: Text.ElideRight
+            wrapMode: Text.WordWrap
+            onVisibleChanged: {
+                if(!visible) {
+                    text = ""
+                }
+            }
         }
     }
     BusyIndicator {
@@ -283,27 +352,12 @@ Page {
             top: busy_indicator.bottom
             horizontalCenter: busy_indicator.horizontalCenter
         }
-        width: 80
+//        width: 80
         height: 30
         visible: auto_image_handler.is_busy_indicator_running
         text: "Cancel"
         onClicked: {
             auto_image_handler.cancel_processing()
-        }
-    }
-    Text {
-        id: progress_info
-        anchors {
-            top: cancel_btn.bottom
-            topMargin: 2
-        }
-        width: cancel_btn.width
-        height: cancel_btn.height
-        visible: auto_image_handler.is_busy_indicator_running
-        onVisibleChanged: {
-            if(!visible) {
-                text = ""
-            }
         }
     }
 }

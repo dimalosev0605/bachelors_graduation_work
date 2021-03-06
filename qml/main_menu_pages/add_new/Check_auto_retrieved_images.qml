@@ -1,11 +1,15 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
     property var full_screen_window
@@ -36,9 +40,8 @@ Page {
             bottom: parent.bottom
             bottomMargin: 5
         }
-        width: 140
-        height: 30
-        text: "Finish"
+        height: back_btn.height
+        text: qsTr("Finish")
         enabled: extracted_faces_list_view.count > 0
         onClicked: {
             nickname_input_page.is_delete_individual_dirs = false
@@ -46,10 +49,28 @@ Page {
         }
     }
 
+    Label {
+        id: title_lbl
+        anchors {
+            top: parent.top
+            topMargin: 10
+            horizontalCenter: parent.horizontalCenter
+        }
+        width: parent.width
+        height: 30
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        fontSizeMode: Text.Fit
+        minimumPointSize: 1
+        font.pointSize: 15
+        elide: Text.ElideRight
+        wrapMode: Text.WordWrap
+        text: qsTr("Check extracted faces and press \"Finish\" button")
+    }
     ListView {
         id: extracted_faces_list_view
         anchors {
-            top: parent.top
+            top: title_lbl.bottom
             topMargin: 30
             bottom: parent.bottom
             bottomMargin: 30
@@ -77,25 +98,21 @@ Page {
                 individual_file_manager.delete_face(index)
             }
         }
-        header: Rectangle {
+        header: Item {
             id: extracted_faces_table_header
             height: 40
             width: extracted_faces_list_view.width
-            color: "transparent"
-            border.width: 1
-            border.color: "#000000"
             property int number_w: 30
             property int delete_btn_w: 50
             property real img_w: (extracted_faces_table_header.width - extracted_faces_table_header.number_w - extracted_faces_table_header.delete_btn_w) / 2
             Row {
                 anchors.fill: parent
-                Rectangle {
+                Item {
                     id: image_number
                     height: parent.height
                     width: extracted_faces_table_header.number_w
-                    color: "transparent"
                 }
-                Text {
+                Label {
                     width: extracted_faces_table_header.img_w
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
@@ -105,9 +122,9 @@ Page {
                     font.pointSize: 10
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
-                    text: "Source image"
+                    text: qsTr("Source image")
                 }
-                Text {
+                Label {
                     width: extracted_faces_table_header.img_w
                     height: parent.height
                     verticalAlignment: Text.AlignVCenter
@@ -117,13 +134,12 @@ Page {
                     font.pointSize: 10
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
-                    text: "Extracted face"
+                    text: qsTr("Extracted face")
                 }
-                Rectangle {
+                Item {
                     id: delete_btn
                     height: parent.height
                     width: extracted_faces_table_header.delete_btn_w
-                    color: "transparent"
                 }
             }
         }
