@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
@@ -8,6 +10,8 @@ import Available_people_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
     property var full_screen_window
@@ -27,7 +31,7 @@ Page {
         id: search_input
         anchors {
             top: parent.top
-            topMargin: 15
+            topMargin: 20
             horizontalCenter: parent.horizontalCenter
         }
         onTextChanged: {
@@ -37,9 +41,9 @@ Page {
             }
             available_people.search(search_input.text)
         }
-
-        width: 150
-        height: 30
+        placeholderText: qsTr("Search")
+        width: 250
+        height: Style_control.get_style() === "Material" ? 70 : 35
     }
     ListView {
         id: available_people_list_view
@@ -55,7 +59,7 @@ Page {
         currentIndex: -1
         model: available_people
         delegate: Individual {
-            width: available_people_list_view.width
+            width: available_people_list_view.width - available_people_list_view_scroll_bar.width
             height: 40
 
             number.width: available_people_list_view.headerItem.number_w
@@ -80,20 +84,19 @@ Page {
                 available_people.delete_individual(index)
             }
         }
-        header: Rectangle {
+        ScrollBar.vertical: ScrollBar { id: available_people_list_view_scroll_bar }
+        header: Item {
             id: available_people_list_view_header
-            border.width: 1
-            border.color: "#000000"
             height: 40
-            width: available_people_list_view.width
+            width: available_people_list_view.width - available_people_list_view_scroll_bar.width
             property real number_w: 40
-            property real avatar_w: (parent.width - number_w - delete_btn_w) * 0.25
-            property real nickname_w: (parent.width - number_w - delete_btn_w) * 0.5
-            property real count_of_faces_w: (parent.width - number_w - delete_btn_w) * 0.25
+            property real avatar_w: (available_people_list_view_header.width - number_w - delete_btn_w) * 0.25
+            property real nickname_w: (available_people_list_view_header.width - number_w - delete_btn_w) * 0.5
+            property real count_of_faces_w: (available_people_list_view_header.width - number_w - delete_btn_w) * 0.25
             property real delete_btn_w: 40
             Row {
                 anchors.fill: parent
-                Text {
+                Label {
                     id: number
                     height: parent.height
                     width: available_people_list_view_header.number_w
@@ -104,9 +107,9 @@ Page {
                     font.pointSize: 10
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
-                    text: "Number"
+                    text: qsTr("Number")
                 }
-                Text {
+                Label {
                     id: avatar
                     height: parent.height
                     width: available_people_list_view_header.avatar_w
@@ -117,9 +120,9 @@ Page {
                     font.pointSize: 10
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
-                    text: "Avatar"
+                    text: qsTr("Preview")
                 }
-                Text {
+                Label {
                     id: nickname
                     width: available_people_list_view_header.nickname_w
                     height: parent.height
@@ -130,9 +133,9 @@ Page {
                     font.pointSize: 10
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
-                    text: "Nickname"
+                    text: qsTr("Nickname")
                 }
-                Text {
+                Label {
                     id: number_of_faces
                     width: available_people_list_view_header.count_of_faces_w
                     height: parent.height
@@ -143,13 +146,12 @@ Page {
                     font.pointSize: 10
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
-                    text: "Number of \nfaces"
+                    text: qsTr("Count of \nfaces")
                 }
-                Rectangle {
+                Item {
                     id: delete_btn
                     height: parent.height
                     width: available_people_list_view_header.delete_btn_w
-                    color: "blue"
                 }
             }
         }

@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
@@ -10,6 +12,8 @@ import Individual_file_manager_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
     property string individual_name
 
     Component.onCompleted: {
@@ -34,6 +38,8 @@ Page {
 
     property var all_imgs_list_view: all_imgs_list_view
     property var selected_imgs_model: selected_imgs
+
+    property int group_box_b_w: 1
 
     Selected_imgs {
         id: selected_imgs
@@ -81,8 +87,12 @@ Page {
             stack_view.pop(StackView.Immediate)
         }
     }
-    Rectangle {
+    GroupBox {
         id: img_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: parent.top
             topMargin: 10
@@ -91,10 +101,9 @@ Page {
             bottom: back_btn.top
             bottomMargin: buttons_frame.height + buttons_frame.anchors.topMargin * 2
         }
-        color: "#00ff00"
         property int space_between_img_and_extr_faces: 10
         width: (parent.width - anchors.leftMargin * 2 - space_between_img_and_extr_faces) / 2
-        Text {
+        Label {
             id: img_info
             anchors {
                 top: parent.top
@@ -109,17 +118,18 @@ Page {
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "Original: " + img.sourceSize.width + " X " + img.sourceSize.height + " --- " +
-                  "Painted: " + img.paintedWidth + " X " + img.paintedHeight
+            text: img.sourceSize.width + " X " + img.sourceSize.height
         }
         Button {
             id: select_imgs_btn
             anchors {
+                top: parent.top
+                topMargin: root.group_box_b_w
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
             height: img_info.height
-            width: height * 2
-            text: "Select"
+            text: qsTr("Select")
             onClicked: {
                 file_dialog.open()
             }
@@ -200,21 +210,30 @@ Page {
                 width: busy_indicator.width
                 height: 30
                 visible: busy_indicator.visible
-                text: "Cancel"
+                text: qsTr("Cancel")
                 onClicked: {
                     image_handler.cancel_processing()
                 }
             }
         }
-        Rectangle {
+        Item {
             id: all_imgs_frame
             anchors {
                 bottom: parent.bottom
+                bottomMargin: root.group_box_b_w
                 left: parent.left
+                leftMargin: root.group_box_b_w
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
-            height: 60
-            color: "red"
+            height: {
+                if(root.height * 0.1 < 80) {
+                    80
+                }
+                else {
+                    root.height * 0.1
+                }
+            }
             ListView {
                 id: all_imgs_list_view
                 anchors.fill: parent
@@ -224,11 +243,12 @@ Page {
                 currentIndex: selected_imgs.curr_img_index
                 enabled: !image_handler.is_busy_indicator_running
                 delegate: Selected_img_only_img {
-                    height: all_imgs_frame.height
+                    height: all_imgs_frame.height - all_imgs_list_view_scroll_bar.height
                     width: height
                     img_file_path: model.img_file_path
                     parent_obj: root
                 }
+                ScrollBar.horizontal: ScrollBar { id: all_imgs_list_view_scroll_bar }
             }
         }
 
@@ -237,6 +257,7 @@ Page {
             enabled: !image_handler.is_busy_indicator_running
             anchors {
                 left: parent.left
+                leftMargin: root.group_box_b_w
                 top: img.top
                 bottom: all_imgs_frame.top
                 bottomMargin: img.anchors.bottomMargin
@@ -245,6 +266,8 @@ Page {
             onClicked: {
                 selected_imgs.set_curr_img_index(selected_imgs.curr_img_index - 1)
             }
+            display: AbstractButton.IconOnly
+            icon.source: "qrc:/qml/icons/left_arrow.png"
         }
         Button {
             id: next_img_btn
@@ -255,14 +278,21 @@ Page {
                 bottom: all_imgs_frame.top
                 bottomMargin: img.anchors.bottomMargin
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
             onClicked: {
                 selected_imgs.set_curr_img_index(selected_imgs.curr_img_index + 1)
             }
+            display: AbstractButton.IconOnly
+            icon.source: "qrc:/qml/icons/right_arrow.png"
         }
     }
-    Rectangle {
+    GroupBox {
         id: extr_faces_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: parent.top
             topMargin: img_frame.anchors.topMargin
@@ -271,65 +301,22 @@ Page {
             bottom: img_frame.anchors.bottom
             bottomMargin: img_frame.anchors.bottomMargin
         }
-        color: "#00ff00"
         width: img_frame.width
-        Text {
+        Label {
             id: table_title
             anchors {
                 top: parent.top
             }
             height: 30
-            width: parent.width - individual_name_input_wrapper.width
+            width: parent.width
             verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignRight
+            horizontalAlignment: Text.AlignHCenter
             fontSizeMode: Text.Fit
             minimumPointSize: 1
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "Extracted faces for:"
-        }
-        Item {
-            id: individual_name_input_wrapper
-            anchors {
-                left: table_title.right
-            }
-            height: table_title.height
-            width: parent.width / 2
-            TextField {
-                id: individual_name_input
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                }
-                width: parent.width / 2
-                height: parent.height * 0.8
-                text: individual_name
-            }
-            Button {
-                id: change_individual_name_btn
-                anchors {
-                    left: individual_name_input.right
-                    verticalCenter: parent.verticalCenter
-                }
-                height: parent.height * 0.8
-                width: parent.width * 0.3
-                text: "Save"
-                onClicked: {
-                    if(individual_name_input.text === "") {
-                        message_dialog.text = "Empty name"
-                        message_dialog.open()
-                        return
-                    }
-                    if(individual_file_manager.rename(individual_name_input.text)) {
-                        message_dialog.text = "Success"
-                        message_dialog.open()
-                    }
-                    else {
-                        message_dialog.text = "Not Success"
-                        message_dialog.open()
-                    }
-                }
-            }
+            text: qsTr("Extracted faces for: ") + individual_name
         }
         ListView {
             id: extracted_faces_list_view
@@ -361,25 +348,21 @@ Page {
                     individual_file_manager.delete_face(index)
                 }
             }
-            header: Rectangle {
+            header: Item {
                 id: extracted_faces_table_header
                 height: 40
                 width: extracted_faces_list_view.width
-                color: "transparent"
-                border.width: 1
-                border.color: "#000000"
                 property int number_w: 30
                 property int delete_btn_w: 50
                 property real img_w: (extracted_faces_table_header.width - extracted_faces_table_header.number_w - extracted_faces_table_header.delete_btn_w) / 2
                 Row {
                     anchors.fill: parent
-                    Rectangle {
+                    Item {
                         id: image_number
                         height: parent.height
                         width: extracted_faces_table_header.number_w
-                        color: "transparent"
                     }
-                    Text {
+                    Label {
                         width: extracted_faces_table_header.img_w
                         height: parent.height
                         verticalAlignment: Text.AlignVCenter
@@ -389,9 +372,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Source image"
+                        text: qsTr("Source image")
                     }
-                    Text {
+                    Label {
                         width: extracted_faces_table_header.img_w
                         height: parent.height
                         verticalAlignment: Text.AlignVCenter
@@ -401,21 +384,24 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Extracted face"
+                        text: qsTr("Extracted face")
                     }
-                    Rectangle {
+                    Item {
                         id: delete_btn
                         height: parent.height
                         width: extracted_faces_table_header.delete_btn_w
-                        color: "transparent"
                     }
                 }
             }
         }
     }
 
-    Rectangle {
+    GroupBox {
         id: buttons_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             horizontalCenter: img_frame.horizontalCenter
             top: img_frame.bottom
@@ -423,10 +409,15 @@ Page {
         }
         width: img_frame.width * 0.8
         height: 150
-        color: "#ff0000"
         Column {
             id: btns_col
-            anchors.fill: parent
+            anchors {
+                fill: parent
+                topMargin: root.group_box_b_w
+                bottomMargin: root.group_box_b_w
+                leftMargin: root.group_box_b_w
+                rightMargin: root.group_box_b_w
+            }
             spacing: 3
             property int count_of_btns_in_row: 3
             property int count_of_rows: 3
@@ -440,7 +431,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "pyr up"
+                    text: qsTr("pyr up")
                     enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.pyr_up()
@@ -449,7 +440,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "pyr down"
+                    text: qsTr("pyr down")
                     enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.pyr_down()
@@ -459,7 +450,7 @@ Page {
                     id: resize_btn
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "resize"
+                    text: qsTr("resize")
                     enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         new_size_popup.open()
@@ -467,45 +458,24 @@ Page {
                     Popup {
                         id: new_size_popup
                         visible: false
-                        property int item_h: 35
-                        property int space: 2
-                        width: resize_btn.width
-                        height: item_h * 3 + 2 * space + col.anchors.margins * 2
-                        background: Rectangle {
-                            id: background
-                            anchors.fill: parent
-                            border.color: "#000000"
-                            color: "blue"
-                            border.width: 1
-                        }
-                        contentItem: Column {
-                            id: col
-                            anchors.fill: parent
-                            anchors.margins: new_size_popup.space
-                            spacing: new_size_popup.space
+                        Column {
                             TextField {
                                 id: width_input
-                                height: new_size_popup.item_h
-                                width: parent.width
                                 property int max_width: 3840
-                                placeholderText: "max " + max_width
+                                placeholderText: qsTr("max ") + max_width
                                 text: img.sourceSize.width
                                 validator: IntValidator{bottom: 1; top: width_input.max_width;}
                             }
                             TextField {
                                 id: height_input
-                                height: new_size_popup.item_h
-                                width: parent.width
                                 property int max_height: 2160
-                                placeholderText: "max " + max_height
+                                placeholderText: qsTr("max ") + max_height
                                 text: img.sourceSize.height
                                 wrapMode: TextInput.WrapAnywhere
                                 validator: IntValidator{bottom: 1; top: height_input.max_height;}
                             }
                             Button {
-                                height: new_size_popup.item_h
-                                width: parent.width
-                                text: "Ok"
+                                text: qsTr("Ok")
                                 onClicked: {
                                     if(width_input.acceptableInput && height_input.acceptableInput) {
                                         image_handler.resize(width_input.text, height_input.text)
@@ -524,7 +494,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "HOG"
+                    text: qsTr("HOG")
                     enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable
                     onClicked: {
                         image_handler.hog()
@@ -533,7 +503,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "CNN"
+                    text: qsTr("CNN")
                     enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_cnn_enable
                     onClicked: {
                         image_handler.cnn()
@@ -542,7 +512,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "HOG + CNN"
+                    text: qsTr("HOG + CNN")
                     enabled: all_imgs_list_view.count !== 0 && !image_handler.is_busy_indicator_running && image_handler.is_hog_enable && image_handler.is_cnn_enable
                     onClicked: {
                         image_handler.hog_and_cnn()
@@ -556,7 +526,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "extract face(s)"
+                    text: qsTr("Extract face(s)")
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_extract_faces_enable
                     onClicked: {
                         image_handler.extract_face()
@@ -565,7 +535,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "cancel"
+                    text: qsTr("Cancel")
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_cancel_enabled
                     onClicked: {
                         image_handler.cancel_last_action()
@@ -574,7 +544,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "add"
+                    text: qsTr("add")
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
                         if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img())) {
@@ -585,17 +555,58 @@ Page {
             }
         }
     }
-
+    Item {
+        id: individual_name_input_wrapper
+        anchors {
+            top: extr_faces_frame.bottom
+            topMargin: buttons_frame.anchors.topMargin
+            horizontalCenter: extr_faces_frame.horizontalCenter
+        }
+        height: Style_control.get_style() === "Material" ? 60 : 30
+        width: extr_faces_frame.width * 0.5
+        TextField {
+            id: individual_name_input
+            width: (parent.width - change_individual_name_btn.anchors.leftMargin) * 0.7
+            height: parent.height
+            text: individual_name
+        }
+        Button {
+            id: change_individual_name_btn
+            anchors {
+                left: individual_name_input.right
+                leftMargin: 5
+                verticalCenter: individual_name_input.verticalCenter
+            }
+            height: Style_control.get_style() === "Material" ? parent.height * 0.5 : parent.height
+            width: (parent.width - anchors.leftMargin) * 0.3
+            text: qsTr("Rename")
+            onClicked: {
+                if(individual_name_input.text === "") {
+                    message_dialog.text = "Empty name"
+                    message_dialog.open()
+                    return
+                }
+                if(individual_file_manager.rename(individual_name_input.text)) {
+                    message_dialog.text = "Success"
+                    message_dialog.open()
+                }
+                else {
+                    message_dialog.text = "Not Success"
+                    message_dialog.open()
+                }
+            }
+        }
+    }
     Button {
         id: finish_btn
         anchors {
             horizontalCenter: extr_faces_frame.horizontalCenter
-            top: extr_faces_frame.bottom
+            top: individual_name_input_wrapper.bottom
             topMargin: 10
         }
         width: 200
-        height: 50
-        text: extracted_faces_list_view.count === 0 ? "Delete" : "Finish"
+        height: 40
+        text: extracted_faces_list_view.count === 0 ? qsTr("Delete") : qsTr("Finish")
         enabled: !image_handler.is_busy_indicator_running
         onClicked: {
             stack_view.pop(StackView.Immediate)

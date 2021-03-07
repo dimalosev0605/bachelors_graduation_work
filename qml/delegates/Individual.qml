@@ -1,13 +1,16 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 
 import "../common"
 
 Rectangle {
-    radius: 2
     color: "transparent"
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property alias avatar: avatar
 
@@ -28,7 +31,7 @@ Rectangle {
         hoverEnabled: true
     }
 
-    Text {
+    Label {
         id: number
         height: parent.height
         verticalAlignment: Text.AlignVCenter
@@ -77,7 +80,7 @@ Rectangle {
             }
         }
     }
-    Text {
+    Label {
         id: nickname
         anchors {
             left: avatar_wrapper.right
@@ -91,7 +94,7 @@ Rectangle {
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
     }
-    Text {
+    Label {
         id: count_of_faces
         anchors {
             left: nickname.right
@@ -122,7 +125,22 @@ Rectangle {
             asynchronous: true
             scale: delete_btn_m_area.pressed ? 1.2 : 1.0
             fillMode: Image.PreserveAspectFit
-            source: delete_btn_m_area.containsMouse ? "qrc:/qml/icons/red_cross.png" : "qrc:/qml/icons/black_cross.png"
+            source: {
+                if(delete_btn_m_area.containsMouse) {
+                    "qrc:/qml/icons/red_cross.png"
+                }
+                else {
+                    if(Style_control.get_style() === "Universal") {
+                        Style_control.is_dark_mode_on ? "qrc:/qml/icons/white_cross.png" : "qrc:/qml/icons/black_cross.png"
+                    }
+                    else if (Style_control.get_style() === "Material") {
+                        Style_control.is_dark_mode_on ? "qrc:/qml/icons/white_cross.png" : "qrc:/qml/icons/black_cross.png"
+                    }
+                    else {
+                        "qrc:/qml/icons/black_cross"
+                    }
+                }
+            }
             MouseArea {
                 id: delete_btn_m_area
                 anchors.fill: parent
