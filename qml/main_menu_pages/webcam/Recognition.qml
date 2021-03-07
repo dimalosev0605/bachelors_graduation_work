@@ -1,5 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../../common"
 import "../../delegates"
@@ -8,9 +10,13 @@ import Video_capture_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
     property var full_screen_window
+
+    property int group_box_b_w: 1
 
     Keys.onEscapePressed: {
         if(!is_running.checked) {
@@ -46,8 +52,12 @@ Page {
         }
     }
 
-    Rectangle {
+    GroupBox {
         id: img_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: parent.top
             topMargin: 10
@@ -56,16 +66,19 @@ Page {
             bottom: back_btn.top
             bottomMargin: 5
         }
-        color: "#00ff00"
         property int space_between_frames: 10
         width: (parent.width - anchors.leftMargin * 2 - space_between_frames) / 2
         Image {
             id: img
             anchors {
                 top: parent.top
+                topMargin: root.group_box_b_w
                 bottom: buttons_frame.top
+                bottomMargin: root.group_box_b_w
                 left: parent.left
+                leftMargin: root.group_box_b_w
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
             cache: false
             fillMode: Image.PreserveAspectFit
@@ -88,14 +101,17 @@ Page {
                 }
             }
         }
-        Rectangle {
+        GroupBox {
             id: buttons_frame
+            leftPadding: 0
+            rightPadding: 0
+            topPadding: 0
+            bottomPadding: 0
             anchors {
                 bottom: parent.bottom
             }
             height: 90
             width: parent.width
-            color: "red"
             Slider {
                 id: accuracy_slider
                 width: parent.width / 2
@@ -108,7 +124,7 @@ Page {
                     video_capture.set_threshold(value)
                 }
             }
-            Text {
+            Label {
                 id: slider_value_text
                 anchors {
                     top: accuracy_slider.bottom
@@ -137,7 +153,7 @@ Page {
                     id: is_running
                     checked: false
                     height: check_boxes_col.check_box_h
-                    text: "Running"
+                    text: qsTr("Running")
                     onCheckedChanged: {
                         if(checked) {
                             Image_provider.start_video_running()
@@ -155,7 +171,7 @@ Page {
                     id: is_hog
                     checked: false
                     height: check_boxes_col.check_box_h
-                    text: "Search faces"
+                    text: qsTr("Search faces")
                     enabled: false
                     onCheckedChanged: {
                         if(checked) {
@@ -171,7 +187,7 @@ Page {
                     id: is_recognize
                     checked: false
                     height: check_boxes_col.check_box_h
-                    text: "Recognize"
+                    text: qsTr("Recognize")
                     enabled: false
                     onCheckedChanged: {
                         if(checked) {
@@ -186,8 +202,12 @@ Page {
             }
         }
     }
-    Rectangle {
+    GroupBox {
         id: selected_people_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: parent.top
             topMargin: img_frame.anchors.topMargin
@@ -197,7 +217,6 @@ Page {
             rightMargin: img_frame.anchors.leftMargin
         }
         width: img_frame.width
-        color: "yellow"
         TextField {
             id: search_selected_people_input
             anchors {
@@ -206,7 +225,8 @@ Page {
                 horizontalCenter: parent.horizontalCenter
             }
             width: 150
-            height: 30
+            height: Style_control.get_style() === "Material" ? 70 : 35
+            placeholderText: qsTr("Search")
             onTextChanged: {
                 if(search_selected_people_input.length === 0) {
                     selected_people.cancel_search()
@@ -222,13 +242,16 @@ Page {
                 topMargin: 5
                 bottom: parent.bottom
                 bottomMargin: 5
+                left: parent.left
+                leftMargin: root.group_box_b_w
+                right: parent.right
+                rightMargin: root.group_box_b_w
             }
-            width: parent.width
             clip: true
             currentIndex: -1
             model: selected_people
             delegate: Select_individual {
-                width: selected_people_list_view.width
+                width: selected_people_list_view.width - selected_people_list_view_scroll_bar.width
                 height: 40
 
                 number.width: selected_people_list_view.headerItem.number_w
@@ -245,19 +268,17 @@ Page {
                 body_m_area.onClicked: {
                 }
             }
-            header: Rectangle {
+            ScrollBar.vertical: ScrollBar { id: selected_people_list_view_scroll_bar }
+            header: Item {
                 id: selected_people_list_view_header
-                border.width: 1
-                border.color: "#000000"
-                height: 40
-                width: selected_people_list_view.width
+                width: selected_people_list_view.width - selected_people_list_view_scroll_bar.width
                 property real number_w: 40
                 property real avatar_w: (parent.width - number_w) * 0.25
                 property real nickname_w: (parent.width - number_w) * 0.5
                 property real count_of_faces_w: (parent.width - number_w) * 0.25
                 Row {
                     anchors.fill: parent
-                    Text {
+                    Label {
                         id: number
                         height: parent.height
                         width: selected_people_list_view_header.number_w
@@ -268,9 +289,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Number"
+                        text: qsTr("Number")
                     }
-                    Text {
+                    Label {
                         id: avatar
                         height: parent.height
                         width: selected_people_list_view_header.avatar_w
@@ -281,9 +302,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Avatar"
+                        text: qsTr("Preview")
                     }
-                    Text {
+                    Label {
                         id: nickname
                         width: selected_people_list_view_header.nickname_w
                         height: parent.height
@@ -294,9 +315,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Nickname"
+                        text: qsTr("Nickname")
                     }
-                    Text {
+                    Label {
                         id: number_of_faces
                         width: selected_people_list_view_header.count_of_faces_w
                         height: parent.height
@@ -307,7 +328,7 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Number of \nfaces"
+                        text: qsTr("Count of \nfaces")
                     }
                 }
             }
