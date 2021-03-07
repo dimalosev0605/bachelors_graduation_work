@@ -1,5 +1,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
+
 
 import "../../common"
 import "../../delegates"
@@ -9,12 +12,16 @@ import Recognition_image_handler_qml 1.0
 
 Page {
     id: root
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property var full_screen_window_comp: Qt.createComponent("qrc:/qml/common/Full_screen_img.qml")
     property var full_screen_window
 
     property var all_imgs_list_view: all_imgs_list_view
     property var selected_imgs_model: selected_imgs
+
+    property int group_box_b_w: 1
 
     Keys.onEscapePressed: {
         stack_view.pop(StackView.Immediate)
@@ -67,8 +74,12 @@ Page {
         }
     }
 
-    Rectangle {
+    GroupBox {
         id: img_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: parent.top
             topMargin: 10
@@ -77,10 +88,9 @@ Page {
             bottom: back_btn.top
             bottomMargin: buttons_frame.height + buttons_frame.anchors.topMargin * 2 + accuracy_slider.height + accuracy_slider.anchors.topMargin + recognize_btn.height + recognize_btn.anchors.topMargin
         }
-        color: "#00ff00"
         property int space_between_frames: 10
         width: (parent.width - anchors.leftMargin * 2 - space_between_frames) / 2
-        Text {
+        Label {
             id: img_info
             anchors {
                 top: parent.top
@@ -95,17 +105,18 @@ Page {
             font.pointSize: 10
             elide: Text.ElideRight
             wrapMode: Text.WordWrap
-            text: "Original: " + img.sourceSize.width + " X " + img.sourceSize.height + " --- " +
-                  "Painted: " + img.paintedWidth + " X " + img.paintedHeight
+            text: img.sourceSize.width + " X " + img.sourceSize.height
         }
         Button {
             id: select_imgs_btn
             anchors {
+                top: parent.top
+                topMargin: root.group_box_b_w
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
             height: img_info.height
-            width: height * 2
-            text: "Select"
+            text: qsTr("Select")
             onClicked: {
                 file_dialog.open()
             }
@@ -155,21 +166,31 @@ Page {
                 width: busy_indicator.width
                 height: 30
                 visible: busy_indicator.visible
-                text: "Cancel"
+                text: qsTr("Cancel")
                 onClicked: {
                     recognition_image_handler.cancel_processing()
                 }
             }
         }
-        Rectangle {
+        Item {
             id: all_imgs_frame
             anchors {
                 bottom: parent.bottom
+                bottomMargin: root.group_box_b_w
                 left: parent.left
+                leftMargin: root.group_box_b_w
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
-            height: 60
-            color: "red"
+            height: {
+                if(root.height * 0.1 < 80) {
+                    80
+                }
+                else {
+                    root.height * 0.1
+                }
+            }
+
             ListView {
                 id: all_imgs_list_view
                 anchors.fill: parent
@@ -179,7 +200,7 @@ Page {
                 currentIndex: selected_imgs.curr_img_index
                 enabled: !recognition_image_handler.is_busy_indicator_running
                 delegate: Selected_img_only_img {
-                    height: all_imgs_frame.height
+                    height: all_imgs_frame.height - all_imgs_list_view_scroll_bar.height
                     width: height
                     img_file_path: model.img_file_path
                     parent_obj: root
@@ -190,6 +211,7 @@ Page {
                         img.curr_image = Math.random().toString()
                     }
                 }
+                ScrollBar.horizontal: ScrollBar { id: all_imgs_list_view_scroll_bar }
             }
         }
 
@@ -198,6 +220,7 @@ Page {
             enabled: !recognition_image_handler.is_busy_indicator_running
             anchors {
                 left: parent.left
+                leftMargin: root.group_box_b_w
                 top: img.top
                 bottom: all_imgs_frame.top
                 bottomMargin: img.anchors.bottomMargin
@@ -206,6 +229,8 @@ Page {
             onClicked: {
                 selected_imgs.set_curr_img_index(selected_imgs.curr_img_index - 1)
             }
+            display: AbstractButton.IconOnly
+            icon.source: "qrc:/qml/icons/left_arrow.png"
         }
         Button {
             id: next_img_btn
@@ -216,10 +241,13 @@ Page {
                 bottom: all_imgs_frame.top
                 bottomMargin: img.anchors.bottomMargin
                 right: parent.right
+                rightMargin: root.group_box_b_w
             }
             onClicked: {
                 selected_imgs.set_curr_img_index(selected_imgs.curr_img_index + 1)
             }
+            display: AbstractButton.IconOnly
+            icon.source: "qrc:/qml/icons/right_arrow.png"
         }
     }
     Slider {
@@ -245,9 +273,9 @@ Page {
             horizontalCenter: accuracy_slider.horizontalCenter
         }
         enabled: all_imgs_list_view.count !== 0 && recognition_image_handler.is_auto_recognize ? recognition_image_handler.is_recognize_enable && !recognition_image_handler.is_busy_indicator_running : recognition_image_handler.is_recognize_enable && !recognition_image_handler.is_busy_indicator_running && !recognition_image_handler.is_hog_enable && !recognition_image_handler.is_cnn_enable
-        width: 150
+        width: img_frame.width * 0.2
         height: 30
-        text: "Recognize" + accuracy_slider.value.toFixed(2)
+        text: qsTr("Recognize " + accuracy_slider.value.toFixed(2))
         onClicked: {
             if(recognition_image_handler.is_auto_recognize) {
                 recognition_image_handler.auto_recognize()
@@ -262,9 +290,10 @@ Page {
         anchors {
             bottom: recognize_btn.bottom
             left: recognize_btn.right
+            leftMargin: 2
         }
-        width: 10
-        height: 10
+        width: height
+        height: recognize_btn.height
         enabled: !recognition_image_handler.is_busy_indicator_running
         onClicked: {
             if(recognition_image_handler.is_auto_recognize) {
@@ -279,10 +308,16 @@ Page {
                 img.curr_image = Math.random().toString()
             }
         }
+        display: AbstractButton.IconOnly
+        icon.source: recognition_image_handler.is_auto_recognize ? "qrc:/qml/icons/down_arrow.png" : "qrc:/qml/icons/up_arrow.png"
     }
 
-    Rectangle {
+    GroupBox {
         id: buttons_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             horizontalCenter: img_frame.horizontalCenter
             top: recognize_btn.bottom
@@ -291,10 +326,15 @@ Page {
         visible: !recognition_image_handler.is_auto_recognize
         width: img_frame.width * 0.8
         height: 100
-        color: "#ff0000"
         Column {
             id: btns_col
-            anchors.fill: parent
+            anchors {
+                fill: parent
+                topMargin: root.group_box_b_w
+                bottomMargin: root.group_box_b_w
+                leftMargin: root.group_box_b_w
+                rightMargin: root.group_box_b_w
+            }
             spacing: 3
             property int count_of_btns_in_row: 3
             property int count_of_rows: 3
@@ -308,7 +348,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "pyr up"
+                    text: qsTr("pyr up")
                     enabled: all_imgs_list_view.count !== 0 && !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
                         recognition_image_handler.pyr_up()
@@ -317,7 +357,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "pyr down"
+                    text: qsTr("pyr down")
                     enabled: all_imgs_list_view.count !== 0 && !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
                         recognition_image_handler.pyr_down()
@@ -327,7 +367,7 @@ Page {
                     id: resize_btn
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "resize"
+                    text: qsTr("resize")
                     enabled: all_imgs_list_view.count !== 0 && !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
                         new_size_popup.open()
@@ -335,48 +375,27 @@ Page {
                     Popup {
                         id: new_size_popup
                         visible: false
-                        property int item_h: 35
-                        property int space: 2
-                        width: resize_btn.width
-                        height: item_h * 3 + 2 * space + col.anchors.margins * 2
-                        background: Rectangle {
-                            id: background
-                            anchors.fill: parent
-                            border.color: "#000000"
-                            color: "blue"
-                            border.width: 1
-                        }
-                        contentItem: Column {
-                            id: col
-                            anchors.fill: parent
-                            anchors.margins: new_size_popup.space
-                            spacing: new_size_popup.space
+                        Column {
                             TextField {
                                 id: width_input
-                                height: new_size_popup.item_h
-                                width: parent.width
                                 property int max_width: 3840
-                                placeholderText: "max " + max_width
+                                placeholderText: qsTr("max ") + max_width
                                 text: img.sourceSize.width
                                 validator: IntValidator{bottom: 1; top: width_input.max_width;}
                             }
                             TextField {
                                 id: height_input
-                                height: new_size_popup.item_h
-                                width: parent.width
                                 property int max_height: 2160
-                                placeholderText: "max " + max_height
+                                placeholderText: qsTr("max ") + max_height
                                 text: img.sourceSize.height
                                 wrapMode: TextInput.WrapAnywhere
                                 validator: IntValidator{bottom: 1; top: height_input.max_height;}
                             }
                             Button {
-                                height: new_size_popup.item_h
-                                width: parent.width
-                                text: "Ok"
+                                text: qsTr("Ok")
                                 onClicked: {
                                     if(width_input.acceptableInput && height_input.acceptableInput) {
-                                        recognition_image_handler.resize(width_input.text, height_input.text)
+                                        image_handler.resize(width_input.text, height_input.text)
                                         new_size_popup.close()
                                     }
                                 }
@@ -392,7 +411,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "HOG"
+                    text: qsTr("HOG")
                     enabled: all_imgs_list_view.count !== 0 && !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable
                     onClicked: {
                         recognition_image_handler.hog()
@@ -401,7 +420,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "CNN"
+                    text: qsTr("CNN")
                     enabled: all_imgs_list_view.count !== 0 && !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_cnn_enable
                     onClicked: {
                         recognition_image_handler.cnn()
@@ -410,7 +429,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: "HOG + CNN"
+                    text: qsTr("HOG + CNN")
                     enabled: all_imgs_list_view.count !== 0 && !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_hog_enable && recognition_image_handler.is_cnn_enable
                     onClicked: {
                         recognition_image_handler.hog_and_cnn()
@@ -423,7 +442,7 @@ Page {
                 }
                 height: parent.row_height
                 width: btns_col.btn_width
-                text: "Cancel"
+                text: qsTr("Cancel")
                 enabled: !recognition_image_handler.is_busy_indicator_running && recognition_image_handler.is_cancel_enabled
                 onClicked: {
                     recognition_image_handler.cancel_last_action()
@@ -432,8 +451,12 @@ Page {
         }
     }
 
-    Rectangle {
+    GroupBox {
         id: selected_people_frame
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors {
             top: parent.top
             topMargin: img_frame.anchors.topMargin
@@ -443,7 +466,6 @@ Page {
             rightMargin: img_frame.anchors.leftMargin
         }
         width: img_frame.width
-        color: "yellow"
         TextField {
             id: search_selected_people_input
             anchors {
@@ -452,7 +474,8 @@ Page {
                 horizontalCenter: parent.horizontalCenter
             }
             width: 150
-            height: 30
+            height: Style_control.get_style() === "Material" ? 70 : 35
+            placeholderText: qsTr("Search")
             onTextChanged: {
                 if(search_selected_people_input.length === 0) {
                     selected_people.cancel_search()
@@ -468,13 +491,17 @@ Page {
                 topMargin: 5
                 bottom: parent.bottom
                 bottomMargin: 5
+                left: parent.left
+                leftMargin: root.group_box_b_w
+                right: parent.right
+                rightMargin: root.group_box_b_w
             }
-            width: parent.width
             clip: true
             currentIndex: -1
             model: selected_people
+            ScrollBar.vertical: ScrollBar { id: selected_people_list_view_scroll_bar }
             delegate: Select_individual {
-                width: selected_people_list_view.width
+                width: selected_people_list_view.width - selected_people_list_view_scroll_bar.width
                 height: 40
 
                 number.width: selected_people_list_view.headerItem.number_w
@@ -491,19 +518,17 @@ Page {
                 body_m_area.onClicked: {
                 }
             }
-            header: Rectangle {
+            header: Item {
                 id: selected_people_list_view_header
-                border.width: 1
-                border.color: "#000000"
                 height: 40
-                width: selected_people_list_view.width
+                width: selected_people_list_view.width - selected_people_list_view_scroll_bar.width
                 property real number_w: 40
                 property real avatar_w: (parent.width - number_w) * 0.25
                 property real nickname_w: (parent.width - number_w) * 0.5
                 property real count_of_faces_w: (parent.width - number_w) * 0.25
                 Row {
                     anchors.fill: parent
-                    Text {
+                    Label {
                         id: number
                         height: parent.height
                         width: selected_people_list_view_header.number_w
@@ -514,9 +539,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Number"
+                        text: qsTr("Number")
                     }
-                    Text {
+                    Label {
                         id: avatar
                         height: parent.height
                         width: selected_people_list_view_header.avatar_w
@@ -527,9 +552,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Avatar"
+                        text: qsTr("Preview")
                     }
-                    Text {
+                    Label {
                         id: nickname
                         width: selected_people_list_view_header.nickname_w
                         height: parent.height
@@ -540,9 +565,9 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Nickname"
+                        text: qsTr("Nickname")
                     }
-                    Text {
+                    Label {
                         id: number_of_faces
                         width: selected_people_list_view_header.count_of_faces_w
                         height: parent.height
@@ -553,7 +578,7 @@ Page {
                         font.pointSize: 10
                         elide: Text.ElideRight
                         wrapMode: Text.WordWrap
-                        text: "Number of \nfaces"
+                        text: qsTr("Count of \nfaces")
                     }
                 }
             }

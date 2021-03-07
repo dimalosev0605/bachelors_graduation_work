@@ -26,5 +26,7 @@
         <file>qml/icons/white_cross.png</file>
         <file>qml/icons/right_arrow.png</file>
         <file>qml/icons/left_arrow.png</file>
+        <file>qml/icons/down_arrow.png</file>
+        <file>qml/icons/up_arrow.png</file>
     </qresource>
 </RCC>
