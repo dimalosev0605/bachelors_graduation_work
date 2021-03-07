@@ -1,13 +1,14 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
-
+import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Universal 2.12
 
 import "../common"
 
 Rectangle {
-    radius: 2
-    color: "transparent"
+    Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
+    Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
     property alias avatar: avatar
 
@@ -20,13 +21,27 @@ Rectangle {
 
     property var parent_obj
 
+    color: {
+        if(Style_control.get_style() === "Material") {
+            body_m_area.containsMouse ? body_m_area.pressed ?
+            Material.foreground : Qt.lighter(Material.background, Style_control.is_dark_mode_on ? 1.5 : 0.5) : Material.background
+        }
+        else if(Style_control.get_style() === "Universal") {
+            body_m_area.containsMouse ? body_m_area.pressed ?
+            Universal.foreground : Qt.lighter(Universal.background, Style_control.is_dark_mode_on ? 1.5 : 0.5) : Universal.background
+        }
+        else {
+            body_m_area.containsMouse ? body_m_area.pressed ? "#999999" : "#d4d4d4" : "#ffffff"
+        }
+    }
+
     MouseArea {
         id: body_m_area
         anchors.fill: parent
         hoverEnabled: true
     }
 
-    Text {
+    Label {
         id: number
         height: parent.height
         verticalAlignment: Text.AlignVCenter
@@ -37,6 +52,19 @@ Rectangle {
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
         text: index + 1
+        color: {
+            if(Style_control.get_style() === "Material") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Material.background : Qt.lighter(Material.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Material.foreground
+            }
+            else if(Style_control.get_style() === "Universal") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Universal.background : Qt.lighter(Universal.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Universal.foreground
+            }
+            else {
+                "#000000"
+            }
+        }
     }
     Item {
         id: avatar_wrapper
@@ -75,7 +103,7 @@ Rectangle {
             }
         }
     }
-    Text {
+    Label {
         id: nickname
         anchors {
             left: avatar_wrapper.right
@@ -88,8 +116,21 @@ Rectangle {
         font.pointSize: 10
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
+        color: {
+            if(Style_control.get_style() === "Material") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Material.background : Qt.lighter(Material.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Material.foreground
+            }
+            else if(Style_control.get_style() === "Universal") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Universal.background : Qt.lighter(Universal.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Universal.foreground
+            }
+            else {
+                "#000000"
+            }
+        }
     }
-    Text {
+    Label {
         id: count_of_faces
         anchors {
             left: nickname.right
@@ -102,5 +143,18 @@ Rectangle {
         font.pointSize: 10
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
+        color: {
+            if(Style_control.get_style() === "Material") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Material.background : Qt.lighter(Material.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Material.foreground
+            }
+            else if(Style_control.get_style() === "Universal") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Universal.background : Qt.lighter(Universal.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Universal.foreground
+            }
+            else {
+                "#000000"
+            }
+        }
     }
 }
