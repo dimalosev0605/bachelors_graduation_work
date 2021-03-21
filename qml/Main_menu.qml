@@ -21,6 +21,9 @@ Page {
 
     Component.onCompleted: {
         default_dir_creator.create_default_dirs()
+        if(Style_control.get_is_style_changed()) {
+            stack_view.push(settings_comp, StackView.Immediate)
+        }
     }
     Component {
         id: nickname_input_comp

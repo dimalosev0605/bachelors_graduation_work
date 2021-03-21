@@ -239,6 +239,45 @@ void Image_handler_worker::selected_people_initializing(QVector<QString>& some_s
 {
     const auto local_selected_people = std::move(some_selected_people);
 
+    std::map<dlib::matrix<float, 0, 1>, std::string> known_people;
+    std::vector<dlib::matrix<float, 0, 1>> face_descriptors;
+    std::vector<std::string> names;
+
+    Dir_paths dir_paths;
+    for(int i = 0; i < local_selected_people.size(); ++i) {
+        const QString face_descriptos_path = dir_paths.people() + '/' + local_selected_people[i] + '/' + Dir_names::Individual::face_descriptors;
+        qDebug() << local_selected_people[i] << "; " << face_descriptos_path;
+
+        dlib::directory face_descriptos_dir(face_descriptos_path.toStdString());
+        auto files = face_descriptos_dir.get_files();
+        for(const auto& file: files) {
+            dlib::matrix<float, 0, 1> face_descriptor;
+            dlib::deserialize(file.full_name()) >> face_descriptor;
+            face_descriptors.push_back(std::move(face_descriptor));
+            names.push_back(local_selected_people[i].toStdString());
+            qDebug() << "Loaded: "
+                     << QString(file.full_name().c_str())
+                     << local_selected_people[i];
+        }
+    }
+
+    if(face_descriptors.size() != names.size()) {
+        qDebug() << "Error.";
+        return;
+    }
+
+    for(std::size_t i = 0; i < names.size(); ++i) {
+        known_people[face_descriptors[i]] = names[i];
+    }
+
+    qDebug() << "known_people filling finised.";
+
+    emit selected_people_initialized(known_people);
+    QThread::currentThread()->exit();
+
+    /*
+    const auto local_selected_people = std::move(some_selected_people);
+
     face_recognition_dnn_type face_recognition_dnn;
     dlib::deserialize("dlib_face_recognition_resnet_model_v1.dat") >> face_recognition_dnn;
 
@@ -282,6 +321,7 @@ void Image_handler_worker::selected_people_initializing(QVector<QString>& some_s
 
     emit selected_people_initialized(known_people);
     QThread::currentThread()->exit();
+    */
 }
 
 void Image_handler_worker::hog_2(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding)

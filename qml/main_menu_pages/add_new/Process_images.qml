@@ -548,7 +548,7 @@ Page {
                     text: qsTr("Add")
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
-                        if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img())) {
+                        if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img(), image_handler.get_face_descriptor())) {
                             selected_imgs.set_curr_img_index(selected_imgs_list_view.currentIndex)
                         }
                     }

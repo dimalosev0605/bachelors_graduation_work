@@ -25,8 +25,8 @@ void Style_control::change_style(const QString& some_style)
         QSettings settings("app_settings.ini", QSettings::IniFormat);
         settings.setValue("Controls/Style", some_style);
     }
-    qDebug() << "app.arguments():" << app.arguments();
-    QProcess::startDetached(app.arguments()[0], app.arguments());
+    QStringList args_list = {"1"};
+    QProcess::startDetached(app.arguments()[0], args_list);
     app.quit();
 }
 
@@ -47,4 +47,14 @@ void Style_control::set_is_dark_mode_on(const bool some_value)
     theme = is_dark_mode_on ? Theme::Dark : Theme::Light;
     settings.setValue(style + "/" + "Theme", static_cast<int>(theme));
     emit is_dark_mode_on_changed();
+}
+
+void Style_control::set_is_style_changed(bool some_value)
+{
+    is_style_changed = some_value;
+}
+
+bool Style_control::get_is_style_changed() const
+{
+    return is_style_changed;
 }

@@ -29,6 +29,10 @@ int main(int argc, char *argv[])
 
     Style_control* style_control = new Style_control(app);
     engine.rootContext()->setContextProperty("Style_control", style_control);
+    if(argc == 2) {
+        bool is_style_changed = std::stoi(argv[1]) == 0 ? false : true;
+        style_control->set_is_style_changed(is_style_changed);
+    }
 
     app.setOrganizationName("lol");
     app.setOrganizationDomain("kek");
@@ -86,6 +90,9 @@ int main(int argc, char *argv[])
 
     qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>");
     qRegisterMetaType<std::vector<dlib::matrix<float, 0, 1>>>("std::vector<dlib::matrix<float, 0, 1>>&");
+
+    qRegisterMetaType<dlib::matrix<float, 0, 1>>("dlib::matrix<float, 0, 1>");
+    qRegisterMetaType<dlib::matrix<float, 0, 1>>("dlib::matrix<float, 0, 1>&");
 
     qRegisterMetaType<QImage>("QImage");
 

@@ -9,6 +9,7 @@ void Individual_checker::set_individual_dirs_paths()
     dir_path = dir_paths.people() + '/' + name;
     sources_path = dir_path + '/' + Dir_names::Individual::sources;
     extracted_faces_path = dir_path + '/' + Dir_names::Individual::extracted_faces;
+    face_descriptors_path = dir_path + '/' + Dir_names::Individual::face_descriptors;
 }
 
 bool Individual_checker::check_individual_existence(const QString& some_name) const
@@ -34,7 +35,7 @@ bool Individual_checker::create_individual_dirs() const
     if(name.isEmpty()) return false;
     QDir dir(dir_paths.people());
     if(dir.mkdir(name)) {
-        if(dir.mkdir(sources_path) && dir.mkdir(extracted_faces_path)) {
+        if(dir.mkdir(sources_path) && dir.mkdir(extracted_faces_path) && dir.mkdir(face_descriptors_path)) {
             emit message(QString("\"%1\" was created!").arg(name));
             return true;
         }

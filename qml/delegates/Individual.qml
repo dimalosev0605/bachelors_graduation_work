@@ -8,7 +8,6 @@ import QtQuick.Controls.Universal 2.12
 import "../common"
 
 Rectangle {
-    color: "transparent"
     Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
     Universal.theme: Style_control.is_dark_mode_on ? Universal.Dark : Universal.Light
 
@@ -24,6 +23,20 @@ Rectangle {
     property alias body_m_area: body_m_area
 
     property var parent_obj
+
+    color: {
+        if(Style_control.get_style() === "Material") {
+            body_m_area.containsMouse ? body_m_area.pressed ?
+            Material.foreground : Qt.lighter(Material.background, Style_control.is_dark_mode_on ? 1.5 : 0.5) : Material.background
+        }
+        else if(Style_control.get_style() === "Universal") {
+            body_m_area.containsMouse ? body_m_area.pressed ?
+            Universal.foreground : Qt.lighter(Universal.background, Style_control.is_dark_mode_on ? 1.5 : 0.5) : Universal.background
+        }
+        else {
+            body_m_area.containsMouse ? body_m_area.pressed ? "#999999" : "#d4d4d4" : "#ffffff"
+        }
+    }
 
     MouseArea {
         id: body_m_area
@@ -42,6 +55,19 @@ Rectangle {
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
         text: index + 1
+        color: {
+            if(Style_control.get_style() === "Material") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Material.background : Qt.lighter(Material.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Material.foreground
+            }
+            else if(Style_control.get_style() === "Universal") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Universal.background : Qt.lighter(Universal.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Universal.foreground
+            }
+            else {
+                "#000000"
+            }
+        }
     }
     Item {
         id: avatar_wrapper
@@ -93,6 +119,19 @@ Rectangle {
         font.pointSize: 10
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
+        color: {
+            if(Style_control.get_style() === "Material") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Material.background : Qt.lighter(Material.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Material.foreground
+            }
+            else if(Style_control.get_style() === "Universal") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Universal.background : Qt.lighter(Universal.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Universal.foreground
+            }
+            else {
+                "#000000"
+            }
+        }
     }
     Label {
         id: count_of_faces
@@ -107,6 +146,19 @@ Rectangle {
         font.pointSize: 10
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
+        color: {
+            if(Style_control.get_style() === "Material") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Material.background : Qt.lighter(Material.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Material.foreground
+            }
+            else if(Style_control.get_style() === "Universal") {
+                body_m_area.containsMouse ? body_m_area.pressed ?
+                Universal.background : Qt.lighter(Universal.foreground, Style_control.is_dark_mode_on ? 0.5 : 1.5) : Universal.foreground
+            }
+            else {
+                "#000000"
+            }
+        }
     }
     Item {
         id: delete_btn_wrapper
@@ -131,10 +183,10 @@ Rectangle {
                 }
                 else {
                     if(Style_control.get_style() === "Universal") {
-                        Style_control.is_dark_mode_on ? "qrc:/qml/icons/white_cross.png" : "qrc:/qml/icons/black_cross.png"
+                        Style_control.is_dark_mode_on ? body_m_area.pressed ? "qrc:/qml/icons/black_cross.png" : "qrc:/qml/icons/white_cross.png" : body_m_area.pressed ? "qrc:/qml/icons/white_cross.png" : "qrc:/qml/icons/black_cross.png"
                     }
                     else if (Style_control.get_style() === "Material") {
-                        Style_control.is_dark_mode_on ? "qrc:/qml/icons/white_cross.png" : "qrc:/qml/icons/black_cross.png"
+                        Style_control.is_dark_mode_on ? body_m_area.pressed ? "qrc:/qml/icons/black_cross.png" : "qrc:/qml/icons/white_cross.png" : body_m_area.pressed ? "qrc:/qml/icons/white_cross.png" : "qrc:/qml/icons/black_cross.png"
                     }
                     else {
                         "qrc:/qml/icons/black_cross"

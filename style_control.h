@@ -19,6 +19,8 @@ class Style_control : public QObject
     QString material_style = "Material";
     QString universal_style = "Universal";
 
+    bool is_style_changed = false;
+
     enum class Theme {
         Light = 0,
         Dark = 1
@@ -33,9 +35,13 @@ public:
     bool get_is_dark_mode_on() const;
     void set_is_dark_mode_on(const bool some_value);
 
+    void set_is_style_changed(bool some_value);
+
 public slots:
     void change_style(const QString& some_style);
     QString get_style() const;
+
+    bool get_is_style_changed() const;
 
 signals:
     void is_dark_mode_on_changed();

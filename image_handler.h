@@ -38,6 +38,8 @@ class Image_handler : public QObject
 
     std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
     std::vector<dlib::rectangle> rects_around_faces;
+    std::vector<dlib::matrix<float, 0, 1>> face_descriptors;
+    std::size_t selected_face_index = 0;
 
     std::size_t find_faces_img_index = 0;
     std::size_t extract_face_img_index = 0;
@@ -52,13 +54,15 @@ class Image_handler : public QObject
     hog_face_detector_type hog_face_detector;
     cnn_face_detector_type cnn_face_detector;
     dlib::shape_predictor shape_predictor;
+    face_recognition_dnn_type face_recognition_dnn;
 
 private slots:
     void receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector);
     void receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector);
     void receive_shape_predictor(dlib::shape_predictor& some_shape_predictor);
+    void receive_face_recognition_dnn(face_recognition_dnn_type& some_face_recognition_dnn);
 
-    void faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::rectangle>& some_rects_around_faces);
+    void faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::matrix<float, 0, 1>>& some_face_descriptors, std::vector<dlib::rectangle>& some_rects_around_faces);
     void img_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
 
 private:
@@ -107,6 +111,7 @@ public slots:
 
     Image_data get_extr_face_img() const;
     Image_data get_src_img() const;
+    dlib::matrix<float, 0, 1> get_face_descriptor() const;
 
 signals:
     void is_busy_indicator_running_changed();
@@ -117,9 +122,9 @@ signals:
     void is_add_face_enable_changed();
     void is_cancel_enabled_changed();
 
-    void start_hog(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector);
-    void start_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector);
-    void start_hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector);
+    void start_hog(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding);
+    void start_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, cnn_face_detector_type& some_cnn_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn,  const unsigned long face_chip_size, const double face_chip_padding);
+    void start_hog_and_cnn(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, cnn_face_detector_type& some_cnn_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding);
 
     void start_pyr_up(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);
     void start_pyr_down(const int some_worker_thread_id, const dlib::matrix<dlib::rgb_pixel>& some_img);

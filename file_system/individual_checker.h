@@ -15,6 +15,7 @@ class Individual_checker : public QObject
     QString dir_path;
     QString sources_path;
     QString extracted_faces_path;
+    QString face_descriptors_path;
 
 private:
     void set_individual_dirs_paths();

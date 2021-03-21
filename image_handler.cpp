@@ -7,6 +7,7 @@ Image_handler::Image_handler(QObject* parent)
     connect(image_handler_initializer, &Image_handler_initializer::hog_face_detector_ready, this, &Image_handler::receive_hog_face_detector);
     connect(image_handler_initializer, &Image_handler_initializer::cnn_face_detector_ready, this, &Image_handler::receive_cnn_face_detector);
     connect(image_handler_initializer, &Image_handler_initializer::shape_predictor_ready, this, &Image_handler::receive_shape_predictor);
+    connect(image_handler_initializer, &Image_handler_initializer::face_recognition_dnn_ready, this, &Image_handler::receive_face_recognition_dnn);
     connect(image_handler_initializer, &Image_handler_initializer::finished, image_handler_initializer, &Image_handler_initializer::deleteLater);
     image_handler_initializer->start();
 }
@@ -92,6 +93,7 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
 {
     ++worker_thread_id;
     modified_img_index = 0;
+    selected_face_index = 0;
     if(!imgs.empty()) {
         set_is_busy_indicator_running(false);
         set_is_hog_enable(true);
@@ -113,13 +115,11 @@ void Image_handler::curr_image_changed(const QString& curr_img_path)
 void Image_handler::receive_hog_face_detector(hog_face_detector_type& some_hog_face_detector)
 {
     hog_face_detector = std::move(some_hog_face_detector);
-    set_is_hog_enable(true);
 }
 
 void Image_handler::receive_cnn_face_detector(cnn_face_detector_type& some_cnn_face_detector)
 {
     cnn_face_detector = std::move(some_cnn_face_detector);
-    set_is_cnn_enable(true);
 }
 
 void Image_handler::receive_shape_predictor(dlib::shape_predictor& some_shape_predictor)
@@ -127,15 +127,22 @@ void Image_handler::receive_shape_predictor(dlib::shape_predictor& some_shape_pr
     shape_predictor = std::move(some_shape_predictor);
 }
 
+void Image_handler::receive_face_recognition_dnn(face_recognition_dnn_type &some_face_recognition_dnn)
+{
+    set_is_hog_enable(true);
+    set_is_cnn_enable(true);
+    face_recognition_dnn = std::move(some_face_recognition_dnn);
+}
+
 void Image_handler::hog()
 {
     set_is_busy_indicator_running(true);
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Image_handler::start_hog, worker, &Image_handler_worker::hog);
-    connect(worker, &Image_handler_worker::faces_ready, this, &Image_handler::faces_ready_slot);
+    connect(this, &Image_handler::start_hog, worker, &Image_handler_worker::hog_2);
+    connect(worker, &Image_handler_worker::faces_ready_2, this, &Image_handler::faces_ready_slot);
 
-    emit start_hog(++worker_thread_id, imgs.back(), hog_face_detector);
+    emit start_hog(++worker_thread_id, imgs.back(), hog_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding);
 }
 
 void Image_handler::cnn()
@@ -143,10 +150,10 @@ void Image_handler::cnn()
     set_is_busy_indicator_running(true);
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Image_handler::start_cnn, worker, &Image_handler_worker::cnn);
-    connect(worker, &Image_handler_worker::faces_ready, this, &Image_handler::faces_ready_slot);
+    connect(this, &Image_handler::start_cnn, worker, &Image_handler_worker::cnn_2);
+    connect(worker, &Image_handler_worker::faces_ready_2, this, &Image_handler::faces_ready_slot);
 
-    emit start_cnn(++worker_thread_id, imgs.back(), cnn_face_detector);
+    emit start_cnn(++worker_thread_id, imgs.back(), cnn_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding);
 }
 
 void Image_handler::hog_and_cnn()
@@ -154,10 +161,10 @@ void Image_handler::hog_and_cnn()
     set_is_busy_indicator_running(true);
     Image_handler_worker* worker = new Image_handler_worker;
 
-    connect(this, &Image_handler::start_hog_and_cnn, worker, &Image_handler_worker::hog_and_cnn);
-    connect(worker, &Image_handler_worker::faces_ready, this, &Image_handler::faces_ready_slot);
+    connect(this, &Image_handler::start_hog_and_cnn, worker, &Image_handler_worker::hog_and_cnn_2);
+    connect(worker, &Image_handler_worker::faces_ready_2, this, &Image_handler::faces_ready_slot);
 
-    emit start_hog_and_cnn(++worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector);
+    emit start_hog_and_cnn(++worker_thread_id, imgs.back(), hog_face_detector, cnn_face_detector, shape_predictor, face_recognition_dnn, face_chip_size, face_chip_padding);
 }
 
 void Image_handler::pyr_up()
@@ -258,6 +265,8 @@ void Image_handler::choose_face(const double x, [[maybe_unused]]const double y)
     const int face_size = static_cast<int>(face_chip_size);
     const int face_number = static_cast<int>(x) / face_size;
 
+    selected_face_index = static_cast<std::size_t>(face_number);
+
     const auto cv_img = dlib::toMat(imgs.back());
 
     cv::Mat selected_face_cv_img = cv_img(cv::Rect(face_number * face_size, 0, face_size, face_size));
@@ -276,7 +285,7 @@ void Image_handler::choose_face(const double x, [[maybe_unused]]const double y)
     set_is_busy_indicator_running(false);
 }
 
-void Image_handler::faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::rectangle>& some_rects_around_faces)
+void Image_handler::faces_ready_slot(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, std::vector<dlib::matrix<float, 0, 1>>& some_face_descriptors, std::vector<dlib::rectangle>& some_rects_around_faces)
 {
     if(worker_thread_id == some_worker_thread_id) {
         if(some_rects_around_faces.empty()) {
@@ -288,6 +297,7 @@ void Image_handler::faces_ready_slot(const int some_worker_thread_id, dlib::matr
         imgs.push_back(std::move(some_img));
         find_faces_img_index = imgs.size() - 1;
         rects_around_faces = std::move(some_rects_around_faces);
+        face_descriptors = std::move(some_face_descriptors);
         send_image_data_ready_signal();
         set_is_hog_enable(false);
         set_is_cnn_enable(false);
@@ -378,5 +388,10 @@ Image_data Image_handler::get_extr_face_img() const
 Image_data Image_handler::get_src_img() const
 {
     return Image_data(dlib::image_data(imgs.front()), imgs.front().nc(), imgs.front().nr());
+}
+
+dlib::matrix<float, 0, 1> Image_handler::get_face_descriptor() const
+{
+    return face_descriptors[selected_face_index];
 }
 
