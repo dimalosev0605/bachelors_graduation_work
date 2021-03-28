@@ -74,11 +74,11 @@ Page {
         spacing: 5
         RadioButton {
             id: auto_mode_rb
-            text: qsTr("auto")
+            text: qsTr("Auto")
         }
         RadioButton {
             id: hand_mode_rb
-            text: qsTr("hand mode")
+            text: qsTr("Hand mode")
             checked: true
         }
     }

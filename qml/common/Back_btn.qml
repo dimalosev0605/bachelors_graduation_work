@@ -4,5 +4,5 @@ import QtQuick.Controls 2.12
 Button {
     height: 30
     width: 60
-    text: "Back"
+    text: qsTr("Back")
 }

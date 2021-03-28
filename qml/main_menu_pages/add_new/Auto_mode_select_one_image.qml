@@ -355,7 +355,7 @@ Page {
 //        width: 80
         height: 30
         visible: auto_image_handler.is_busy_indicator_running
-        text: "Cancel"
+        text: qsTr("Cancel")
         onClicked: {
             auto_image_handler.cancel_processing()
         }

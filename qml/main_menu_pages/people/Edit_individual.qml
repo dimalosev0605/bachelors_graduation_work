@@ -544,7 +544,7 @@ Page {
                 Button {
                     height: parent.height
                     width: btns_col.btn_width
-                    text: qsTr("add")
+                    text: qsTr("Add")
                     enabled: !image_handler.is_busy_indicator_running && image_handler.is_add_face_enable
                     onClicked: {
                         if(individual_file_manager.add_face(image_handler.get_src_img(), image_handler.get_extr_face_img(), image_handler.get_face_descriptor())) {

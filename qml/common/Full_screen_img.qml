@@ -194,7 +194,7 @@ Window {
             onClicked: {
                 img_flickable.zoomOut()
             }
-            text: "Out"
+            text: qsTr("Out")
             palette.buttonText: pressed ? "#000000" : "#ffffff"
         }
         Button {
@@ -204,7 +204,7 @@ Window {
             onClicked: {
                 img_flickable.fit_to_screen()
             }
-            text: "Fit"
+            text: qsTr("Fit")
             palette.buttonText: pressed ? "#000000" : "#ffffff"
         }
         Button {
@@ -214,7 +214,7 @@ Window {
             onClicked: {
                 img_flickable.zoomIn()
             }
-            text: "In"
+            text: qsTr("In")
             palette.buttonText: pressed ? "#000000" : "#ffffff"
         }
     }
