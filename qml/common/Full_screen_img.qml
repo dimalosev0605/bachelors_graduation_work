@@ -185,12 +185,13 @@ Window {
             topMargin: close_window_btn.anchors.topMargin
             horizontalCenter: parent.horizontalCenter
         }
-        width: 180
+//        width: 180
         height: 30
+        spacing: 3
         Button {
             id: zoom_out_btn
             height: parent.height
-            width: parent.width / 3
+//            width: parent.width / 3
             onClicked: {
                 img_flickable.zoomOut()
             }
@@ -200,7 +201,7 @@ Window {
         Button {
             id: set_default_zoom_btn
             height: parent.height
-            width: parent.width / 3
+//            width: parent.width / 3
             onClicked: {
                 img_flickable.fit_to_screen()
             }
@@ -210,7 +211,7 @@ Window {
         Button {
             id: zoom_in_btn
             height: parent.height
-            width: parent.width / 3
+//            width: parent.width / 3
             onClicked: {
                 img_flickable.zoomIn()
             }

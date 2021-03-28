@@ -76,6 +76,7 @@ Page {
             rightMargin: back_btn.anchors.leftMargin
         }
         height: back_btn.height
+        width: back_btn.width
         enabled: selected_people_list_view.count > 0
         text: qsTr("Next")
         onClicked: {

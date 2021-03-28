@@ -3,6 +3,6 @@ import QtQuick.Controls 2.12
 
 Button {
     height: 30
-    width: 60
+//    width: 70
     text: qsTr("Back")
 }
