@@ -1,0 +1,5 @@
+/home/dima/Qt/5.15.0/gcc_64/bin/lupdate 'all_files_you_need_to_translate' -ts app_en.ts app_fr.ts app_ru.ts 
+
+
+
+~/Qt/5.15.0/gcc_64/bin/linguist

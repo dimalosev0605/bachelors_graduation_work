@@ -578,7 +578,7 @@ Page {
                 verticalCenter: individual_name_input.verticalCenter
             }
             height: Style_control.get_style() === "Material" ? parent.height * 0.5 : parent.height
-            width: (parent.width - anchors.leftMargin) * 0.3
+//            width: (parent.width - anchors.leftMargin) * 0.3
             text: qsTr("Rename")
             onClicked: {
                 if(individual_name_input.text === "") {
