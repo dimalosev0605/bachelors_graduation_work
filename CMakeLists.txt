@@ -11,15 +11,20 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5 COMPONENTS Core Quick QuickControls2 REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick QuickControls2 LinguistTools REQUIRED)
 find_package(dlib REQUIRED)
 find_package(OpenCV REQUIRED)
+
+set(TRANSLATIONS_DIR "${CMAKE_SOURCE_DIR}/translations")
+file(GLOB TS_FILES "${TRANSLATIONS_DIR}/*.ts")
+qt5_add_translation(QM_FILES ${TS_FILES})
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(face_rec_diplom
   main.cpp
   qml.qrc
+  ${QM_FILES}
 
   file_system/dir_names.h
   file_system/dir_paths.h
@@ -68,6 +73,9 @@ add_executable(face_rec_diplom
 
   style_control.h
   style_control.cpp
+
+  language_switcher.h
+  language_switcher.cpp
 )
 
 

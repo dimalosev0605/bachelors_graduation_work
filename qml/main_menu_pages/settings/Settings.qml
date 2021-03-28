@@ -93,8 +93,42 @@ Page {
             }
         }
         GroupBox {
+            id: language_box
             width: row.item_w
             height: parent.height
+            Label {
+                id: language_box_title
+                anchors {
+                    top: parent.top
+                }
+                width: parent.width
+                height: 30
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                fontSizeMode: Text.Fit
+                minimumPointSize: 1
+                font.pointSize: 15
+                elide: Text.ElideRight
+                wrapMode: Text.WordWrap
+                text: qsTr("Language")
+            }
+            ComboBox {
+                id: language_combo_box
+                anchors {
+                    top: language_box_title.bottom
+                    horizontalCenter: parent.horizontalCenter
+                }
+                height: 30
+                width: parent.width * 0.6
+                model: [qsTr("Russian"), qsTr("English"), qsTr("French")]
+                Component.onCompleted: {
+                    var idx = find(Language_switcher.get_language(), Qt.MatchExactly)
+                    currentIndex = idx
+                }
+                onActivated: {
+                    Language_switcher.change_language(language_combo_box.currentValue)
+                }
+            }
         }
         GroupBox {
             width: row.item_w

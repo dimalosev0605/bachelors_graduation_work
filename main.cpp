@@ -18,6 +18,7 @@
 #include "recognition_image_handler.h"
 #include "video_capture.h"
 #include "style_control.h"
+#include "language_switcher.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,6 +34,9 @@ int main(int argc, char *argv[])
         bool is_style_changed = std::stoi(argv[1]) == 0 ? false : true;
         style_control->set_is_style_changed(is_style_changed);
     }
+
+    Language_switcher* language_switcher = new Language_switcher(engine);
+    engine.rootContext()->setContextProperty("Language_switcher", language_switcher);
 
     app.setOrganizationName("lol");
     app.setOrganizationDomain("kek");
