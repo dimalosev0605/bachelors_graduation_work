@@ -19,6 +19,7 @@
 #include "video_capture.h"
 #include "style_control.h"
 #include "language_switcher.h"
+#include "video_file_capture.h"
 
 int main(int argc, char *argv[])
 {
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Recognition_image_handler>("Recognition_image_handler_qml", 1, 0, "Recognition_image_handler");
 
     qmlRegisterType<Video_capture>("Video_capture_qml", 1, 0, "Video_capture");
+    qmlRegisterType<Video_file_capture>("Video_file_capture_qml", 1, 0, "Video_file_capture");
 
     qRegisterMetaType<Image_data>("Image_data");
 

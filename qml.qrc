@@ -28,5 +28,7 @@
         <file>qml/icons/left_arrow.png</file>
         <file>qml/icons/down_arrow.png</file>
         <file>qml/icons/up_arrow.png</file>
+        <file>qml/main_menu_pages/video/Select_people_for_recognition_video.qml</file>
+        <file>qml/main_menu_pages/video/Recognition.qml</file>
     </qresource>
 </RCC>

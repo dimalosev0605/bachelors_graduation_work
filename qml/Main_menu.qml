@@ -11,6 +11,7 @@ import "../qml/main_menu_pages/people"
 import "../qml/main_menu_pages/photos"
 import "../qml/main_menu_pages/webcam"
 import "../qml/main_menu_pages/settings"
+import "../qml/main_menu_pages/video"
 
 Page {
     Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
@@ -40,6 +41,10 @@ Page {
     Component {
         id: select_people_for_recognition_webcam_comp
         Select_people_for_recognition_webcam {}
+    }
+    Component {
+        id: select_people_for_recognition_video_comp
+        Select_people_for_recognition_video {}
     }
     Component {
         id: settings_comp
@@ -122,6 +127,9 @@ Page {
             ListElement {
                 text: qsTr("Video")
                 img_source: ""
+                action: function() {
+                    stack_view.push(select_people_for_recognition_video_comp, StackView.Immediate)
+                }
             }
             ListElement {
                 text: qsTr("About")
