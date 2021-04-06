@@ -99,6 +99,7 @@ signals:
     void start_selected_people_initializing(QVector<QString>& some_selected_people);
     void enable_start();
     void safe_destroy();
+    void worker_thread_finished();
 
     void video_info(const int some_fps, const int some_frame_width, const int some_frame_height, const int some_count_of_frames, const double some_duration);
     void current_progress(const double some_sec_pos, const int some_frame_pos);

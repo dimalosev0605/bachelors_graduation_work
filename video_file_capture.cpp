@@ -228,13 +228,18 @@ void Video_file_capture::start(const QString &some_in_file_path, const QString &
                                QImage::Format_RGB888);
             res_q_img = q_img.copy();
 
-            emit img_ready(res_q_img);
+            cv::cvtColor(cv_frame, cv_frame, cv::COLOR_RGB2BGR);
+            video_writer.write(cv_frame);
 
             const double cur_sec_pos = static_cast<int>(cap.get(cv::CAP_PROP_POS_MSEC)) / static_cast<double>(1000);
             const auto cur_frame_pos = static_cast<int>(cap.get(cv::CAP_PROP_POS_FRAMES));
-            cv::cvtColor(cv_frame, cv_frame, cv::COLOR_RGB2BGR);
-            video_writer.write(cv_frame);
-            emit current_progress(cur_sec_pos, cur_frame_pos);
+
+            {
+                std::lock_guard<std::mutex> lock(is_running_mutex);
+                emit img_ready(res_q_img);
+                emit current_progress(cur_sec_pos, cur_frame_pos);
+            }
+
         }
 
         video_writer.release();
@@ -248,6 +253,7 @@ void Video_file_capture::start(const QString &some_in_file_path, const QString &
 
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
     connect(thread, &QThread::finished, this, &Video_file_capture::safe_destroy_slot);
+    connect(thread, &QThread::finished, this, &Video_file_capture::worker_thread_finished);
     thread->start();
 }
 

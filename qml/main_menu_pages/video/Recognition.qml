@@ -59,6 +59,10 @@ Page {
             cur_sec_pos.cur_sec_pos_ = some_sec_pos
             cur_frame_pos.cur_frame_pos_ = some_frame_pos
         }
+        onWorker_thread_finished: {
+            cur_sec_pos.cur_sec_pos_ = 0
+            cur_frame_pos.cur_frame_pos_ = 0
+        }
     }
 
     Connections {
@@ -66,7 +70,18 @@ Page {
         target: file_dialog
         function onAccepted(fileUrl) {
             input_file_text_field.text = file_dialog.fileUrl.toString().replace("file://", "")
-            output_file_text_field.text = input_file_text_field.text + "processed"
+            var temp_str = input_file_text_field.text.toString()
+
+            //
+            var last_index = temp_str.lastIndexOf('/')
+            var sub_str_1 = temp_str.substring(0, last_index)
+            console.log(sub_str_1)
+            var sub_str_2 = temp_str.substring(last_index + 1)
+            console.log(sub_str_2)
+            var res = sub_str_1 + "/processed_" + sub_str_2
+            output_file_text_field.text = res
+            //
+
             file_dialog.selectMultiple = true
             file_dialog.nameFilters = [ "Image files (*.jpg *.png *.jpeg)", "All files (*)" ]
             file_dialog.close()
@@ -329,6 +344,7 @@ Page {
                             temp > 30 ? 30 : temp
                         }
                         onClicked: {
+                            Image_provider.start_video_running()
                             video_capture.start(input_file_text_field.text, output_file_text_field.text)
                             start_btn.flag = false
                             stop_btn.enabled = true
@@ -342,8 +358,16 @@ Page {
                         height: start_btn.height
                         onClicked: {
                             start_btn.flag = true
-                            Image_provider.stop_video_running()
                             video_capture.stop()
+                            Image_provider.stop_video_running()
+
+                            video_duration.video_duration_ = 0
+                            count_of_frames.count_of_frames_ = 0
+                            frame_width.frame_width_ = 0
+                            frame_height.frame_height_ = 0
+                            fps.fps_ = 0
+                            cur_sec_pos.cur_sec_pos_ = 0
+                            cur_frame_pos.cur_frame_pos_ = 0
                         }
                     }
                 }
@@ -394,7 +418,7 @@ Page {
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
                     property real video_duration_
-                    text: qsTr("Video duration: ") + video_duration_
+                    text: qsTr("Video duration: ") + video_duration_.toFixed(1)
                 }
                 Label {
                     id: count_of_frames
@@ -464,7 +488,7 @@ Page {
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
                     property real cur_sec_pos_
-                    text: qsTr("Current position of the video file in seconds: ") + cur_sec_pos_
+                    text: qsTr("Current position of the video file in seconds: ") + cur_sec_pos_.toFixed(1)
                 }
                 Label {
                     id: cur_frame_pos
