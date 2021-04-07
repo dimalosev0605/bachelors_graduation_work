@@ -245,8 +245,6 @@ void Video_file_capture::start(const QString &some_in_file_path, const QString &
         video_writer.release();
         cap.release();
 
-        // create QProcess.
-
         QThread::currentThread()->exit(0);
         return 0;
     });

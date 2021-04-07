@@ -60,6 +60,11 @@ Page {
             cur_frame_pos.cur_frame_pos_ = some_frame_pos
         }
         onWorker_thread_finished: {
+            video_duration.video_duration_ = 0
+            count_of_frames.count_of_frames_ = 0
+            frame_width.frame_width_ = 0
+            frame_height.frame_height_ = 0
+            fps.fps_ = 0
             cur_sec_pos.cur_sec_pos_ = 0
             cur_frame_pos.cur_frame_pos_ = 0
         }
@@ -266,7 +271,7 @@ Page {
                 height: (parent.height - slider_value_text.height) * 0.2
                 from: 0.0
                 to: 1.0
-                value: 0.5
+                value: 0.55
                 stepSize: 0.05
                 onValueChanged: {
                     video_capture.set_threshold(value)
@@ -401,17 +406,23 @@ Page {
                 id: progress_labels_col
                 anchors {
                     top: progress_frame_title.bottom
+                    topMargin: 5
                     bottom: parent.bottom
+                    bottomMargin: anchors.topMargin
+                    left: parent.left
+                    leftMargin: 5
+                    right: parent.right
+                    rightMargin: anchors.leftMargin
                 }
-                width: parent.width
-                property real item_h: 20
+                property int count: 7
+                property real item_h: (progress_labels_col.height - (progress_labels_col.count - 1) * spacing) / progress_labels_col.count
                 spacing: 2
                 Label {
                     id: video_duration
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15
@@ -425,7 +436,7 @@ Page {
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15
@@ -439,7 +450,7 @@ Page {
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15
@@ -453,7 +464,7 @@ Page {
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15
@@ -467,7 +478,7 @@ Page {
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15
@@ -481,7 +492,7 @@ Page {
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15
@@ -495,7 +506,7 @@ Page {
                     width: parent.width
                     height: progress_labels_col.item_h
                     verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: Text.AlignLeft
                     fontSizeMode: Text.Fit
                     minimumPointSize: 1
                     font.pointSize: 15

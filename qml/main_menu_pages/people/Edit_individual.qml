@@ -582,16 +582,17 @@ Page {
             text: qsTr("Rename")
             onClicked: {
                 if(individual_name_input.text === "") {
-                    message_dialog.text = "Empty name"
+                    message_dialog.text = qsTr("Empty name")
                     message_dialog.open()
                     return
                 }
                 if(individual_file_manager.rename(individual_name_input.text)) {
-                    message_dialog.text = "Success"
+                    message_dialog.text = qsTr("Success")
+                    root.individual_name = individual_name_input.text
                     message_dialog.open()
                 }
                 else {
-                    message_dialog.text = "Not Success"
+                    message_dialog.text = qsTr("Not Success")
                     message_dialog.open()
                 }
             }
