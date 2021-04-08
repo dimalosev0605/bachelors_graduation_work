@@ -162,6 +162,7 @@ Page {
                         else {
                             Image_provider.stop_video_running()
                             video_capture.stop()
+                            img.curr_image = Math.random().toString()
                             is_hog.checked = false
                             is_recognize.checked = false
                         }

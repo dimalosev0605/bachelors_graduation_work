@@ -186,8 +186,8 @@ void Video_capture::stop()
 
 void Video_capture::exit()
 {
-    set_is_running(false);
     is_destroy = true;
+    set_is_running(false);
 }
 
 void Video_capture::safe_destroy_slot()

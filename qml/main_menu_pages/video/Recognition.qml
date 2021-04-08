@@ -60,6 +60,10 @@ Page {
             cur_frame_pos.cur_frame_pos_ = some_frame_pos
         }
         onWorker_thread_finished: {
+            start_btn.flag = true
+            Image_provider.stop_video_running()
+            img.curr_image = Math.random().toString()
+
             video_duration.video_duration_ = 0
             count_of_frames.count_of_frames_ = 0
             frame_width.frame_width_ = 0
@@ -75,18 +79,7 @@ Page {
         target: file_dialog
         function onAccepted(fileUrl) {
             input_file_text_field.text = file_dialog.fileUrl.toString().replace("file://", "")
-            var temp_str = input_file_text_field.text.toString()
-
-            //
-            var last_index = temp_str.lastIndexOf('/')
-            var sub_str_1 = temp_str.substring(0, last_index)
-            console.log(sub_str_1)
-            var sub_str_2 = temp_str.substring(last_index + 1)
-            console.log(sub_str_2)
-            var res = sub_str_1 + "/processed_" + sub_str_2
-            output_file_text_field.text = res
-            //
-
+            input_file_text_field.create_output_file_path(input_file_text_field.text.toString())
             file_dialog.selectMultiple = true
             file_dialog.nameFilters = [ "Image files (*.jpg *.png *.jpeg)", "All files (*)" ]
             file_dialog.close()
@@ -193,6 +186,21 @@ Page {
                     left: parent.left
                     leftMargin: 10
                 }
+                onTextChanged: {
+                    create_output_file_path(input_file_text_field.text.toString())
+                }
+                function create_output_file_path(some_str) {
+                    if(some_str === "") {
+                        output_file_text_field.text = ""
+                        return
+                    }
+                    var temp_str = some_str
+                    var last_index = temp_str.lastIndexOf('/')
+                    var sub_str_1 = temp_str.substring(0, last_index)
+                    var sub_str_2 = temp_str.substring(last_index + 1)
+                    var res = sub_str_1 + "/processed_" + sub_str_2
+                    output_file_text_field.text = res
+                }
                 width: (parent.width - anchors.leftMargin - open_input_file_btn.width - open_input_file_btn.anchors.leftMargin * 2) * 0.7
                 height: Style_control.get_style() === "Material" ? 70 : 35
                 placeholderText: qsTr("Source file path")
@@ -220,20 +228,10 @@ Page {
                     left: parent.left
                     leftMargin: input_file_text_field.anchors.leftMargin
                 }
+                readOnly: true
                 width: input_file_text_field.width
                 height: input_file_text_field.height
                 placeholderText: qsTr("Destination file path")
-            }
-            Button {
-                id: open_output_file_btn
-                anchors {
-                    left: output_file_text_field.right
-                    leftMargin: open_input_file_btn.anchors.leftMargin
-                    verticalCenter: output_file_text_field.verticalCenter
-                }
-                visible: false
-                height: open_input_file_btn.height
-                text: qsTr("Create")
             }
         }
         GroupBox {
@@ -352,19 +350,18 @@ Page {
                             Image_provider.start_video_running()
                             video_capture.start(input_file_text_field.text, output_file_text_field.text)
                             start_btn.flag = false
-                            stop_btn.enabled = true
                         }
                     }
                     Button {
                         id: stop_btn
                         text: qsTr("Stop")
-                        enabled: false
+                        enabled: input_file_text_field.text !== "" && output_file_text_field.text !== "" && !start_btn.flag
                         width: start_btn.width
                         height: start_btn.height
                         onClicked: {
-                            start_btn.flag = true
-                            video_capture.stop()
                             Image_provider.stop_video_running()
+                            video_capture.stop()
+                            img.curr_image = Math.random().toString()
 
                             video_duration.video_duration_ = 0
                             count_of_frames.count_of_frames_ = 0

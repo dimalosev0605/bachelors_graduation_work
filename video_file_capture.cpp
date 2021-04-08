@@ -250,8 +250,8 @@ void Video_file_capture::start(const QString &some_in_file_path, const QString &
     });
 
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-    connect(thread, &QThread::finished, this, &Video_file_capture::safe_destroy_slot);
     connect(thread, &QThread::finished, this, &Video_file_capture::worker_thread_finished);
+    connect(thread, &QThread::finished, this, &Video_file_capture::safe_destroy_slot);
     thread->start();
 }
 
@@ -262,8 +262,8 @@ void Video_file_capture::stop()
 
 void Video_file_capture::exit()
 {
-    set_is_running(false);
     is_destroy = true;
+    set_is_running(false);
 }
 
 void Video_file_capture::set_threshold(const double some_threshold)
