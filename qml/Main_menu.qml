@@ -12,6 +12,8 @@ import "../qml/main_menu_pages/photos"
 import "../qml/main_menu_pages/webcam"
 import "../qml/main_menu_pages/settings"
 import "../qml/main_menu_pages/video"
+import "../qml/main_menu_pages/about"
+import "../qml/main_menu_pages/help"
 
 Page {
     Material.theme: Style_control.is_dark_mode_on ? Material.Dark : Material.Light
@@ -49,6 +51,14 @@ Page {
     Component {
         id: settings_comp
         Settings {}
+    }
+    Component {
+        id: about_comp
+        About {}
+    }
+    Component {
+        id: help_comp
+        Help {}
     }
 
     FileDialog {
@@ -134,12 +144,15 @@ Page {
             ListElement {
                 text: qsTr("About")
                 img_source: ""
+                action: function() {
+                    stack_view.push(about_comp, StackView.Immediate)
+                }
             }
             ListElement {
                 text: qsTr("Help")
                 img_source: ""
                 action: function() {
-                    console.log("Help")
+                    stack_view.push(help_comp, StackView.Immediate)
                 }
             }
             ListElement {
