@@ -62,7 +62,7 @@ Page {
     <h2>Acronyms meaning and description</h2>
     <p>HOG - Histogram of Oriented Gradients. Fast but not very precise method for face detection.</p>
     <p>CNN - Convolutional Neural Network. Very precise method for face detection. It is slow on CPU but very fast on GPU with CUDA architecture.</p>
-    <p>Pyr up - scale up the image in factor of two. You can use if you want to detect small faces. But if you increase the size of the image you increase the time for processing it.</p>
+    <p>Pyr up - scale up the image in factor of two. You can use it if you want to detect small faces. But if you increase the size of the image you increase the time for processing it.</p>
     <p>Pyr down - scale down the image in factor of two. You can use it if you want to decrease the processing time of the image.</p>
     <h2>Face recognition precision adjusting</h2>
     <p>You can use slider for adjusting precision for face recognition. Minimum value - 0. Maximum value - 1. Lower the value greater the precision. Optimal value for recognition lays between 0.5 and 0.6 including.</p>
