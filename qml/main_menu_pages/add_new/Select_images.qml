@@ -115,7 +115,6 @@ Page {
             rightMargin: back_btn.anchors.leftMargin
         }
         text: qsTr("Next")
-        width: back_btn.width
         height: back_btn.height
         onClicked: {
             if(selected_imgs_list_view.count > 0) {

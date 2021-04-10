@@ -52,7 +52,7 @@ void Individual_file_manager::set_individual_name(const QString& some_name, cons
         const auto descriptors = descriptors_dir.entryInfoList();
 
         if(sources.size() != extracted_faces.size() || sources.size() != descriptors.size() || extracted_faces.size() != descriptors.size()) {
-            qDebug() << "pizda";
+            qDebug() << "some directories not equal.";
             return;
         }
         QVector<std::tuple<QString, QString, QString>> loaded_data;
@@ -133,7 +133,7 @@ bool Individual_file_manager::delete_face(const int index)
         return true;
     }
     else {
-        qDebug() << "Deletion error.";
+        qDebug() << "Remove error.";
         return false;
     }
 }

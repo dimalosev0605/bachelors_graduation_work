@@ -216,7 +216,7 @@ void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id,
     if(worker_thread_id == some_worker_thread_id) {
         if(some_imgs.empty()) {
             set_is_busy_indicator_running(false);
-            emit message("We did not find any faces");
+            emit message(tr("No faces found"));
             return;
         }
         for(std::size_t i = 0; i < some_imgs.size(); ++i) {

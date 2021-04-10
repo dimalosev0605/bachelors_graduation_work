@@ -426,7 +426,7 @@ Page {
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
                     property real video_duration_
-                    text: qsTr("Video duration: ") + video_duration_.toFixed(1)
+                    text: qsTr("Video duration: ") + video_duration_.toFixed(1) + qsTr(" secs.")
                 }
                 Label {
                     id: count_of_frames

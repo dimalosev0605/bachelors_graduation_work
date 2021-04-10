@@ -11,12 +11,12 @@ void Default_dir_creator::create_default_dirs() const
     if(!dir.exists(dir_paths.app_data())) {
         if(dir.mkdir(dir_paths.app_data())) {
             if(!dir.mkdir(dir_paths.people())) {
-                emit message("Unable to create necessary directories for application.");
+                emit message(tr("Unable to create necessary directories for application."));
                 QTimer::singleShot(2000, this, &Default_dir_creator::close_app);
             }
         }
         else {
-            emit message("Unable to create necessary directories for application.");
+            emit message(tr("Unable to create necessary directories for application."));
             QTimer::singleShot(2000, this, &Default_dir_creator::close_app);
         }
     }

@@ -50,7 +50,8 @@ Page {
              textFormat: Text.RichText
              onLinkActivated: Qt.openUrlExternally(link)
              text:
-    '
+    qsTr
+    ('
     <h1>Face2Name Desktop</h1>
     <p>version 1.0</p>
     <p>Free application for face recognition from images, videos and webcam streams.</p>
@@ -62,7 +63,7 @@ Page {
     <li><a href="https://opencv.org/">OpenCv</a></li>
     <p>Author: Dmitriy Losev.</p>
     <p>For any questions: dimalosev0605@gmail.com</p>
-    '
+    ')
         }
     }
 }

@@ -100,7 +100,6 @@ Page {
             rightMargin: back_btn.anchors.leftMargin
         }
         height: back_btn.height
-        width: back_btn.width
         text: qsTr("Next")
         enabled: false
         onClicked: {

@@ -16,7 +16,7 @@ bool Individual_checker::check_individual_existence(const QString& some_name) co
 {
     QDir dir(dir_paths.people());
     if(dir.exists(some_name)) {
-        emit message(QString("\"%1\" already exists.").arg(some_name));
+        emit message(tr("\"%1\" already exists.").arg(some_name));
         return true;
     }
     else {
@@ -36,18 +36,18 @@ bool Individual_checker::create_individual_dirs() const
     QDir dir(dir_paths.people());
     if(dir.mkdir(name)) {
         if(dir.mkdir(sources_path) && dir.mkdir(extracted_faces_path) && dir.mkdir(face_descriptors_path)) {
-            emit message(QString("\"%1\" was created!").arg(name));
+            emit message(tr("\"%1\" was created!").arg(name));
             return true;
         }
         else {
             dir.setPath(dir_path);
             dir.removeRecursively();
-            emit message(QString("Unable to create necessary directories for \"%1\".").arg(name));
+            emit message(tr("Unable to create necessary directories for \"%1\".").arg(name));
             return false;
         }
     }
     else {
-        emit message(QString("Unable to create necessary directories for \"%1\".").arg(name));
+        emit message(tr("Unable to create necessary directories for \"%1\".").arg(name));
         return false;
     }
 }

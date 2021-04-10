@@ -50,7 +50,8 @@ Page {
              textFormat: Text.RichText
              onLinkActivated: Qt.openUrlExternally(link)
              text:
-    '
+    qsTr
+    ('
     <h1>How to use this application?</h1>
     <ol>
     <li>Add some people</li>
@@ -65,7 +66,7 @@ Page {
     <p>Pyr down - scale down the image in factor of two. You can use it if you want to decrease the processing time of the image.</p>
     <h2>Face recognition precision adjusting</h2>
     <p>You can use slider for adjusting precision for face recognition. Minimum value - 0. Maximum value - 1. Lower the value greater the precision. Optimal value for recognition lays between 0.5 and 0.6 including.</p>
-    '
+    ')
         }
     }
 }

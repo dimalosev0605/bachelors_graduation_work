@@ -146,7 +146,7 @@ void Image_handler_worker::search_target_face(const int some_worker_thread_id, d
     const auto rects_around_faces = local_hog_face_detector.operator()(local_img);
 
     if(rects_around_faces.empty()) {
-        emit message("We did not find any faces on the image.", some_worker_thread_id);
+        emit message(tr("No faces found"), some_worker_thread_id);
         QThread::currentThread()->exit();
         return;
     }
@@ -209,7 +209,7 @@ void Image_handler_worker::handle_remaining_images(const int some_worker_thread_
     std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>> res; // 1 - original image, 2 - extracted face.
 
     for(std::size_t i = 0; i < selected_imgs.size(); ++i) {
-        emit message(QString("Processing image %1 of %2").arg(i + 1).arg(selected_imgs.size()), some_worker_thread_id);
+        emit message(tr("Processing image %1 of %2").arg(i + 1).arg(selected_imgs.size()), some_worker_thread_id);
 
         auto rects_around_faces = local_hog_face_detector.operator()(selected_imgs[i]);
         if(rects_around_faces.empty()) continue;
@@ -274,54 +274,6 @@ void Image_handler_worker::selected_people_initializing(QVector<QString>& some_s
 
     emit selected_people_initialized(known_people);
     QThread::currentThread()->exit();
-
-    /*
-    const auto local_selected_people = std::move(some_selected_people);
-
-    face_recognition_dnn_type face_recognition_dnn;
-    dlib::deserialize("dlib_face_recognition_resnet_model_v1.dat") >> face_recognition_dnn;
-
-    std::map<dlib::matrix<float, 0, 1>, std::string> known_people;
-
-    std::vector<dlib::matrix<dlib::rgb_pixel>> imgs;
-    std::vector<std::string> names;
-
-    Dir_paths dir_paths;
-    for(int i = 0; i < local_selected_people.size(); ++i) {
-        const QString extracted_faces_path = dir_paths.people() + '/' + local_selected_people[i] + '/' + Dir_names::Individual::extracted_faces;
-        qDebug() << local_selected_people[i] << "; " << extracted_faces_path;
-
-        dlib::directory extr_faces_dir(extracted_faces_path.toStdString());
-
-        auto files = extr_faces_dir.get_files();
-        for(const auto& file: files) {
-            dlib::matrix<dlib::rgb_pixel> img;
-            dlib::load_image(img, file.full_name());
-            imgs.push_back(std::move(img));
-            names.push_back(local_selected_people[i].toStdString());
-            qDebug() << "Loaded: "
-                     << QString(file.full_name().c_str())
-                     << local_selected_people[i];
-        }
-    }
-
-    if(imgs.size() != names.size()) {
-        qDebug() << "Error.";
-        return;
-    }
-
-    std::vector<dlib::matrix<float, 0, 1>> face_descriptors;
-    face_descriptors = face_recognition_dnn(imgs);
-
-    for(std::size_t i = 0; i < names.size(); ++i) {
-        known_people[face_descriptors[i]] = names[i];
-    }
-
-    qDebug() << "known_people filling finised.";
-
-    emit selected_people_initialized(known_people);
-    QThread::currentThread()->exit();
-    */
 }
 
 void Image_handler_worker::hog_2(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, const unsigned long face_chip_size, const double face_chip_padding)
