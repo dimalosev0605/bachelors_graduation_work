@@ -23,6 +23,21 @@ Page {
             stack_view.pop(StackView.Immediate)
         }
     }
+    Switch {
+        id: run_on_startup_switch
+        text: qsTr("Run on startup")
+        anchors {
+            right: parent.right
+            rightMargin: back_btn.anchors.leftMargin
+            bottom: parent.bottom
+            bottomMargin: back_btn.anchors.bottomMargin
+        }
+        height: back_btn.height
+        checked: Password_manager.get_run_on_startup()
+        onClicked: {
+            Password_manager.set_run_on_startup(checked)
+        }
+    }
     Connections {
         id: password_manager_connection
         target: Password_manager

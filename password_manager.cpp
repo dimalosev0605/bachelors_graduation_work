@@ -4,10 +4,10 @@ Password_manager::Password_manager(QObject *parent) : QObject(parent)
 {
     QSettings settings("app_settings.ini", QSettings::IniFormat);
     is_set = settings.value("Password/is_set").toString().toInt() == 0 ? false : true;
-    qDebug() << "is_set = " << is_set;
     if(is_set) {
         saved_password = settings.value("Password/password").toString();
     }
+    is_run_on_startup = settings.value("Run_on_startup/flag").toInt() == 0 ? false : true;
 }
 
 void Password_manager::set_password(const QString &some_password)
@@ -51,5 +51,18 @@ bool Password_manager::check_password(const QString& some_password)
     else {
         return true;
     }
+}
+
+bool Password_manager::get_run_on_startup() const
+{
+    return is_run_on_startup;
+}
+
+void Password_manager::set_run_on_startup(bool some_value)
+{
+    is_run_on_startup = some_value;
+    QSettings settings("app_settings.ini", QSettings::IniFormat);
+    const int value = some_value ? 1 : 0;
+    settings.setValue("Run_on_startup/flag", value);
 }
 

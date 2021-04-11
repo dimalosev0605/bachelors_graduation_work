@@ -46,6 +46,7 @@ Page {
         }
         height: 30
         text: qsTr("Ok")
+        enabled: password_input.text !== ""
         onClicked: {
             if(Password_manager.check_password(password_input.text.toString())) {
                 stack_view.pop(StackView.Immediate)
