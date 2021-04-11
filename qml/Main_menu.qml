@@ -26,7 +26,16 @@ Page {
         default_dir_creator.create_default_dirs()
         if(Style_control.get_is_style_changed()) {
             stack_view.push(settings_comp, StackView.Immediate)
+            return
         }
+        if(Password_manager.is_password_set()) {
+            stack_view.push(startup_password_input_comp, StackView.Immediate)
+            return
+        }
+    }
+    Component {
+        id: startup_password_input_comp
+        Startup_password_input {}
     }
     Component {
         id: nickname_input_comp

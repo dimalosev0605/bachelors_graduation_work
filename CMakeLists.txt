@@ -79,6 +79,9 @@ add_executable(face_rec_diplom
 
   video_file_capture.h
   video_file_capture.cpp
+
+  password_manager.h
+  password_manager.cpp
 )
 
 

@@ -20,6 +20,7 @@
 #include "style_control.h"
 #include "language_switcher.h"
 #include "video_file_capture.h"
+#include "password_manager.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +39,9 @@ int main(int argc, char *argv[])
 
     Language_switcher* language_switcher = new Language_switcher(engine);
     engine.rootContext()->setContextProperty("Language_switcher", language_switcher);
+
+    Password_manager* password_manager = new Password_manager();
+    engine.rootContext()->setContextProperty("Password_manager", password_manager);
 
     app.setOrganizationName("lol");
     app.setOrganizationDomain("kek");

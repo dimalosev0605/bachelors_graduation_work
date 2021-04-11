@@ -32,5 +32,6 @@
         <file>qml/main_menu_pages/video/Recognition.qml</file>
         <file>qml/main_menu_pages/about/About.qml</file>
         <file>qml/main_menu_pages/help/Help.qml</file>
+        <file>qml/Startup_password_input.qml</file>
     </qresource>
 </RCC>
