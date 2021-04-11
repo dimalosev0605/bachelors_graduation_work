@@ -180,12 +180,12 @@ faces</source>
     <message>
         <location filename="../qml/main_menu_pages/people/Edit_individual.qml" line="434"/>
         <source>pyr up</source>
-        <translation>Увел.</translation>
+        <translation>pyr up</translation>
     </message>
     <message>
         <location filename="../qml/main_menu_pages/people/Edit_individual.qml" line="443"/>
         <source>pyr down</source>
-        <translation>Уменьш.</translation>
+        <translation>pyr down</translation>
     </message>
     <message>
         <location filename="../qml/main_menu_pages/people/Edit_individual.qml" line="453"/>
@@ -350,57 +350,57 @@ faces</source>
 <context>
     <name>Main_menu</name>
     <message>
-        <location filename="../qml/Main_menu.qml" line="66"/>
+        <location filename="../qml/Main_menu.qml" line="75"/>
         <source>Please choose files</source>
         <translation>Пожалуйста, выберите файлы</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="75"/>
+        <location filename="../qml/Main_menu.qml" line="84"/>
         <source>Information</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="103"/>
+        <location filename="../qml/Main_menu.qml" line="112"/>
         <source>People</source>
         <translation>Люди</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="110"/>
+        <location filename="../qml/Main_menu.qml" line="119"/>
         <source>Add new</source>
         <translation>Добавить нового</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="117"/>
+        <location filename="../qml/Main_menu.qml" line="126"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="124"/>
+        <location filename="../qml/Main_menu.qml" line="133"/>
         <source>Web cam</source>
         <translation>Веб камера</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="131"/>
+        <location filename="../qml/Main_menu.qml" line="140"/>
         <source>Photos</source>
         <translation>Фотографии</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="138"/>
+        <location filename="../qml/Main_menu.qml" line="147"/>
         <source>Video</source>
         <translation>Видео</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="145"/>
+        <location filename="../qml/Main_menu.qml" line="154"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="152"/>
+        <location filename="../qml/Main_menu.qml" line="161"/>
         <source>Help</source>
         <translation>Помощь</translation>
     </message>
     <message>
-        <location filename="../qml/Main_menu.qml" line="159"/>
+        <location filename="../qml/Main_menu.qml" line="168"/>
         <source>Exit</source>
         <translation>Выход</translation>
     </message>
@@ -426,6 +426,14 @@ faces</source>
         <location filename="../qml/main_menu_pages/add_new/Nickname_input.qml" line="103"/>
         <source>Next</source>
         <translation>Далее</translation>
+    </message>
+</context>
+<context>
+    <name>Password_manager</name>
+    <message>
+        <location filename="../password_manager.cpp" line="28"/>
+        <source>Wrong password</source>
+        <translation>Неверный пароль</translation>
     </message>
 </context>
 <context>
@@ -459,12 +467,12 @@ faces</source>
     <message>
         <location filename="../qml/main_menu_pages/add_new/Process_images.qml" line="435"/>
         <source>pyr up</source>
-        <translation>Увел.</translation>
+        <translation>pyr up</translation>
     </message>
     <message>
         <location filename="../qml/main_menu_pages/add_new/Process_images.qml" line="444"/>
         <source>pyr down</source>
-        <translation>Уменьш.</translation>
+        <translation>pyr down</translation>
     </message>
     <message>
         <location filename="../qml/main_menu_pages/add_new/Process_images.qml" line="454"/>
@@ -529,12 +537,12 @@ faces</source>
     <message>
         <location filename="../qml/main_menu_pages/photos/Recognition.qml" line="351"/>
         <source>pyr up</source>
-        <translation>Увел.</translation>
+        <translation>pyr up</translation>
     </message>
     <message>
         <location filename="../qml/main_menu_pages/photos/Recognition.qml" line="360"/>
         <source>pyr down</source>
-        <translation>Уменьш.</translation>
+        <translation>pyr down</translation>
     </message>
     <message>
         <location filename="../qml/main_menu_pages/photos/Recognition.qml" line="370"/>
@@ -882,49 +890,115 @@ faces</source>
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="60"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="28"/>
+        <source>Run on startup</source>
+        <translation>Открывать при запуске</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="83"/>
         <source>Style</source>
         <translation>Стиль</translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="70"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="93"/>
         <source>Default</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="70"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="93"/>
         <source>Material</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="70"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="93"/>
         <source>Universal</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="81"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="104"/>
         <source>Dark mode</source>
         <translation>Ночной режим</translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="113"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="136"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="123"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="146"/>
         <source>Russian</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="123"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="146"/>
         <source>English</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="123"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="146"/>
         <source>French</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="175"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="276"/>
+        <source>Security</source>
+        <translation>Безопасность</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="179"/>
+        <source>Ask for a password at startup</source>
+        <translation>Запрашивать пароль при запуске</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="202"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="306"/>
+        <source>Enter password</source>
+        <translation>Введите пароль</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="220"/>
+        <source>Passwords don&apos;t match</source>
+        <translation>Пароли не совпадают</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="233"/>
+        <source>Enter password again</source>
+        <translation>Введите пароль ещё раз</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="244"/>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="319"/>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <location filename="../qml/main_menu_pages/settings/Settings.qml" line="286"/>
+        <source>Disable password at startup</source>
+        <translation>Отключить пароль на запуск</translation>
+    </message>
+</context>
+<context>
+    <name>Startup_password_input</name>
+    <message>
+        <location filename="../qml/Startup_password_input.qml" line="24"/>
+        <source>Wrong password</source>
+        <translation>Неверный пароль</translation>
+    </message>
+    <message>
+        <location filename="../qml/Startup_password_input.qml" line="36"/>
+        <source>Enter password</source>
+        <translation>Введите пароль</translation>
+    </message>
+    <message>
+        <location filename="../qml/Startup_password_input.qml" line="48"/>
+        <source>Ok</source>
+        <translation>Ok</translation>
+    </message>
+    <message>
+        <location filename="../qml/Startup_password_input.qml" line="68"/>
+        <source>Exit</source>
+        <translation>Выход</translation>
     </message>
 </context>
 </TS>
