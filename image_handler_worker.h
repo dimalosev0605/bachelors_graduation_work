@@ -44,7 +44,7 @@ signals:
     void img_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img);
     void message(const QString& some_message, const int some_worker_thread_id);
     void target_faces_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int number_of_faces);
-    void remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs);
+    void remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>& some_imgs);
     void selected_people_initialized(std::map<dlib::matrix<float, 0, 1>, std::string>& some_selected_people);
 
     // signals for recognition_image_handler

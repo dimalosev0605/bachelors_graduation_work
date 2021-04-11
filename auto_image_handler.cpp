@@ -211,7 +211,7 @@ void Auto_image_handler::handle_remaining_images(const QVector<QString>& some_se
     emit start_handle_remaining_images(++worker_thread_id, hog_face_detector, shape_predictor, face_recognition_dnn, imgs.back(), some_selected_imgs_paths, face_chip_size, face_chip_padding);
 }
 
-void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs)
+void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>& some_imgs)
 {
     if(worker_thread_id == some_worker_thread_id) {
         if(some_imgs.empty()) {
@@ -221,7 +221,8 @@ void Auto_image_handler::remaining_images_ready(const int some_worker_thread_id,
         }
         for(std::size_t i = 0; i < some_imgs.size(); ++i) {
             emit image_ready(Image_data(dlib::image_data(std::get<0>(some_imgs[i])), std::get<0>(some_imgs[i]).nc(), std::get<0>(some_imgs[i]).nr()),
-                             Image_data(dlib::image_data(std::get<1>(some_imgs[i])), std::get<1>(some_imgs[i]).nc(), std::get<1>(some_imgs[i]).nr()));
+                             Image_data(dlib::image_data(std::get<1>(some_imgs[i])), std::get<1>(some_imgs[i]).nc(), std::get<1>(some_imgs[i]).nr()),
+                             std::get<2>(some_imgs[i]));
         }
         emit all_remaining_images_received();
         set_is_busy_indicator_running(false);

@@ -206,7 +206,7 @@ void Image_handler_worker::handle_remaining_images(const int some_worker_thread_
         selected_imgs.push_back(std::move(img));
     }
 
-    std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>> res; // 1 - original image, 2 - extracted face.
+    std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>> res; // 1 - original image, 2 - extracted face, 3 - face descriptor.
 
     for(std::size_t i = 0; i < selected_imgs.size(); ++i) {
         emit message(tr("Processing image %1 of %2").arg(i + 1).arg(selected_imgs.size()), some_worker_thread_id);
@@ -226,7 +226,7 @@ void Image_handler_worker::handle_remaining_images(const int some_worker_thread_
 
         for(std::size_t j = 0; j < face_descriptors.size(); ++j) {
             if(dlib::length(face_descriptors[j] - target_face_descriptor) < face_recognition_threshold) {
-                res.push_back(std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>(selected_imgs[i], processed_faces[j]));
+                res.push_back(std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>(selected_imgs[i], processed_faces[j], face_descriptors[j]));
             }
         }
     }

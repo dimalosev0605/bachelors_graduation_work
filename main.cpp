@@ -83,8 +83,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<std::vector<dlib::rectangle>>("std::vector<dlib::rectangle>");
     qRegisterMetaType<std::vector<dlib::rectangle>>("std::vector<dlib::rectangle>&");
 
-    qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>");
-    qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>&");
+    qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>");
+    qRegisterMetaType<std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>>("std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>&");
 
     qRegisterMetaType<std::tuple<QString, QString, int>>("std::tuple<QString, QString, int>");
     qRegisterMetaType<std::tuple<QString, QString, int>>("std::tuple<QString, QString, int>&");

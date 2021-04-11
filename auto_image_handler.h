@@ -54,7 +54,7 @@ private slots:
     void target_face_ready(const int some_worker_thread_id, dlib::matrix<dlib::rgb_pixel>& some_img, const int number_of_faces);
     void receive_message(const QString& some_message, const int some_worker_thread_id);
     void receive_progress_message(const QString& some_message, const int some_worker_thread_id);
-    void remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>>>& some_imgs);
+    void remaining_images_ready(const int some_worker_thread_id, std::vector<std::tuple<dlib::matrix<dlib::rgb_pixel>, dlib::matrix<dlib::rgb_pixel>, dlib::matrix<float, 0, 1>>>& some_imgs);
 
 public:
     explicit Auto_image_handler(QObject *parent = nullptr);
@@ -92,7 +92,7 @@ signals:
     void image_data_ready(const Image_data& some_img_data);
     void message(const QString& some_message);
     void start_handle_remaining_images(const int some_worker_thread_id, hog_face_detector_type& some_hog_face_detector, dlib::shape_predictor& some_shape_predictor, face_recognition_dnn_type& some_face_recognition_dnn, dlib::matrix<dlib::rgb_pixel>& some_target_face_img , const QVector<QString>& some_selected_imgs_paths, const unsigned long face_chip_size, const double face_chip_padding);
-    void image_ready(const Image_data& some_source_img_data, const Image_data& some_extracted_face_image_data);
+    void image_ready(const Image_data& some_source_img_data, const Image_data& some_extracted_face_image_data, const dlib::matrix<float, 0, 1>& some_face_descriptor);
     void all_remaining_images_received();
     void current_progress(const QString& some_progress);
 };

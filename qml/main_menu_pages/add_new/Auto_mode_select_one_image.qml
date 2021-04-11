@@ -59,7 +59,7 @@ Page {
             message_dialog.open()
         }
         onImage_ready: {
-            individual_file_manager.add_face(some_source_img_data, some_extracted_face_image_data)
+            individual_file_manager.add_face(some_source_img_data, some_extracted_face_image_data, some_face_descriptor)
         }
         onAll_remaining_images_received: {
             stack_view.push(check_auto_retrieved_images_comp, StackView.Immediate)
